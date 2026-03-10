@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Empresa | AdminOps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        const token = localStorage.getItem('kokoro_admin_token');
+        const user = JSON.parse(localStorage.getItem('kokoro_admin_user') || '{}');
+
+        if (!token) {
+            window.location.href = "../login.html";
+        }
+
+        function logout() {
+            localStorage.removeItem('kokoro_admin_token');
+            localStorage.removeItem('kokoro_admin_user');
+            window.location.href = "../login.html";
+        }
+    </script>
+    <style>
+        .step-hidden {
+            display: none;
+        }
+
+        .wizard-step-active {
+            color: #2563eb;
+            font-weight: bold;
+        }
+
+        .wizard-step-inactive {
+            color: #9ca3af;
+        }
+
+        .wizard-line-active {
+            background-color: #3b82f6;
+        }
+
+        .wizard-line-inactive {
+            background-color: #e5e7eb;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <header class="bg-black text-white border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-6">
+                    <a href="../dashboard/index.html" class="flex items-center gap-2">
+                        <div
+                            class="w-8 h-8 bg-white text-black font-bold rounded flex items-center justify-center text-sm">
+                            K</div>
+                        <span class="font-semibold text-lg tracking-tight hidden sm:block">AdminOps</span>
+                    </a>
+                    <nav class="hidden md:flex gap-4 ml-8">
+                        <a href="../dashboard/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Dashboard</a>
+                        <a href="index.html"
+                            class="text-white px-3 py-2 text-sm font-medium transition-colors border-b-2 border-white">Empresas</a>
+                        <a href="../pruebas/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Catálogo
+                            de Pruebas</a>
+                        <a href="../config/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Configuración</a>
+                    </nav>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-sm text-gray-300 hidden sm:block">
+                        <span id="headerName">...</span> <span class="text-gray-500" id="headerRole"></span>
+                    </div>
+                    <button onclick="logout()"
+                        class="text-sm text-gray-400 hover:text-white transition-colors">Salir</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+        <div class="mb-8 flex items-center gap-3">
+            <a href="index.html"
+                class="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-500 hover:text-black transition-colors">
+                <i class="ph ph-arrow-left"></i>
+            </a>
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900">Registrar Nueva Empresa</h1>
+                <p class="mt-1 text-sm text-gray-500">Completa el wizard para aprovisionar un nuevo entorno de cliente.
+                </p>
+            </div>
+        </div>
+
+        <!-- Wizard Progress -->
+        <nav aria-label="Progress">
+            <ol role="list" class="flex items-center mb-10">
+                <!-- Step 1 Info -->
+                <li class="relative pr-8 sm:pr-20">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div class="h-0.5 w-full bg-blue-600" id="line-1"></div>
+                    </div>
+                    <div class="relative flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 hover:bg-blue-900"
+                        id="circle-1">
+                        <i class="ph ph-buildings text-white"></i>
+                    </div>
+                </li>
+                <!-- Step 2 User -->
+                <li class="relative pr-8 sm:pr-20">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div class="h-0.5 w-full bg-gray-200" id="line-2"></div>
+                    </div>
+                    <div class="relative flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 border-2 border-white"
+                        id="circle-2">
+                        <i class="ph ph-user text-gray-500" id="icon-2"></i>
+                    </div>
+                </li>
+                <!-- Step 3 Contract -->
+                <li class="relative">
+                    <div class="relative flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 border-2 border-white"
+                        id="circle-3">
+                        <i class="ph ph-file-text text-gray-500" id="icon-3"></i>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <div class="bg-white px-8 py-10 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+            <form id="wizardForm">
+
+                <!-- STEP 1: Empresa -->
+                <div id="step1" class="space-y-6">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <i class="ph ph-buildings text-blue-600"></i> Datos de la Empresa
+                        </h2>
+                        <p class="text-sm text-gray-500 mb-6">Información legal y general de la organización.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-6">
+                        <div class="sm:col-span-4">
+                            <label class="block text-sm font-medium text-gray-900">Razón Social / Nombre de Fantasía
+                                *</label>
+                            <input type="text" id="cName" required class="mt-1 form-input w-full">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-medium text-gray-900">RUC / Identificación Legal</label>
+                            <input type="text" id="cRfc" class="mt-1 form-input w-full">
+                        </div>
+                        <div class="sm:col-span-6">
+                            <label class="block text-sm font-medium text-gray-900">País</label>
+                            <input type="text" id="cCountry" class="mt-1 form-input w-full" placeholder="Ej: Ecuador">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Usuario Admin -->
+                <div id="step2" class="step-hidden space-y-6">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <i class="ph ph-user text-blue-600"></i> Administrador Principal (Root)
+                        </h2>
+                        <p class="text-sm text-gray-500 mb-6">Esta cuenta tendrá acceso total al entorno del cliente
+                            para gestionar todo el sistema.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-6">
+                        <div class="sm:col-span-3">
+                            <label class="block text-sm font-medium text-gray-900">Nombre Completo *</label>
+                            <input type="text" id="uName" required class="mt-1 form-input w-full">
+                        </div>
+                        <div class="sm:col-span-3">
+                            <label class="block text-sm font-medium text-gray-900">Cargo</label>
+                            <input type="text" id="uRole" value="CEO / Director" class="mt-1 form-input w-full">
+                        </div>
+                        <div class="sm:col-span-3">
+                            <label class="block text-sm font-medium text-gray-900">Correo Electrónico (Login) *</label>
+                            <input type="email" id="uEmail" required class="mt-1 form-input w-full">
+                        </div>
+                        <div class="sm:col-span-3">
+                            <label class="block text-sm font-medium text-gray-900">Contraseña *</label>
+                            <input type="text" id="uPass" required minlength="6" class="mt-1 form-input w-full">
+                            <p class="text-[11px] text-gray-400 mt-1">Guarda temporalmente esta contraseña para
+                                enviársela al cliente.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3: Contrato & Plan -->
+                <div id="step3" class="step-hidden space-y-6">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <i class="ph ph-file-text text-blue-600"></i> Plan y Facturación
+                        </h2>
+                        <p class="text-sm text-gray-500 mb-6">Configura el ecosistema de consumo que tendrá esta empresa
+                            en Kokoro.</p>
+                    </div>
+
+                    <div
+                        class="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-6 border border-gray-100 p-5 rounded-lg bg-gray-50">
+
+                        <div class="col-span-full">
+                            <label class="block text-sm font-bold text-gray-900 mb-2">Tipo de Plan *</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <label
+                                    class="border-2 border-blue-500 bg-blue-50 rounded-lg p-4 cursor-pointer relative"
+                                    id="optCredits" onclick="selectPlan('PAY_PER_USE')">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-4 h-4 rounded-full border-4 border-blue-500 bg-white"
+                                            id="radioCredits"></div>
+                                        <div class="font-bold text-blue-900">Pago por Consumo (Créditos)</div>
+                                    </div>
+                                    <p class="text-xs text-blue-700 mt-2 ml-7">La empresa gasta créditos por candidato
+                                        invitado o prueba rendida.</p>
+                                    <input type="radio" name="planType" value="PAY_PER_USE" class="hidden" checked>
+                                </label>
+
+                                <label
+                                    class="border-2 border-gray-200 bg-white hover:bg-gray-50 rounded-lg p-4 cursor-pointer relative"
+                                    id="optUnlimited" onclick="selectPlan('UNLIMITED')">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-4 h-4 rounded-full border border-gray-300 bg-white"
+                                            id="radioUnlimited"></div>
+                                        <div class="font-bold text-gray-700">Subscripción Premium (Ilimitado)</div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2 ml-7">Pruebas ilimitadas durante el periodo del
+                                        contrato establecido.</p>
+                                    <input type="radio" name="planType" value="UNLIMITED" class="hidden">
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-3 transition-opacity" id="creditsBox">
+                            <label class="block text-sm font-medium text-gray-900">Créditos de Apertura *</label>
+                            <input type="number" id="cCredits" value="50" min="0"
+                                class="mt-1 form-input w-full font-mono text-lg text-blue-600">
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <label class="block text-sm font-medium text-gray-900">Vigencia del Contrato Hasta *</label>
+                            <input type="date" id="cEndDate" required class="mt-1 form-input w-full">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ALERTA DE ERROR GLOBAL -->
+                <div id="submitAlert" class="mt-6 alert-error hidden"></div>
+
+                <!-- BUTTONS -->
+                <div class="mt-8 flex items-center justify-between border-t border-gray-100 pt-6">
+                    <button type="button" id="btnPrev"
+                        class="hidden px-5 py-2.5 rounded-md bg-white font-medium text-gray-700 hover:bg-gray-50 border border-gray-200">
+                        Regresar
+                    </button>
+                    <button type="button" id="btnNext"
+                        class="px-5 py-2.5 rounded-md bg-black text-white font-semibold shadow hover:bg-gray-800 ml-auto flex items-center gap-2">
+                        Siguiente <i class="ph ph-arrow-right"></i>
+                    </button>
+                    <button type="submit" id="btnSubmit"
+                        class="hidden px-6 py-2.5 rounded-md bg-blue-600 text-white font-bold shadow hover:bg-blue-700 ml-auto flex items-center gap-2">
+                        Crear Plataforma <i class="ph ph-check-circle text-xl"></i>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </main>
+
+    <script>
+        document.getElementById('headerName').textContent = user.name;
+        document.getElementById('headerRole').textContent = `(${user.role})`;
+
+        // Default Date (1 year from now)
+        const nextYear = new Date();
+        nextYear.setFullYear(nextYear.getFullYear() + 1);
+        document.getElementById('cEndDate').value = nextYear.toISOString().split('T')[0];
+
+        // Wizard Logic
+        let currentStep = 1;
+
+        function updateUI() {
+            document.getElementById('step1').classList.add('step-hidden');
+            document.getElementById('step2').classList.add('step-hidden');
+            document.getElementById('step3').classList.add('step-hidden');
+
+            document.getElementById(`step${currentStep}`).classList.remove('step-hidden');
+
+            document.getElementById('btnPrev').classList.toggle('hidden', currentStep === 1);
+
+            if (currentStep === 3) {
+                document.getElementById('btnNext').classList.add('hidden');
+                document.getElementById('btnSubmit').classList.remove('hidden');
+            } else {
+                document.getElementById('btnNext').classList.remove('hidden');
+                document.getElementById('btnSubmit').classList.add('hidden');
+            }
+
+            // Update Progress Bar Circles
+            if (currentStep >= 2) {
+                document.getElementById('line-1').classList.remove('bg-gray-200');
+                document.getElementById('line-1').classList.add('bg-blue-600');
+
+                document.getElementById('circle-2').classList.remove('bg-gray-200', 'border-white');
+                document.getElementById('circle-2').classList.add('bg-blue-600');
+                document.getElementById('icon-2').classList.remove('text-gray-500');
+                document.getElementById('icon-2').classList.add('text-white');
+            } else {
+                document.getElementById('line-1').classList.remove('bg-blue-600');
+                document.getElementById('line-1').classList.add('bg-gray-200');
+
+                document.getElementById('circle-2').classList.add('bg-gray-200', 'border-white');
+                document.getElementById('circle-2').classList.remove('bg-blue-600');
+                document.getElementById('icon-2').classList.add('text-gray-500');
+                document.getElementById('icon-2').classList.remove('text-white');
+            }
+
+            if (currentStep === 3) {
+                document.getElementById('line-2').classList.remove('bg-gray-200');
+                document.getElementById('line-2').classList.add('bg-blue-600');
+
+                document.getElementById('circle-3').classList.remove('bg-gray-200', 'border-white');
+                document.getElementById('circle-3').classList.add('bg-blue-600');
+                document.getElementById('icon-3').classList.remove('text-gray-500');
+                document.getElementById('icon-3').classList.add('text-white');
+            } else {
+                document.getElementById('line-2').classList.remove('bg-blue-600');
+                document.getElementById('line-2').classList.add('bg-gray-200');
+
+                document.getElementById('circle-3').classList.add('bg-gray-200', 'border-white');
+                document.getElementById('circle-3').classList.remove('bg-blue-600');
+                document.getElementById('icon-3').classList.add('text-gray-500');
+                document.getElementById('icon-3').classList.remove('text-white');
+            }
+        }
+
+        document.getElementById('btnNext').addEventListener('click', () => {
+            // Very simple validation check before advancing
+            if (currentStep === 1 && !document.getElementById('cName').value) return alert("Razón Social obligatoria");
+            if (currentStep === 2 && (!document.getElementById('uName').value || !document.getElementById('uEmail').value || !document.getElementById('uPass').value)) return alert("Datos de usuario obligatorios");
+
+            if (currentStep < 3) {
+                currentStep++;
+                updateUI();
+            }
+        });
+
+        document.getElementById('btnPrev').addEventListener('click', () => {
+            if (currentStep > 1) {
+                currentStep--;
+                updateUI();
+            }
+        });
+
+        function selectPlan(plan) {
+            const optCred = document.getElementById('optCredits');
+            const optUnlim = document.getElementById('optUnlimited');
+            const radCred = document.getElementById('radioCredits');
+            const radUnlim = document.getElementById('radioUnlimited');
+            const inputs = document.getElementsByName('planType');
+            const cBox = document.getElementById('creditsBox');
+
+            if (plan === 'CREDITS') {
+                inputs[0].checked = true;
+                optCred.classList.add('border-blue-500', 'bg-blue-50');
+                optCred.classList.remove('border-gray-200', 'bg-white', 'hover:bg-gray-50');
+                radCred.classList.add('border-4', 'border-blue-500');
+                radCred.classList.remove('border', 'border-gray-300');
+
+                optUnlim.classList.remove('border-blue-500', 'bg-blue-50');
+                optUnlim.classList.add('border-gray-200', 'bg-white', 'hover:bg-gray-50');
+                radUnlim.classList.remove('border-4', 'border-blue-500');
+                radUnlim.classList.add('border', 'border-gray-300');
+
+                cBox.style.opacity = '1';
+                document.getElementById('cCredits').disabled = false;
+            } else {
+                inputs[1].checked = true;
+                optUnlim.classList.add('border-blue-500', 'bg-blue-50');
+                optUnlim.classList.remove('border-gray-200', 'bg-white', 'hover:bg-gray-50');
+                radUnlim.classList.add('border-4', 'border-blue-500');
+                radUnlim.classList.remove('border', 'border-gray-300');
+
+                optCred.classList.remove('border-blue-500', 'bg-blue-50');
+                optCred.classList.add('border-gray-200', 'bg-white', 'hover:bg-gray-50');
+                radCred.classList.remove('border-4', 'border-blue-500');
+                radCred.classList.add('border', 'border-gray-300');
+
+                cBox.style.opacity = '0.4';
+                document.getElementById('cCredits').disabled = true;
+            }
+        }
+
+        // Submit API Call
+        document.getElementById('wizardForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const alertBox = document.getElementById('submitAlert');
+            const btnSub = document.getElementById('btnSubmit');
+
+            alertBox.classList.add('hidden');
+            btnSub.disabled = true;
+            btnSub.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Procesando...';
+
+            const payload = {
+                company: {
+                    name: document.getElementById('cName').value,
+                    rfc: document.getElementById('cRfc').value,
+                    country: document.getElementById('cCountry').value
+                },
+                user: {
+                    name: document.getElementById('uName').value,
+                    role: document.getElementById('uRole').value,
+                    email: document.getElementById('uEmail').value,
+                    password: document.getElementById('uPass').value
+                },
+                contract: {
+                    planType: document.querySelector('input[name="planType"]:checked').value,
+                    initialCredits: document.getElementById('cCredits').value || 0,
+                    endDate: document.getElementById('cEndDate').value
+                }
+            };
+
+            try {
+                const res = await fetch('../../../api/admin/companies/create.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                if (!res.ok || !data.success) throw new Error(data.message || data.error || "Error creando entorno");
+
+                // Success! Redirect to index
+                window.location.href = `index.html?created=1`;
+
+            } catch (err) {
+                alertBox.textContent = err.message;
+                alertBox.classList.remove('hidden');
+                btnSub.disabled = false;
+                btnSub.innerHTML = 'Crear Plataforma <i class="ph ph-check-circle text-xl"></i>';
+            }
+        });
+
+    </script>
+</body>
+
+</html>

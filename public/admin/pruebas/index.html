@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca Global de Pruebas | AdminOps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        const token = localStorage.getItem('kokoro_admin_token');
+        const user = JSON.parse(localStorage.getItem('kokoro_admin_user') || '{}');
+
+        if (!token) {
+            window.location.href = "../login.html";
+        }
+
+        function logout() {
+            localStorage.removeItem('kokoro_admin_token');
+            localStorage.removeItem('kokoro_admin_user');
+            window.location.href = "../login.html";
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <header class="bg-black text-white border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Branding & nav -->
+                <div class="flex items-center gap-6">
+                    <a href="../dashboard/index.html" class="flex items-center gap-2">
+                        <div
+                            class="w-8 h-8 bg-white text-black font-bold rounded flex items-center justify-center text-sm">
+                            K</div>
+                        <span class="font-semibold text-lg tracking-tight hidden sm:block">AdminOps</span>
+                    </a>
+                    <nav class="hidden md:flex gap-4 ml-8">
+                        <a href="../dashboard/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Dashboard</a>
+                        <a href="../empresas/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Empresas</a>
+                        <a href="index.html"
+                            class="text-white px-3 py-2 text-sm font-medium transition-colors border-b-2 border-white">Catálogo
+                            de Pruebas</a>
+                        <a href="../config/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Configuración</a>
+                    </nav>
+                </div>
+                <!-- User profile & Logout -->
+                <div class="flex items-center gap-4">
+                    <div class="text-sm text-gray-300 hidden sm:block">
+                        <span id="headerName">...</span> <span class="text-gray-500" id="headerRole"></span>
+                    </div>
+                    <button onclick="logout()"
+                        class="text-sm text-gray-400 hover:text-white transition-colors">Salir</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Header Section -->
+        <div class="sm:flex sm:items-center sm:justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900">Catálogo Global de Pruebas</h1>
+                <p class="mt-2 text-sm text-gray-500">
+                    Administra la biblioteca maestra de pruebas disponibles para todas las empresas cliente.
+                </p>
+            </div>
+            <div class="mt-4 sm:mt-0 flex gap-3">
+                <button type="button" onclick="openCreateModal()"
+                    class="inline-flex items-center justify-center rounded-md bg-black px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800">
+                    <i class="ph ph-plus mr-2 text-lg"></i>
+                    Nueva Prueba Global
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters & Search -->
+        <div class="mb-6 flex gap-4 items-center">
+            <div class="relative flex-1 max-w-md">
+                <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="searchInput" placeholder="Buscar prueba por nombre o identificador..."
+                    class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black">
+            </div>
+            <select id="filterCategory" class="border border-gray-200 rounded-lg text-sm py-2 px-3 focus:outline-none">
+                <option value="ALL">Todas las categorías</option>
+                <option value="Inteligencia cognitiva">Inteligencia cognitiva</option>
+                <option value="Personalidad">Personalidad</option>
+                <option value="Habilidades">Habilidades</option>
+                <option value="Técnicas">Técnicas</option>
+                <option value="Idiomas">Idiomas</option>
+                <option value="Personalizadas">Personalizadas</option>
+            </select>
+        </div>
+
+        <!-- Catalog Grid -->
+        <div id="catalogGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div class="col-span-full py-12 text-center text-gray-500">
+                <i class="ph ph-spinner animate-spin text-3xl mb-2"></i>
+                <p>Cargando catálogo...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Crear Prueba -->
+    <div id="createModal" class="hidden relative z-50">
+        <div class="fixed inset-0 bg-gray-500/75 transition-opacity"></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div
+                    class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all sm:w-full sm:max-w-lg p-6">
+
+                    <div class="flex justify-between items-center mb-5">
+                        <h3 class="text-lg font-bold text-gray-900">Crear Nueva Prueba Global</h3>
+                        <button onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-500">
+                            <i class="ph ph-x text-xl"></i>
+                        </button>
+                    </div>
+
+                    <form id="createTestForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nombre de la Prueba *</label>
+                            <input type="text" id="tName" required class="mt-1 w-full form-input">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Categoría *</label>
+                                <select id="tCat" required class="mt-1 w-full form-input">
+                                    <option value="Inteligencia cognitiva">Inteligencia cognitiva</option>
+                                    <option value="Personalidad">Personalidad</option>
+                                    <option value="Habilidades">Habilidades</option>
+                                    <option value="Técnicas">Técnicas</option>
+                                    <option value="Idiomas">Idiomas</option>
+                                    <option value="Personalizadas">Personalizadas</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Duración Estimada (mins)
+                                    *</label>
+                                <input type="number" id="tTime" min="1" value="15" required
+                                    class="mt-1 w-full form-input">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Descripción / Instrucciones *</label>
+                            <textarea id="tDesc" rows="3" required class="mt-1 w-full form-input placeholder-gray-400"
+                                placeholder="¿Qué evalúa esta prueba?"></textarea>
+                        </div>
+
+                        <div id="alertBox"
+                            class="hidden text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-100"></div>
+
+                        <div class="pt-4 flex justify-end gap-3">
+                            <button type="button" onclick="closeCreateModal()"
+                                class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 rounded-lg">Cancelar</button>
+                            <button type="submit" id="btnSave"
+                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm flex items-center gap-2">
+                                Guardar Prueba
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('headerName').textContent = user.name;
+        document.getElementById('headerRole').textContent = `(${user.role})`;
+
+        let allTests = [];
+
+        async function fetchCatalog() {
+            try {
+                const res = await fetch('../../../api/admin/catalog/list.php', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.error);
+
+                allTests = data.data.catalog;
+                renderCatalog(allTests);
+
+            } catch (err) {
+                document.getElementById('catalogGrid').innerHTML = `
+                    <div class="col-span-full py-12 text-center text-red-500">
+                        Error cargando catálogo: ${err.message}
+                    </div>
+                `;
+            }
+        }
+
+        const categoryColors = {
+            'Inteligencia cognitiva': 'bg-blue-100 text-blue-700 border-blue-200',
+            'Personalidad': 'bg-purple-100 text-purple-700 border-purple-200',
+            'Habilidades': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+            'Técnicas': 'bg-orange-100 text-orange-700 border-orange-200',
+            'Idiomas': 'bg-indigo-100 text-indigo-700 border-indigo-200',
+            'Personalizadas': 'bg-gray-100 text-gray-700 border-gray-200',
+        };
+
+        function renderCatalog(testsToRender) {
+            const grid = document.getElementById('catalogGrid');
+            grid.innerHTML = '';
+
+            if (testsToRender.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-500 bg-white rounded-xl border border-dashed border-gray-300">No se encontraron pruebas.</div>`;
+                return;
+            }
+
+            testsToRender.forEach(t => {
+                const colors = categoryColors[t.category] || 'bg-gray-100 text-gray-700 border-gray-200';
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col hover:border-gray-300 hover:shadow-md transition-all";
+
+                card.innerHTML = `
+                    <div class="p-5 flex-1 flex flex-col">
+                        <div class="flex items-start justify-between mb-3">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${colors}">
+                                ${t.category}
+                            </span>
+                            <span class="text-xs font-mono text-gray-400" title="System Key">${t.key}</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2 leading-tight">${t.name}</h3>
+                        <p class="text-sm text-gray-500 mb-4 line-clamp-3 flex-1">${t.description}</p>
+                        
+                        <div class="flex items-center justify-between text-xs font-semibold text-gray-500 pt-4 border-t border-gray-100">
+                            <span class="flex items-center gap-1"><i class="ph ph-clock text-gray-400 text-sm"></i> ${t.durationMins} mins</span>
+                            ${t.isActive ? '<span class="text-green-600 flex items-center gap-1"><i class="ph ph-check-circle"></i> Activa</span>' : '<span class="text-red-500">Inactiva</span>'}
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-5 py-3 border-t border-gray-200 flex justify-end gap-3">
+                        <a href="detail.html?id=${t.id}&syskey=${t.key}&name=${encodeURIComponent(t.name)}" class="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors">
+                            Ver Preguntas →
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Filtering
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const cat = document.getElementById('filterCategory').value;
+            filterData(query, cat);
+        });
+
+        document.getElementById('filterCategory').addEventListener('change', (e) => {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const cat = e.target.value;
+            filterData(query, cat);
+        });
+
+        function filterData(query, cat) {
+            let filtered = allTests;
+            if (cat !== 'ALL') {
+                filtered = filtered.filter(t => t.category === cat);
+            }
+            if (query) {
+                filtered = filtered.filter(t => t.name.toLowerCase().includes(query) || t.key.toLowerCase().includes(query));
+            }
+            renderCatalog(filtered);
+        }
+
+        // Modal actions
+        function openCreateModal() {
+            document.getElementById('createModal').classList.remove('hidden');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.add('hidden');
+            document.getElementById('createTestForm').reset();
+            document.getElementById('alertBox').classList.add('hidden');
+        }
+
+        document.getElementById('createTestForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSave');
+            const alertBox = document.getElementById('alertBox');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Guardando...';
+            alertBox.classList.add('hidden');
+
+            const payload = {
+                name: document.getElementById('tName').value,
+                category: document.getElementById('tCat').value,
+                durationMins: document.getElementById('tTime').value,
+                description: document.getElementById('tDesc').value
+            };
+
+            try {
+                const res = await fetch('../../../api/admin/catalog/create.php', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || "Ocurrió un error.");
+
+                // Success
+                closeCreateModal();
+                fetchCatalog(); // Refresh list
+
+            } catch (err) {
+                alertBox.textContent = err.message;
+                alertBox.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Guardar Prueba';
+            }
+        });
+
+        // Init
+        fetchCatalog();
+
+    </script>
+</body>
+
+</html>

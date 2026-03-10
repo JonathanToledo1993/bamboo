@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invitar Candidato | Kokoro</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        const token = localStorage.getItem('kokoro_client_token');
+        if (!token) window.location.href = "../login.html";
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+
+    <header class="bg-white border-b border-gray-200 shadow-sm">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center h-16 gap-4">
+                <a href="index.html" class="text-gray-500 hover:text-black transition-colors">
+                    <i class="ph ph-arrow-left text-2xl"></i>
+                </a>
+                <h1 class="font-semibold tracking-tight text-gray-900 text-lg">Nueva Evaluación</h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white shadow sm:rounded-lg border border-gray-200 p-6 sm:p-8">
+            <h2 class="text-xl font-semibold leading-7 text-gray-900 mb-1">Datos del Candidato</h2>
+            <p class="text-sm leading-6 text-gray-500 mb-6">Genera un enlace único de evaluación. El sistema no
+                descontará créditos tuyos en este momento; el descuento se hace solo si decides descargar el reporte
+                cuando el candidato finalice.</p>
+
+            <form id="inviteForm" class="space-y-6">
+                <div>
+                    <label for="name" class="block text-sm font-medium leading-6 text-gray-900">Nombre Completo</label>
+                    <div class="mt-2">
+                        <input type="text" name="name" id="name" required class="form-input"
+                            placeholder="Ej. Juan Pérez">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Correo
+                        Electrónico</label>
+                    <div class="mt-2">
+                        <input type="email" name="email" id="email" required class="form-input"
+                            placeholder="candidato@correo.com">
+                    </div>
+                </div>
+
+                <div id="alertBox" class="alert-error"></div>
+
+                <div id="successBox" class="hidden rounded-md bg-green-50 p-4 border border-green-200">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="ph ph-check-circle text-green-400 text-xl"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-green-800">Invitación Creada Exitosamente</h3>
+                            <div class="mt-2 text-sm text-green-700">
+                                <p>Copia el siguiente enlace y envíalo al candidato para que rinda la evaluación:</p>
+                                <div class="mt-2 flex">
+                                    <input type="text" id="magicLinkOut" readonly
+                                        class="w-full text-xs p-2 border border-green-300 rounded bg-white text-gray-800">
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <button type="button" onclick="window.location.href='index.html'"
+                                    class="text-sm font-medium text-green-800 hover:text-green-700">
+                                    Volver al Dashboard
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-6 flex justify-end gap-3" id="formActions">
+                    <button type="button" onclick="window.location.href='index.html'"
+                        class="text-sm font-semibold leading-6 text-gray-900">Cancelar</button>
+                    <button type="submit" id="submitBtn"
+                        class="rounded-md bg-black px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+                        Generar Link Mágico
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('inviteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = document.getElementById('submitBtn');
+            const alert = document.getElementById('alertBox');
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+
+            btn.disabled = true;
+            btn.textContent = "Generando...";
+            alert.style.display = "none";
+
+            try {
+                const res = await fetch('../../api/client/create_candidate.php', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.success) throw new Error(data.error);
+
+                // Mostrar éxito y link mágico
+                document.getElementById('formActions').style.display = "none";
+                document.getElementById('name').disabled = true;
+                document.getElementById('email').disabled = true;
+
+                const successBox = document.getElementById('successBox');
+                successBox.classList.remove('hidden');
+                document.getElementById('magicLinkOut').value = data.data.magicLink;
+                document.getElementById('magicLinkOut').select();
+
+            } catch (e) {
+                alert.textContent = e.message;
+                alert.style.display = "block";
+                btn.disabled = false;
+                btn.textContent = "Generar Link Mágico";
+            }
+        });
+    </script>
+</body>
+
+</html>

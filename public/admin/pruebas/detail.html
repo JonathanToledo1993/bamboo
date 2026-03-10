@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Preguntas | AdminOps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        const token = localStorage.getItem('kokoro_admin_token');
+        const user = JSON.parse(localStorage.getItem('kokoro_admin_user') || '{}');
+
+        if (!token) window.location.href = "../login.html";
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const testId = urlParams.get('id') || urlParams.get('key'); // fallback
+        const testKey = urlParams.get('syskey') || urlParams.get('key');
+        const testName = urlParams.get('name');
+
+        if (!testId) window.location.href = "index.html";
+
+        function logout() {
+            localStorage.removeItem('kokoro_admin_token');
+            localStorage.removeItem('kokoro_admin_user');
+            window.location.href = "../login.html";
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <header class="bg-black text-white border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Branding & nav -->
+                <div class="flex items-center gap-6">
+                    <a href="../dashboard/index.html" class="flex items-center gap-2">
+                        <div
+                            class="w-8 h-8 bg-white text-black font-bold rounded flex items-center justify-center text-sm">
+                            K</div>
+                        <span class="font-semibold text-lg tracking-tight hidden sm:block">AdminOps</span>
+                    </a>
+                    <nav class="hidden md:flex gap-4 ml-8">
+                        <a href="../dashboard/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Dashboard</a>
+                        <a href="../empresas/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Empresas</a>
+                        <a href="index.html"
+                            class="text-white px-3 py-2 text-sm font-medium transition-colors border-b-2 border-white">Catálogo
+                            de Pruebas</a>
+                        <a href="../config/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Configuración</a>
+                    </nav>
+                </div>
+                <!-- User profile & Logout -->
+                <div class="flex items-center gap-4">
+                    <button onclick="logout()"
+                        class="text-sm text-gray-400 hover:text-white transition-colors">Salir</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col">
+
+        <!-- Breadcrumbs & Header -->
+        <nav class="flex items-center text-sm text-gray-500 mb-4 gap-2">
+            <a href="index.html" class="hover:text-black hover:underline">Catálogo</a>
+            <i class="ph ph-caret-right text-gray-400"></i>
+            <span class="font-medium text-gray-900" id="breadName">...</span>
+        </nav>
+
+        <div class="sm:flex sm:items-center sm:justify-between mb-8 pb-5 border-b border-gray-200">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900" id="tNameDisplay">Cargando prueba...</h1>
+                <p class="mt-1 text-sm text-gray-500 font-mono" id="tKeyDisplay">El key se mostrará aquí</p>
+            </div>
+            <div class="mt-4 sm:mt-0 flex gap-3">
+                <button type="button" onclick="openTestConfigModal()"
+                    class="inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm border border-gray-300 hover:bg-gray-50">
+                    <i class="ph ph-gear mr-2 text-lg"></i>
+                    Configurar Prueba
+                </button>
+                <button type="button" onclick="openAIGenerateModal()"
+                    class="inline-flex items-center justify-center rounded-md bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-700">
+                    <i class="ph ph-sparkle mr-2 text-lg"></i>
+                    Generar con IA
+                </button>
+                <button type="button" onclick="openQuestionModal()"
+                    class="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
+                    <i class="ph ph-plus-circle mr-2 text-lg"></i>
+                    Agregar Pregunta
+                </button>
+            </div>
+        </div>
+
+        <div id="questionsContainer" class="flex-1 space-y-4 pb-10">
+            <div class="text-center py-12 text-gray-500">
+                <i class="ph ph-spinner animate-spin text-3xl mb-2"></i>
+                <p>Cargando preguntas...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Formulario Pregunta -->
+    <div id="questionModal" class="hidden relative z-50">
+        <div class="fixed inset-0 bg-gray-500/75 transition-opacity"></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div
+                    class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all sm:w-full sm:max-w-xl p-6">
+
+                    <div class="flex justify-between items-center mb-5">
+                        <h3 class="text-lg font-bold text-gray-900">Nueva Pregunta</h3>
+                        <button onclick="closeQuestionModal()" class="text-gray-400 hover:text-gray-500">
+                            <i class="ph ph-x text-xl"></i>
+                        </button>
+                    </div>
+
+                    <form id="addQuestionForm" class="space-y-5">
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Enunciado de la Pregunta
+                                *</label>
+                            <textarea id="qText" rows="3" required class="w-full form-input"
+                                placeholder="Ej: ¿Qué patrón de diseño resuelve...?"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Respuesta</label>
+                                <select id="qType" class="w-full form-input" onchange="toggleOptionsArea()">
+                                    <option value="MULTIPLE_CHOICE">Opción Múltiple</option>
+                                    <option value="SINGLE_CHOICE">Opcion Única</option>
+                                    <option value="TRUE_FALSE">Verdadero / Falso</option>
+                                    <option value="OPEN_ENDED">Texto Abierto</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Puntos Base</label>
+                                <input type="number" step="0.5" min="0" value="1" id="qPoints"
+                                    class="w-full form-input">
+                            </div>
+                        </div>
+
+                        <div id="optionsArea" class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div class="flex justify-between items-center mb-3">
+                                <label class="block text-sm font-bold text-gray-900">Opciones y Respuesta
+                                    Correcta</label>
+                                <button type="button" onclick="addOptionRow()" id="addOptBtn"
+                                    class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                                    <i class="ph ph-plus-circle"></i> Agregar Opción
+                                </button>
+                            </div>
+
+                            <div class="space-y-3" id="qOptionsList">
+                                <!-- Options injected here -->
+                            </div>
+                            <p class="text-[11px] text-gray-500 mt-3" id="optHelperText"><i class="ph ph-info"></i>
+                                Selecciona el círculo al lado de la respuesta que es correcta.</p>
+                        </div>
+
+                        <div id="qOpenArea" class="hidden bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <label class="block text-sm font-medium leading-6 text-gray-500 italic">El candidato verá un
+                                campo de texto para redactar su respuesta.</label>
+                        </div>
+
+                        <div id="alertBoxQ"
+                            class="hidden text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-100"></div>
+
+                        <div class="pt-4 flex justify-end gap-3 border-t border-gray-100">
+                            <button type="button" onclick="closeQuestionModal()"
+                                class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 rounded-lg">Cancelar</button>
+                            <button type="submit" id="btnSaveQ"
+                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm">
+                                Guardar Pregunta
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Generar con IA -->
+    <div id="aiGenerateModal" class="hidden relative z-50">
+        <div class="fixed inset-0 bg-gray-500/75 transition-opacity"></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div
+                    class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all sm:w-full sm:max-w-md p-6">
+
+                    <div class="flex justify-between items-center mb-5 border-b pb-3">
+                        <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <i class="ph ph-sparkle text-purple-600"></i> Generar con IA
+                        </h3>
+                        <button onclick="closeAIGenerateModal()" class="text-gray-400 hover:text-gray-500">
+                            <i class="ph ph-x text-xl"></i>
+                        </button>
+                    </div>
+
+                    <form id="aiGenerateForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tema o Contexto *</label>
+                            <textarea id="aiTopic" rows="3" required class="w-full form-input"
+                                placeholder="Ej: Patrones de diseño creacionales en Java, diferencias entre Singleton y Factory..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Pregunta</label>
+                            <select id="aiType" class="w-full form-input">
+                                <option value="MULTIPLE_CHOICE">Opción Múltiple</option>
+                                <option value="SINGLE_CHOICE">Opcion Única</option>
+                                <option value="TRUE_FALSE">Verdadero / Falso</option>
+                                <option value="OPEN_ENDED">Texto Abierto</option>
+                            </select>
+                        </div>
+
+                        <div id="alertBoxAI"
+                            class="hidden text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-100"></div>
+
+                        <div class="pt-2 flex justify-end gap-3">
+                            <button type="button" onclick="closeAIGenerateModal()"
+                                class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 rounded-lg">Cancelar</button>
+                            <button type="submit" id="btnGenerateAI"
+                                class="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg shadow-sm flex items-center gap-2">
+                                <i class="ph ph-magic-wand"></i> Generar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Configuración Prueba -->
+    <div id="testConfigModal" class="hidden relative z-50">
+        <div class="fixed inset-0 bg-gray-500/75 transition-opacity"></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div
+                    class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all sm:w-full sm:max-w-2xl p-6">
+                    <div class="flex justify-between items-center mb-5 border-b pb-3">
+                        <h3 class="text-lg font-bold text-gray-900">Configuración de la Prueba</h3>
+                        <button onclick="closeTestConfigModal()" class="text-gray-400 hover:text-gray-500">
+                            <i class="ph ph-x text-xl"></i>
+                        </button>
+                    </div>
+
+                    <form id="testConfigForm" class="space-y-5">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de la Prueba
+                                    *</label>
+                                <input id="tcName" type="text" required class="w-full form-input">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                                <select id="tcCategory" class="w-full form-input">
+                                    <option value="Inteligencia cognitiva">Inteligencia cognitiva</option>
+                                    <option value="Personalidad">Personalidad</option>
+                                    <option value="Habilidades">Habilidades</option>
+                                    <option value="Técnicas">Técnicas</option>
+                                    <option value="Idiomas">Idiomas</option>
+                                    <option value="Personalizadas">Personalizadas</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Duración (Mins) *</label>
+                                <input id="tcDuration" type="number" min="1" required class="w-full form-input">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                                <textarea id="tcDesc" rows="2" class="w-full form-input"></textarea>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Configuración de Psicometría
+                                    (JSON)</label>
+                                <textarea id="tcPsico" rows="3" class="w-full form-input font-mono text-xs"
+                                    placeholder="{}"></textarea>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Configuración de Resultados
+                                    (JSON)</label>
+                                <textarea id="tcResults" rows="3" class="w-full form-input font-mono text-xs"
+                                    placeholder="{}"></textarea>
+                            </div>
+                        </div>
+
+                        <div id="alertBoxTC"
+                            class="hidden text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-100"></div>
+
+                        <div class="pt-4 flex justify-between items-center border-t border-gray-100">
+                            <button type="button" onclick="deleteEntireTest()"
+                                class="text-red-500 hover:text-red-700 text-sm font-medium px-2 py-1 flex items-center gap-1">
+                                <i class="ph ph-trash"></i> Eliminar Prueba Completa
+                            </button>
+                            <div class="flex gap-3">
+                                <button type="button" onclick="closeTestConfigModal()"
+                                    class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 rounded-lg">Cancelar</button>
+                                <button type="submit" id="btnSaveTC"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm">
+                                    Guardar Configuración
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('breadName').textContent = testName || testKey;
+        document.getElementById('tNameDisplay').textContent = testName || 'Prueba Global';
+        document.getElementById('tKeyDisplay').textContent = `Key de Sistema: ${testKey || testId}`;
+
+        function toggleOptionsArea() {
+            const type = document.getElementById('qType').value;
+            const optArea = document.getElementById('optionsArea');
+            const openArea = document.getElementById('qOpenArea');
+            const btn = document.getElementById('addOptBtn');
+            const helper = document.getElementById('optHelperText');
+
+            optArea.classList.add('hidden');
+            openArea.classList.add('hidden');
+            btn.style.display = 'block';
+
+            if (type === 'MULTIPLE_CHOICE' || type === 'SINGLE_CHOICE') {
+                optArea.classList.remove('hidden');
+                helper.innerHTML = type === 'MULTIPLE_CHOICE'
+                    ? `<i class="ph ph-info"></i> Marca las casillas de las respuestas correctas.`
+                    : `<i class="ph ph-info"></i> Selecciona el círculo al lado de la única respuesta correcta.`;
+            } else if (type === 'TRUE_FALSE') {
+                optArea.classList.remove('hidden');
+                btn.style.display = 'none';
+                renderTrueFalseOptions();
+                helper.innerHTML = `<i class="ph ph-info"></i> Selecciona cuál opción es la verdadera.`;
+            } else if (type === 'OPEN_ENDED' || type === 'TEXT') {
+                openArea.classList.remove('hidden');
+            }
+        }
+
+        function addOptionRow(val = '', isCorrect = false) {
+            const list = document.getElementById('qOptionsList');
+            const uid = Math.random().toString(36).substr(2, 9);
+            const type = document.getElementById('qType').value;
+            const inputType = type === 'MULTIPLE_CHOICE' ? 'checkbox' : 'radio';
+            const checkedAttr = isCorrect ? 'checked' : '';
+
+            const div = document.createElement('div');
+            div.className = 'flex items-center gap-3 option-row';
+            div.innerHTML = `
+                <input type="${inputType}" name="optCorrect" value="${uid}" ${checkedAttr} class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                <input type="text" class="flex-1 form-input text-sm opt-val" placeholder="Nueva Opción" value="${val}" required>
+                <button type="button" onclick="this.parentElement.remove()" class="text-gray-400 hover:text-red-500"><i class="ph ph-trash"></i></button>
+            `;
+            list.appendChild(div);
+        }
+
+        function renderTrueFalseOptions() {
+            const list = document.getElementById('qOptionsList');
+            list.innerHTML = `
+                <div class="flex items-center gap-3 option-row">
+                    <input type="radio" name="optCorrect" value="v" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" checked>
+                    <input type="text" class="flex-1 form-input text-sm opt-val bg-gray-100" value="Verdadero" readonly>
+                </div>
+                <div class="flex items-center gap-3 option-row">
+                    <input type="radio" name="optCorrect" value="f" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                    <input type="text" class="flex-1 form-input text-sm opt-val bg-gray-100" value="Falso" readonly>
+                </div>
+            `;
+        }
+
+        let currentQuestions = [];
+        let editingQuestionId = null;
+
+        async function fetchQuestions() {
+            try {
+                const res = await fetch(`../../../api/admin/catalog/questions.php?testKey=${testKey}&testId=${testId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.error);
+
+                currentQuestions = data.data.questions || [];
+                renderQuestions(currentQuestions);
+
+            } catch (err) {
+                document.getElementById('questionsContainer').innerHTML = `
+                    <div class="text-center py-12 text-red-500">Error: ${err.message}</div>
+                `;
+            }
+        }
+
+        function renderQuestions(list) {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center text-gray-500 bg-white">
+                        <i class="ph ph-clipboard-text text-4xl mb-3 text-gray-300"></i>
+                        <h3 class="font-bold text-gray-900 mb-1">Sin preguntas todavía</h3>
+                        <p class="text-sm">Esta prueba global está vacía. Agrega la primera pregunta para continuar.</p>
+                        <button onclick="openQuestionModal()" class="mt-4 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 rounded-lg">Comenzar a crear</button>
+                    </div>
+                `;
+                return;
+            }
+
+            list.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-xl border border-gray-200 shadow-sm";
+
+                let optionsHtml = '';
+                if (q.options && q.options.length > 0) {
+                    optionsHtml = `<ul class="mt-4 space-y-2">`;
+
+                    // Comprobar múltiples correctas
+                    let correctAnswersList = [];
+                    if (q.correctAnswer) {
+                        try {
+                            const parsed = JSON.parse(q.correctAnswer);
+                            if (Array.isArray(parsed)) correctAnswersList = parsed;
+                            else correctAnswersList = [q.correctAnswer];
+                        } catch (e) {
+                            correctAnswersList = [q.correctAnswer];
+                        }
+                    }
+
+                    q.options.forEach((opt) => {
+                        const isCorrect = correctAnswersList.includes(opt);
+                        const bg = isCorrect ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-100';
+                        const tCol = isCorrect ? 'text-green-800 font-medium' : 'text-gray-600';
+                        const icon = isCorrect ? '<i class="ph ph-check-circle text-green-500 text-lg"></i>' : '<div class="w-4 h-4 border border-gray-300 rounded-full"></div>';
+
+                        optionsHtml += `
+                            <li class="flex items-center gap-3 p-3 rounded-lg border ${bg}">
+                                ${icon} <span class="text-sm ${tCol}">${opt}</span>
+                            </li>
+                        `;
+                    });
+                    optionsHtml += `</ul>`;
+                }
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex gap-4">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center shrink-0">
+                                ${idx + 1}
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-900 whitespace-pre-wrap">${q.questionText || q.question}</p>
+                                <p class="text-xs text-gray-400 mt-1">${q.type === 'OPEN_ENDED' || q.type === 'TEXT' ? 'Texto Abierto' : (q.type === 'TRUE_FALSE' ? 'Verdadero / Falso' : 'Opción Múltiple/Única')} • ${q.points} pt(s)</p>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <button onclick="editQuestion('${q.id}')" class="text-blue-500 hover:text-blue-700 p-2 rounded hover:bg-blue-50 transition-colors" title="Editar pregunta">
+                                <i class="ph ph-pencil-simple text-lg"></i>
+                            </button>
+                            <button onclick="deleteQuestion('${q.id}')" class="text-red-400 hover:text-red-600 p-2 rounded hover:bg-red-50 transition-colors" title="Eliminar pregunta">
+                                <i class="ph ph-trash text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                    ${optionsHtml}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Modal Form Actions
+        function editQuestion(id) {
+            openQuestionModal(id);
+        }
+
+        function openQuestionModal(editId = null) {
+            editingQuestionId = editId;
+            document.getElementById('qOptionsList').innerHTML = '';
+            document.getElementById('addQuestionForm').reset();
+            document.getElementById('alertBoxQ').classList.add('hidden');
+
+            if (editId) {
+                document.querySelector('#questionModal h3').textContent = "Editar Pregunta";
+                const qToEdit = currentQuestions.find(q => q.id === editId);
+
+                if (qToEdit) {
+                    // 1. Normalize type — fallback to MULTIPLE_CHOICE if unknown value
+                    const validTypes = ['MULTIPLE_CHOICE', 'SINGLE_CHOICE', 'TRUE_FALSE', 'OPEN_ENDED', 'TEXT'];
+                    const qType = validTypes.includes(qToEdit.type) ? qToEdit.type : 'MULTIPLE_CHOICE';
+
+                    document.getElementById('qText').value = qToEdit.questionText || qToEdit.question || '';
+                    document.getElementById('qType').value = qType;
+                    document.getElementById('qPoints').value = qToEdit.points || 1;
+
+                    // 2. Show the right area BEFORE adding options
+                    toggleOptionsArea();
+
+                    // 3. Parse the correct answers list
+                    let correctAnswersList = [];
+                    if (qToEdit.correctAnswer) {
+                        try {
+                            const parsed = JSON.parse(qToEdit.correctAnswer);
+                            correctAnswersList = Array.isArray(parsed) ? parsed : [qToEdit.correctAnswer];
+                        } catch (e) {
+                            correctAnswersList = [qToEdit.correctAnswer];
+                        }
+                    }
+
+                    // 4. Populate options into the now-visible container
+                    if (qType === 'TRUE_FALSE') {
+                        // TRUE_FALSE rows are rendered by toggleOptionsArea already — just mark correct
+                        document.querySelectorAll('#qOptionsList .option-row').forEach(row => {
+                            const val = row.querySelector('.opt-val').value;
+                            const radio = row.querySelector('input[name="optCorrect"]');
+                            if (radio && correctAnswersList.includes(val)) radio.checked = true;
+                        });
+                    } else if (qType !== 'OPEN_ENDED' && qType !== 'TEXT') {
+                        // Clear defaults and add real options
+                        document.getElementById('qOptionsList').innerHTML = '';
+                        (qToEdit.options || []).forEach(opt => {
+                            addOptionRow(opt, correctAnswersList.includes(opt));
+                        });
+                    }
+                }
+            } else {
+                document.querySelector('#questionModal h3').textContent = "Nueva Pregunta";
+                addOptionRow('Opción A');
+                addOptionRow('Opción B');
+                toggleOptionsArea();
+            }
+
+            document.getElementById('questionModal').classList.remove('hidden');
+        }
+
+        function closeQuestionModal() {
+            document.getElementById('questionModal').classList.add('hidden');
+            editingQuestionId = null;
+        }
+
+        document.getElementById('addQuestionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveQ');
+            const alertBox = document.getElementById('alertBoxQ');
+
+            btn.disabled = true;
+            btn.innerHTML = "Guardando...";
+            alertBox.classList.add('hidden');
+
+            const type = document.getElementById('qType').value;
+            let finalOptions = [];
+            let correctAnswerStr = "";
+
+            if (type !== 'OPEN_ENDED' && type !== 'TEXT') {
+                const rows = document.querySelectorAll('#qOptionsList .option-row');
+
+                let selectedLabels = [];
+                rows.forEach((r) => {
+                    const val = r.querySelector('.opt-val').value.trim();
+                    const isChecked = r.querySelector('input[name="optCorrect"]').checked;
+                    if (val) {
+                        finalOptions.push(val);
+                        if (isChecked) {
+                            selectedLabels.push(val);
+                        }
+                    }
+                });
+
+                if (finalOptions.length < 2) {
+                    alertBox.textContent = "Debes proveer al menos 2 opciones válidas.";
+                    alertBox.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.innerHTML = "Guardar Pregunta";
+                    return;
+                }
+
+                if (selectedLabels.length === 0) {
+                    alertBox.textContent = "Debes marcar al menos una opción correcta.";
+                    alertBox.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.innerHTML = "Guardar Pregunta";
+                    return;
+                }
+
+                if (type === 'MULTIPLE_CHOICE') {
+                    correctAnswerStr = JSON.stringify(selectedLabels);
+                } else {
+                    correctAnswerStr = selectedLabels[0];
+                }
+            }
+
+            const payload = {
+                testId: testId,
+                type: type,
+                question: document.getElementById('qText').value,
+                points: document.getElementById('qPoints').value,
+                options: finalOptions,
+                correctAnswer: correctAnswerStr
+            };
+
+            try {
+                let mUrl = '../../../api/admin/catalog/questions.php';
+                let mMethod = 'POST';
+
+                if (editingQuestionId) {
+                    payload.id = editingQuestionId;
+                    mMethod = 'PUT';
+                }
+
+                const res = await fetch(mUrl, {
+                    method: mMethod,
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || "Ocurrió un error.");
+
+                closeQuestionModal();
+                fetchQuestions(); // reload ui
+
+            } catch (err) {
+                alertBox.textContent = err.message;
+                alertBox.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Guardar Pregunta';
+            }
+        });
+
+        // AI Generation Logic
+        function openAIGenerateModal() {
+            document.getElementById('aiGenerateForm').reset();
+            document.getElementById('alertBoxAI').classList.add('hidden');
+            document.getElementById('aiGenerateModal').classList.remove('hidden');
+        }
+
+        function closeAIGenerateModal() {
+            document.getElementById('aiGenerateModal').classList.add('hidden');
+        }
+
+        document.getElementById('aiGenerateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnGenerateAI');
+            const alertBox = document.getElementById('alertBoxAI');
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> Generando...`;
+            alertBox.classList.add('hidden');
+
+            const topic = document.getElementById('aiTopic').value;
+            const type = document.getElementById('aiType').value;
+
+            try {
+                const res = await fetch(`../../../api/admin/catalog/generate_question.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ topic, type, testId: testId })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.error || "Error al conectar con la IA.");
+
+                const qData = data.data;
+
+                // Close AI Modal
+                closeAIGenerateModal();
+
+                // Automatically open normal Question Modal and prefill it
+                openQuestionModal(); // opens as new (not editingId)
+
+                document.getElementById('qText').value = qData.question || '';
+                document.getElementById('qType').value = type;
+                document.getElementById('qPoints').value = 1;
+
+                // Clear existing options
+                document.getElementById('qOptionsList').innerHTML = '';
+
+                let correctAnswerArr = [];
+                if (qData.correctAnswer) {
+                    try {
+                        const parsed = JSON.parse(qData.correctAnswer);
+                        if (Array.isArray(parsed)) correctAnswerArr = parsed;
+                        else correctAnswerArr = [qData.correctAnswer];
+                    } catch (e) {
+                        correctAnswerArr = [qData.correctAnswer];
+                    }
+                }
+
+                if (type !== 'TRUE_FALSE' && type !== 'OPEN_ENDED' && type !== 'TEXT' && qData.options && qData.options.length > 0) {
+                    qData.options.forEach(opt => {
+                        const isCorrect = correctAnswerArr.includes(opt);
+                        addOptionRow(opt, isCorrect);
+                    });
+                }
+
+                toggleOptionsArea();
+
+            } catch (err) {
+                alertBox.textContent = err.message;
+                alertBox.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="ph ph-magic-wand"></i> Generar`;
+            }
+        });
+
+        async function deleteQuestion(id) {
+            if (!confirm("¿Estás seguro de que deseas eliminar esta pregunta?")) return;
+            try {
+                const res = await fetch(`../../../api/admin/catalog/questions.php`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                fetchQuestions();
+            } catch (err) {
+                alert("Error eliminando pregunta: " + err.message);
+            }
+        }
+
+        /* ----- TEST CONFIGURATION LOGIC ----- */
+        function openTestConfigModal() {
+            document.getElementById('alertBoxTC').classList.add('hidden');
+            fetchTestDetailsAndOpenUI();
+        }
+
+        function closeTestConfigModal() {
+            document.getElementById('testConfigModal').classList.add('hidden');
+        }
+
+        async function fetchTestDetailsAndOpenUI() {
+            try {
+                const res = await fetch(`../../../api/admin/catalog/test_details.php?testId=${testId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+
+                const t = data.data.test;
+                document.getElementById('tcName').value = t.name || '';
+                document.getElementById('tcCategory').value = t.category || 'Inteligencia cognitiva';
+                document.getElementById('tcDuration').value = t.durationMins || 1;
+                document.getElementById('tcDesc').value = t.description || '';
+                document.getElementById('tcPsico').value = t.psychometricsConfig ? JSON.stringify(t.psychometricsConfig, null, 2) : '{}';
+                document.getElementById('tcResults').value = t.resultsConfig ? JSON.stringify(t.resultsConfig, null, 2) : '{}';
+
+                document.getElementById('testConfigModal').classList.remove('hidden');
+            } catch (err) {
+                alert("No se pudo cargar la configuración de la prueba.");
+            }
+        }
+
+        document.getElementById('testConfigForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveTC');
+            const alertBoxTC = document.getElementById('alertBoxTC');
+            btn.disabled = true; btn.textContent = 'Guardando...';
+            alertBoxTC.classList.add('hidden');
+
+            try {
+                let psicoObj = {}; let resObj = {};
+                try { psicoObj = JSON.parse(document.getElementById('tcPsico').value || '{}'); } catch (e) { throw new Error("JSON de Psicometría inválido"); }
+                try { resObj = JSON.parse(document.getElementById('tcResults').value || '{}'); } catch (e) { throw new Error("JSON de Resultados inválido"); }
+
+                const payload = {
+                    testId: testId,
+                    name: document.getElementById('tcName').value,
+                    category: document.getElementById('tcCategory').value,
+                    durationMins: document.getElementById('tcDuration').value,
+                    description: document.getElementById('tcDesc').value,
+                    psychometricsConfig: psicoObj,
+                    resultsConfig: resObj
+                };
+
+                const res = await fetch(`../../../api/admin/catalog/test_details.php`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+
+                document.getElementById('tNameDisplay').textContent = payload.name;
+                document.getElementById('breadName').textContent = payload.name;
+                closeTestConfigModal();
+            } catch (err) {
+                alertBoxTC.textContent = err.message;
+                alertBoxTC.classList.remove('hidden');
+            } finally {
+                btn.disabled = false; btn.textContent = 'Guardar Configuración';
+            }
+        });
+
+        async function deleteEntireTest() {
+            if (!confirm("PELIGRO: ¿Estás completamente seguro de que deseas eliminar TODA esta prueba y todas sus preguntas? Esta acción no se puede deshacer.")) return;
+
+            try {
+                const res = await fetch(`../../../api/admin/catalog/test_details.php`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ testId })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+
+                alert("Prueba eliminada exitosamente.");
+                window.location.href = "index.html";
+            } catch (err) {
+                alert("Error eliminando prueba: " + err.message);
+            }
+        }
+
+        fetchQuestions();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle Evaluación | Kokoro Empresas</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-[#f4f7f9] min-h-screen flex text-gray-900 font-sans">
+    <!-- Sidebar Navigation (Same as index) -->
+    <aside class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col h-screen sticky top-0 shrink-0">
+        <div class="h-16 flex items-center px-6 border-b border-gray-200 gap-3">
+            <div class="w-8 h-8 bg-[#1e293b] text-white font-bold rounded flex items-center justify-center text-sm">K
+            </div>
+            <span class="font-bold text-lg tracking-tight text-[#1e293b]">Kokoro Clientes</span>
+        </div>
+
+        <div class="p-4 flex-1 overflow-y-auto">
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">Principal</div>
+            <nav class="space-y-1 mb-8">
+                <a href="index.html"
+                    class="flex items-center gap-3 px-3 py-3 text-sm font-medium bg-[#475569] text-white rounded-xl shadow-sm">
+                    <i class="ph ph-star text-lg"></i> Evaluaciones
+                </a>
+                <a href="../index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                    <i class="ph ph-squares-four text-lg"></i> Dashboard
+                </a>
+                <a href="../postulantes/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                    <i class="ph ph-users text-lg"></i> Postulantes
+                </a>
+                <a href="../perfiles/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                    <i class="ph ph-briefcase text-lg"></i> Perfiles (Carpeta)
+                </a>
+            </nav>
+
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">Pruebas</div>
+            <nav class="space-y-1 mb-8">
+                <a href="../biblioteca/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                    <i class="ph ph-books text-lg"></i> Biblioteca Kokoro
+                </a>
+                <a href="../crea/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                    <i class="ph ph-plus-circle text-lg"></i> Crea Tu Prueba
+                </a>
+            </nav>
+
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">Administración</div>
+            <nav class="space-y-1">
+                <a href="../configuracion/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                    <i class="ph ph-gear text-lg"></i> Configuración
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-gray-200">
+            <button onclick="logout()"
+                class="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+                <i class="ph ph-sign-out text-lg"></i> Cerrar Sesión
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-h-0 overflow-hidden relative">
+
+        <!-- Header Global Nav -->
+        <header
+            class="bg-white border-b border-gray-200 h-[72px] flex items-center justify-between px-4 sm:px-8 shrink-0">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="text-gray-400 hover:text-gray-900 transition-colors">
+                    <i class="ph ph-arrow-left text-2xl"></i>
+                </a>
+                <h1 class="font-bold text-xl text-gray-900" id="headerEvalTitle">Cargando evaluación...</h1>
+            </div>
+
+            <div class="flex items-center gap-5 ml-auto">
+                <button
+                    class="w-10 h-10 rounded-full border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-700 font-bold">JT</button>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto w-full px-4 sm:px-8 py-8 fade-in">
+            <div class="w-full max-w-[1400px] mx-auto space-y-6">
+
+                <!-- SECTION 1: Resumen de Evaluación -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                    <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900 mb-1" id="evalTitle">Evaluación</h2>
+                            <p class="text-sm text-gray-500" id="evalDate">--</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="openInviteModal()"
+                                class="px-6 py-2.5 bg-black text-white text-sm font-bold rounded-full hover:bg-gray-800 transition-colors">
+                                Invitar postulantes
+                            </button>
+                            <button
+                                class="px-6 py-2.5 bg-white border border-gray-200 text-gray-700 text-sm font-bold rounded-full hover:bg-gray-50 transition-colors">
+                                Ocultar comparación
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="border border-gray-100 rounded-xl p-5 bg-gray-50/50">
+                            <div class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Cargo</div>
+                            <div class="font-bold text-gray-900 text-lg" id="statCargo">--</div>
+                        </div>
+                        <div class="border border-gray-100 rounded-xl p-5 bg-gray-50/50">
+                            <div class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Idioma</div>
+                            <div class="font-bold text-gray-900 text-lg" id="statIdioma">Español</div>
+                        </div>
+                        <div class="border border-gray-100 rounded-xl p-5 bg-gray-50/50">
+                            <div class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Perfil</div>
+                            <div class="font-bold text-gray-900 text-lg" id="statPerfil">--</div>
+                        </div>
+                        <div class="border border-gray-100 rounded-xl p-5 bg-gray-50/50">
+                            <div class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Postulantes
+                            </div>
+                            <div class="font-bold text-gray-900 text-lg" id="statPostulantes">0</div>
+                        </div>
+                        <div class="border border-gray-100 rounded-xl p-5 bg-gray-50/50">
+                            <div class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Comparaciones
+                            </div>
+                            <div class="font-bold text-gray-900 text-lg">0/5</div>
+                        </div>
+                        <div class="border border-gray-100 rounded-xl p-5 bg-gray-50/50">
+                            <div class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Pruebas</div>
+                            <div class="font-bold text-gray-900 text-lg" id="statPruebas">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: Postulantes Table -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200">
+                    <div
+                        class="p-6 border-b border-gray-100 flex flex-col lg:flex-row items-center gap-4 justify-between">
+                        <div class="relative w-full lg:max-w-md">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="ph ph-magnifying-glass text-gray-400 text-lg"></i>
+                            </div>
+                            <input type="text" id="searchInput" placeholder="Buscar por nombre o correo"
+                                class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-black focus:border-black placeholder-gray-400"
+                                onkeyup="filterTable()">
+                        </div>
+
+                        <div class="flex items-center gap-3 w-full lg:w-auto">
+                            <select id="filterStatus" onchange="filterTable()"
+                                class="border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700 bg-white focus:outline-none focus:ring-black focus:border-black min-w-[180px]">
+                                <option value="">Todos los estados</option>
+                                <option value="NEW">Invitación enviada</option>
+                                <option value="IN_PROGRESS">Evaluación en proceso</option>
+                                <option value="COMPLETED">Evaluación completada</option>
+                            </select>
+
+                            <select id="filterStage" onchange="filterTable()"
+                                class="border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700 bg-white focus:outline-none focus:ring-black focus:border-black min-w-[180px]">
+                                <option value="">Todas las etapas</option>
+                                <option value="Aún sin evaluar">Aún sin evaluar</option>
+                                <option value="Evaluado">Evaluado</option>
+                                <option value="Invitado a entrevista">Invitado a entrevista</option>
+                                <option value="Entrevistado">Entrevistado</option>
+                                <option value="Oferta enviada">Oferta enviada</option>
+                                <option value="Contratado">Contratado</option>
+                                <option value="Rechazado">Rechazado</option>
+                            </select>
+
+                            <button onclick="toggleColumnsMenu()"
+                                class="px-4 py-2.5 border border-gray-200 rounded-xl text-gray-500 hover:text-black hover:border-black transition-colors"
+                                title="Ocultar/Mostrar columnas">
+                                <i class="ph ph-columns text-lg"></i>
+                            </button>
+                            <div id="colMenu"
+                                class="hidden absolute top-16 right-6 z-50 bg-white shadow-xl border border-gray-100 rounded-xl p-4 w-48">
+                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Columnas</h4>
+                                <label class="flex items-center gap-2 text-sm text-gray-700 mb-2 cursor-pointer">
+                                    <input type="checkbox" checked onchange="toggleCol('col-estado')"
+                                        class="rounded border-gray-300"> Estado
+                                </label>
+                                <label class="flex items-center gap-2 text-sm text-gray-700 mb-2 cursor-pointer">
+                                    <input type="checkbox" checked onchange="toggleCol('col-puntaje')"
+                                        class="rounded border-gray-300"> Puntaje global
+                                </label>
+                                <label class="flex items-center gap-2 text-sm text-gray-700 mb-2 cursor-pointer">
+                                    <input type="checkbox" checked onchange="toggleCol('col-etapa')"
+                                        class="rounded border-gray-300"> Etapa
+                                </label>
+                                <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                    <input type="checkbox" checked onchange="toggleCol('col-fechas')"
+                                        class="rounded border-gray-300"> Fechas
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse" id="candidatesTable">
+                            <thead>
+                                <tr
+                                    class="bg-gray-50 text-gray-500 text-xs font-bold uppercase tracking-wider border-b border-gray-200">
+                                    <th class="px-6 py-4 w-10"><input type="checkbox" class="rounded border-gray-300">
+                                    </th>
+                                    <th class="px-6 py-4 w-10">#</th>
+                                    <th class="px-6 py-4">Postulante</th>
+                                    <th class="px-6 py-4 col-estado text-center">Estado</th>
+                                    <th class="px-6 py-4 col-puntaje text-center">Puntaje global</th>
+                                    <th class="px-6 py-4 col-etapa text-center">Etapa</th>
+                                    <th class="px-6 py-4 col-fechas text-right pr-12">Fechas</th>
+                                    <th class="px-6 py-4 text-center w-24">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="candidatesGrid" class="divide-y divide-gray-100">
+                                <!-- Filled by JS -->
+                                <tr>
+                                    <td colspan="8" class="text-center py-10 text-sm text-gray-500">Cargando
+                                        postulantes...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="p-4 border-t border-gray-100 flex justify-end">
+                        <button
+                            class="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                            <i class="ph ph-download-simple"></i>
+                            Exportar a Excel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: Pruebas Asignadas -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                    <h3 class="text-lg font-bold text-gray-900 mb-6">Pruebas asignadas</h3>
+                    <div id="testList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <!-- Filled by JS -->
+                        <div class="text-sm text-gray-500">Cargando pruebas...</div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Setup Token
+        const token = localStorage.getItem('kokoro_client_token');
+        if (!token) window.location.href = '../../login.html';
+
+        // Get Evaluation ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const evalId = urlParams.get('id');
+
+        if (!evalId) {
+            alert("No se proporcionó un ID de evaluación");
+            window.location.href = 'index.html';
+        }
+
+        let evaluationData = null;
+
+        // --- Fetch Data ---
+        async function loadData() {
+            try {
+                const res = await fetch(`../../../api/client/evaluations/get.php?id=${evalId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    evaluationData = data.data.evaluation;
+
+                    // Render Header & Stats
+                    const ev = evaluationData;
+                    const shortId = ev.id.split('-')[1] || ev.id.substring(0, 8);
+                    document.getElementById('headerEvalTitle').textContent = `Evaluación #${shortId}`;
+                    document.getElementById('evalTitle').textContent = `Evaluación #${shortId}`;
+                    document.getElementById('evalDate').textContent = `${new Date(ev.createdAt).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}`;
+
+                    document.getElementById('statCargo').textContent = ev.cargo;
+                    document.getElementById('statPerfil').textContent = ev.profileName || 'Personalizado';
+                    document.getElementById('statPostulantes').textContent = ev.candidates ? ev.candidates.length : 0;
+                    document.getElementById('statPruebas').textContent = ev.tests ? ev.tests.length : 0;
+
+                    renderTests(ev.tests || []);
+                    renderCandidates(ev.candidates || []);
+                } else {
+                    alert(data.message || 'Error cargando datos.');
+                }
+            } catch (err) {
+                console.error("Error loading evaluation data", err);
+                document.getElementById('candidatesGrid').innerHTML = `<tr><td colspan="8" class="text-center py-10 text-red-500">Error de conexión al cargar datos.</td></tr>`;
+            }
+        }
+
+        // --- Render Tests ---
+        function renderTests(tests) {
+            const container = document.getElementById('testList');
+            if (!tests || tests.length === 0) {
+                container.innerHTML = `<div class="col-span-full py-6 text-sm text-gray-400">No hay pruebas asignadas a esta evaluación.</div>`;
+                return;
+            }
+
+            let html = '';
+            tests.forEach(t => {
+                html += `
+                <div class="border border-gray-100 rounded-xl p-5 hover:shadow-md transition-shadow bg-gray-50/50">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-2.5 h-2.5 rounded-full bg-orange-300"></div>
+                        <h4 class="font-bold text-gray-900 text-sm leading-tight">${t.name}</h4>
+                    </div>
+                    <p class="text-xs text-gray-500 mb-4 line-clamp-2">${t.description || 'Prueba técnica seleccionada.'}</p>
+                    <div class="flex items-center gap-1.5 text-xs font-semibold text-gray-400">
+                        <i class="ph ph-clock text-base"></i> ${t.durationMins || 10} minutos
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // --- Render Candidates ---
+        function renderCandidates(candidates) {
+            const grid = document.getElementById('candidatesGrid');
+            if (!candidates || candidates.length === 0) {
+                grid.innerHTML = `<tr><td colspan="8" class="text-center py-16 text-sm text-gray-500 font-medium">No hay postulantes invitados aún.</td></tr>`;
+                return;
+            }
+
+            // Aplicar filtros
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const fStatus = document.getElementById('filterStatus').value;
+            const fStage = document.getElementById('filterStage').value;
+
+            const filtered = candidates.filter(c => {
+                const matchQ = c.firstName.toLowerCase().includes(q) || c.lastName.toLowerCase().includes(q) || c.email.toLowerCase().includes(q);
+                const matchStatus = fStatus ? c.status === fStatus : true;
+                const matchStage = fStage ? c.stage === fStage : true;
+                return matchQ && matchStatus && matchStage;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<tr><td colspan="8" class="text-center py-16 text-sm text-gray-500 font-medium">No hay coincidencias con los filtros aplicados.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach((c, index) => {
+                // Formatting status
+                let statusBadge = '';
+                if (c.status === 'NEW') statusBadge = `<span class="inline-flex py-1.5 px-3 rounded-full text-xs font-medium border border-[#e0f2fe] bg-[#f0f9ff] text-[#0284c7]"><span class="w-1.5 h-1.5 rounded-full bg-[#38bdf8] mr-1.5 mt-0.5"></span> Invitación enviada</span>`;
+                else if (c.status === 'IN_PROGRESS') statusBadge = `<span class="inline-flex py-1.5 px-3 rounded-full text-xs font-medium border border-[#fef08a] bg-[#fef9c3] text-[#ca8a04]"><span class="w-1.5 h-1.5 rounded-full bg-[#facc15] mr-1.5 mt-0.5"></span> En proceso</span>`;
+                else if (c.status === 'COMPLETED') statusBadge = `<span class="inline-flex py-1.5 px-3 rounded-full text-xs font-medium border border-[#bbf7d0] bg-[#f0fdf4] text-[#16a34a]"><span class="w-1.5 h-1.5 rounded-full bg-[#4ade80] mr-1.5 mt-0.5"></span> Evaluación completada</span>`;
+                else statusBadge = `<span class="inline-flex py-1.5 px-3 rounded-full text-xs font-medium border border-gray-200 bg-gray-50 text-gray-600">${c.status}</span>`;
+
+                const stages = [
+                    'Aún sin evaluar', 'Evaluado', 'Invitado a entrevista', 'Entrevistado',
+                    'Referencias verificadas', 'Oferta enviada', 'Oferta rechazada',
+                    'Candidato se retiró', 'No responde', 'Rechazado', 'Contratado'
+                ];
+
+                let stageSelectOptions = '';
+                stages.forEach(st => {
+                    const selected = (c.stage === st) ? 'selected' : '';
+                    stageSelectOptions += `<option value="${st}" ${selected}>${st}</option>`;
+                });
+
+                const score = c.scoreGlobal !== null ? `${Math.round(c.scoreGlobal)}%` : '-';
+
+                html += `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300"></td>
+                    <td class="px-6 py-4 text-xs font-mono text-gray-400">${index + 1}</td>
+                    <td class="px-6 py-4">
+                        <div class="font-bold text-gray-900 text-sm mb-0.5">${c.firstName} ${c.lastName}</div>
+                        <div class="text-xs text-gray-500">${c.email}</div>
+                    </td>
+                    <td class="px-6 py-4 col-estado text-center align-middle">${statusBadge}</td>
+                    <td class="px-6 py-4 col-puntaje text-center cursor-pointer group">
+                        <div class="inline-block relative">
+                            <span class="font-bold ${c.scoreGlobal >= 70 ? 'text-green-600' : 'text-gray-900'} text-base block">${score}</span>
+                            <div class="w-8 h-1 bg-gray-200 rounded-full mx-auto mt-1 overflow-hidden">
+                                <div class="h-full ${c.scoreGlobal >= 70 ? 'bg-green-500' : 'bg-gray-400'}" style="width: ${score === '-' ? '0%' : score}"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 col-etapa text-center">
+                        <select onchange="updateStage('${c.candidateId}', this.value)" class="border border-gray-200 rounded-full px-3 py-1.5 pl-4 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-black transition-colors max-w-[160px] truncate">
+                            ${stageSelectOptions}
+                        </select>
+                    </td>
+                    <td class="px-6 py-4 col-fechas text-right pr-6 text-xs text-gray-500 space-y-1">
+                        <div><i class="ph ph-calendar-blank text-gray-400"></i> Agregado:<br><span class="text-gray-900 font-medium">${c.invitedAt.substring(0, 10)}</span></div>
+                        ${c.invitedBy ? `<div class="mt-1 flex items-center justify-end gap-1"><i class="ph ph-user text-gray-400"></i> <span class="truncate max-w-[100px]" title="${c.invitedBy}">${c.invitedBy}</span></div>` : ''}
+                    </td>
+                    <td class="px-6 py-4 text-center relative">
+                        <div class="flex items-center justify-center gap-2">
+                            <button onclick="downloadReport('${c.candidateId}')" class="w-8 h-8 rounded border border-gray-200 text-gray-500 flex items-center justify-center hover:bg-gray-50 hover:text-black transition-colors" title="Descargar reporte">
+                                <i class="ph ph-download-simple"></i>
+                            </button>
+                            <button class="w-8 h-8 rounded border border-gray-200 text-gray-500 flex items-center justify-center hover:bg-gray-50 hover:text-black transition-colors">
+                                <i class="ph ph-dots-three text-lg"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        async function updateStage(candidateId, newStage) {
+            try {
+                const res = await fetch('../../../api/client/candidates/update_stage.php', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ evaluationId: evalId, candidateId, stage: newStage })
+                });
+                const data = await res.json();
+                if (!data.success && data.status !== 'success') {
+                    alert('Error al actualizar etapa: ' + (data.message || data.error));
+                } else {
+                    // Update local state and re-render quietly (optional, usually select keeps value)
+                    if (evaluationData && evaluationData.candidates) {
+                        const cand = evaluationData.candidates.find(c => c.candidateId === candidateId);
+                        if (cand) cand.stage = newStage;
+                    }
+                }
+            } catch (err) {
+                alert('Error de conexión.');
+            }
+        }
+
+        function downloadReport(candidateId) {
+            alert("Descargar reporte MVP. Se abrirá la versión PDF generada próximamente.");
+            // Later we can implement Window.open to the report endpoint.
+        }
+
+        loadData();
+
+        // --- UI Interactions ---
+        function toggleColumnsMenu() {
+            document.getElementById('colMenu').classList.toggle('hidden');
+        }
+
+        function toggleCol(colClass) {
+            const cols = document.querySelectorAll(`.${colClass}`);
+            cols.forEach(el => el.classList.toggle('hidden'));
+        }
+
+        function filterTable() {
+            if (evaluationData && evaluationData.candidates) {
+                renderCandidates(evaluationData.candidates);
+            }
+        }
+
+        // Close dropdown when click outside
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('#colMenu') && !e.target.closest('button[title="Ocultar/Mostrar columnas"]')) {
+                document.getElementById('colMenu').classList.add('hidden');
+            }
+        });
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración | Kokoro</title>
+    <!-- Tailwind CSS (via CDN para desarrollo rápido UI) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+
+<body class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="text-center flex justify-center mb-4">
+            <div class="kokoro-logo-box">K</div>
+        </div>
+        <h2 class="mt-2 text-center text-3xl font-extrabold text-gray-900">
+            Panel de Administración
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-600">
+            Plataforma Exclusiva para Kokoro Staff (PHP Version)
+        </p>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100">
+            <form id="adminLoginForm" class="space-y-6">
+
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Correo corporativo</label>
+                    <div class="mt-1">
+                        <input id="email" name="email" type="email" required class="form-input"
+                            placeholder="admin@kokoro.app">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                    <div class="mt-1">
+                        <input id="password" name="password" type="password" required class="form-input">
+                    </div>
+                </div>
+
+                <!-- Contenedor de Alerta de Error -->
+                <div id="errorAlert" class="alert-error"></div>
+
+                <div>
+                    <button id="loginBtn" type="submit" class="btn-primary">
+                        Ingresar al Panel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('adminLoginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const btn = document.getElementById('loginBtn');
+            const alert = document.getElementById('errorAlert');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // UI Loading state
+            btn.disabled = true;
+            btn.textContent = "Iniciando sesión...";
+            alert.style.display = "none";
+
+            try {
+                // Fetch to PHP Backend
+                const response = await fetch('../../api/auth/login_admin.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || "Ocurrió un error inesperado");
+                }
+
+                // Guardar la capa de autenticación en LocalStorage
+                localStorage.setItem('kokoro_admin_token', data.data.token);
+                localStorage.setItem('kokoro_admin_user', JSON.stringify(data.data.user));
+
+                // Redireccionar al Dashboard Seguro
+                window.location.href = "dashboard/index.html";
+
+            } catch (error) {
+                alert.textContent = error.message;
+                alert.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Ingresar al Panel";
+            }
+        });
+
+        // Proteger el login (Si ya tiene sesión, mandarlo de vuelta al panel)
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('kokoro_admin_token');
+            if (token) {
+                window.location.href = "dashboard/index.html";
+            }
+        });
+    </script>
+</body>
+
+</html>

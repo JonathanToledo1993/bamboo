@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración Global | AdminOps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        const token = localStorage.getItem('kokoro_admin_token');
+        const user = JSON.parse(localStorage.getItem('kokoro_admin_user') || '{}');
+
+        if (!token) window.location.href = "../login.html";
+
+        function logout() {
+            localStorage.removeItem('kokoro_admin_token');
+            localStorage.removeItem('kokoro_admin_user');
+            window.location.href = "../login.html";
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <header class="bg-black text-white border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Branding & nav -->
+                <div class="flex items-center gap-6">
+                    <a href="../dashboard/index.html" class="flex items-center gap-2">
+                        <div
+                            class="w-8 h-8 bg-white text-black font-bold rounded flex items-center justify-center text-sm">
+                            K</div>
+                        <span class="font-semibold text-lg tracking-tight hidden sm:block">AdminOps</span>
+                    </a>
+                    <nav class="hidden md:flex gap-4 ml-8">
+                        <a href="../dashboard/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Dashboard</a>
+                        <a href="../empresas/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Empresas</a>
+                        <a href="../pruebas/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Catálogo
+                            de Pruebas</a>
+                        <a href="index.html"
+                            class="text-white px-3 py-2 text-sm font-medium transition-colors border-b-2 border-white">Configuración</a>
+                    </nav>
+                </div>
+                <!-- User profile & Logout -->
+                <div class="flex items-center gap-4">
+                    <div class="text-sm text-gray-300 hidden sm:block">
+                        <span id="headerName">...</span> <span class="text-gray-500" id="headerRole"></span>
+                    </div>
+                    <button onclick="logout()"
+                        class="text-sm text-gray-400 hover:text-white transition-colors">Salir</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col">
+
+        <!-- Header Section -->
+        <div class="mb-8 pb-5 border-b border-gray-200">
+            <h1 class="text-2xl font-bold tracking-tight text-gray-900">Variables Globales</h1>
+            <p class="mt-2 text-sm text-gray-500">
+                Ajusta los parámetros operativos y comerciales de la plataforma sin necesidad de involucrar a soporte
+                técnico.
+            </p>
+        </div>
+
+        <form id="settingsForm" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden text-sm">
+            <div id="settingsContainer" class="divide-y divide-gray-100">
+                <div class="py-12 text-center text-gray-500">
+                    <i class="ph ph-spinner animate-spin text-3xl mb-2"></i>
+                    <p>Cargando configuraciones...</p>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end gap-3 items-center">
+                <span id="statusMsg" class="font-medium"></span>
+                <button type="submit" id="btnSave"
+                    class="px-5 py-2.5 font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm flex items-center gap-2 transition-colors">
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
+
+    </main>
+
+    <script>
+        document.getElementById('headerName').textContent = user.name;
+        document.getElementById('headerRole').textContent = `(${user.role})`;
+
+        let allSettings = [];
+
+        async function fetchSettings() {
+            try {
+                // Autocreate table if not exists (lazy setup trigger)
+                await fetch('../../../api/admin/settings/setup.php', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                // Fetch real data
+                const res = await fetch('../../../api/admin/settings/get.php', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.error);
+
+                allSettings = data.data.settings;
+                renderSettings(allSettings);
+
+            } catch (err) {
+                document.getElementById('settingsContainer').innerHTML = `
+                    <div class="py-12 text-center text-red-500">Error: ${err.message}</div>
+                `;
+            }
+        }
+
+        function renderSettings(list) {
+            const container = document.getElementById('settingsContainer');
+            container.innerHTML = '';
+
+            list.forEach(set => {
+                const row = document.createElement('div');
+                row.className = "p-6 sm:flex sm:items-start sm:justify-between gap-8 hover:bg-slate-50 transition-colors";
+
+                let inputHtml = '';
+                if (set.type === 'boolean') {
+                    const checked = set.value === '1' || set.value === 'true' ? 'checked' : '';
+                    inputHtml = `
+                        <label class="relative inline-flex items-center cursor-pointer mt-1">
+                            <input type="checkbox" name="${set.key}" class="sr-only peer" ${checked}>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    `;
+                } else if (set.type === 'number') {
+                    inputHtml = `<input type="number" step="any" name="${set.key}" value="${set.value}" class="form-input w-full sm:w-48 text-right font-mono">`;
+                } else {
+                    inputHtml = `<input type="text" name="${set.key}" value="${set.value}" class="form-input w-full sm:w-80">`;
+                }
+
+                row.innerHTML = `
+                    <div class="flex-1 mb-4 sm:mb-0 pr-4">
+                        <label class="block font-bold text-gray-900 text-sm mb-1">${set.label}</label>
+                        <p class="text-[13px] text-gray-500 leading-snug">${set.description}</p>
+                        <p class="text-[10px] text-gray-400 mt-2 font-mono uppercase bg-gray-100 inline-block px-1.5 py-0.5 rounded border border-gray-200">KEY: ${set.key}</p>
+                    </div>
+                    <div class="shrink-0 flex items-center justify-end min-w-[12rem] pt-1">
+                        ${inputHtml}
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSave');
+            const sts = document.getElementById('statusMsg');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Guardando...';
+            sts.textContent = '';
+
+            const payloadSettings = {};
+            const formData = new FormData(e.target);
+
+            allSettings.forEach(set => {
+                if (set.type === 'boolean') {
+                    payloadSettings[set.key] = e.target.querySelector(`input[name="${set.key}"]`).checked ? '1' : '0';
+                } else {
+                    payloadSettings[set.key] = formData.get(set.key) || '';
+                }
+            });
+
+            try {
+                const res = await fetch(`../../../api/admin/settings/update.php`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ settings: payloadSettings })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || "Error al actualizar.");
+
+                sts.textContent = '✅ Guardado correctamente';
+                sts.className = 'text-green-600 font-medium text-sm mr-2';
+
+                setTimeout(() => { sts.textContent = ''; }, 3000);
+
+            } catch (err) {
+                sts.textContent = '❌ Error: ' + err.message;
+                sts.className = 'text-red-600 font-medium text-sm mr-2';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Guardar Cambios';
+            }
+        });
+
+        fetchSettings();
+
+    </script>
+</body>
+
+</html>

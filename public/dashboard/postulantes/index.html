@@ -1,0 +1,259 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Postulantes | Kokoro Empresas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-[#f4f7f9] min-h-screen flex text-gray-900 font-sans">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col h-screen sticky top-0 shrink-0">
+        <div class="h-16 flex items-center px-6 border-b border-gray-200 gap-3">
+            <div class="w-8 h-8 bg-[#1e293b] text-white font-bold rounded flex items-center justify-center text-sm">K
+            </div>
+            <span class="font-bold text-lg tracking-tight text-[#1e293b]">Kokoro Clientes</span>
+        </div>
+        <div class="p-4 flex-1 overflow-y-auto">
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">Principal</div>
+            <nav class="space-y-1 mb-8">
+                <a href="../evaluaciones/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors"><i
+                        class="ph ph-star text-lg"></i> Evaluaciones</a>
+                <a href="../index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors"><i
+                        class="ph ph-squares-four text-lg"></i> Dashboard</a>
+                <a href="index.html"
+                    class="flex items-center gap-3 px-3 py-3 text-sm font-medium bg-[#475569] text-white rounded-xl shadow-sm"><i
+                        class="ph ph-users text-lg"></i> Postulantes</a>
+                <a href="../perfiles/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors"><i
+                        class="ph ph-briefcase text-lg"></i> Perfiles (Carpeta)</a>
+            </nav>
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">Pruebas</div>
+            <nav class="space-y-1 mb-8">
+                <a href="../biblioteca/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors"><i
+                        class="ph ph-books text-lg"></i> Biblioteca Kokoro</a>
+                <a href="../crea/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors"><i
+                        class="ph ph-plus-circle text-lg"></i> Crea Tu Prueba</a>
+                <a href="../digitaliza/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors"><i
+                        class="ph ph-file-pdf text-lg"></i> Digitaliza Tu Prueba</a>
+            </nav>
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">Administración</div>
+            <nav class="space-y-1">
+                <a href="../configuracion/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors"><i
+                        class="ph ph-gear text-lg"></i> Configuración</a>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-gray-200">
+            <button onclick="logout()"
+                class="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+                <i class="ph ph-sign-out text-lg"></i> Cerrar Sesión
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 h-[72px] flex items-center justify-between px-8 shrink-0">
+            <div class="font-bold text-xl tracking-tight text-gray-900">Postulantes</div>
+            <div class="flex items-center gap-4">
+                <div class="relative w-72">
+                    <i class="ph ph-magnifying-glass absolute left-4 top-3 text-gray-400"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar por nombre, email o evaluación"
+                        oninput="filterTable()"
+                        class="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-full focus:outline-none focus:ring-1 focus:ring-black placeholder-gray-400 bg-white">
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto w-full px-4 sm:px-8 py-8">
+            <div class="w-full max-w-[1400px] mx-auto">
+
+                <!-- Top White Block -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 tracking-tight mb-1">Mis postulantes</h2>
+                    <p class="text-sm text-gray-500 font-medium">Lista de todos los candidatos invitados a tus
+                        evaluaciones.</p>
+                </div>
+
+                <!-- Table -->
+                <div class="bg-white shadow-sm rounded-2xl border border-gray-200 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-100">
+                        <thead class="bg-gray-50/80">
+                            <tr>
+                                <th
+                                    class="py-4 pl-6 pr-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                    #</th>
+                                <th
+                                    class="px-3 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                    Postulante</th>
+                                <th
+                                    class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                    Finalizadas</th>
+                                <th
+                                    class="px-3 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                    Evaluaciones</th>
+                                <th
+                                    class="px-3 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                    Fechas</th>
+                                <th
+                                    class="px-3 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                    Invitado por</th>
+                                <th
+                                    class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-widest pr-6">
+                                    Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="candidatesGrid" class="divide-y divide-gray-100 bg-white">
+                            <tr>
+                                <td colspan="7" class="p-12 text-center text-gray-400">
+                                    <i class="ph ph-spinner animate-spin text-3xl mb-2 block text-gray-300"></i>
+                                    Cargando postulantes...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('kokoro_client_token');
+        if (!token) window.location.href = '../../login.html';
+
+        document.addEventListener('DOMContentLoaded', fetchCandidates);
+
+        async function fetchCandidates() {
+            try {
+                const res = await fetch('../../../api/client/candidates/list.php', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    renderCandidates(data.data.candidates);
+                } else if (res.status === 401) {
+                    logout();
+                } else {
+                    document.getElementById('candidatesGrid').innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-500">${data.message || 'Error cargando datos.'}</td></tr>`;
+                }
+            } catch (e) {
+                document.getElementById('candidatesGrid').innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-500">No se pudo conectar con el servidor.</td></tr>`;
+            }
+        }
+
+        function renderCandidates(candidates) {
+            const grid = document.getElementById('candidatesGrid');
+            if (!candidates || candidates.length === 0) {
+                grid.innerHTML = `<tr><td colspan="7" class="p-16 text-center text-gray-500 font-medium">
+                    <i class="ph ph-users text-4xl block mb-3 text-gray-300"></i>
+                    Aún no has invitado a ningún candidato.
+                </td></tr>`;
+                return;
+            }
+
+            let html = '';
+            candidates.forEach((c, i) => {
+                const name = `${c.firstName || ''} ${c.lastName || ''}`.trim() || '-';
+                const finalizadas = parseInt(c.totalFinalizadas || 0);
+                const invitedAt = c.invitedAt ? c.invitedAt.substring(0, 16).replace('T', ' ') : '-';
+                const expiresAt = c.expiresAt ? c.expiresAt.substring(0, 10) : '-';
+                const invitedBy = c.invitedByName || '-';
+
+                const statusColor = c.status === 'COMPLETED' ? 'text-green-600' : c.status === 'IN_PROGRESS' ? 'text-blue-600' : 'text-gray-500';
+
+                html += `
+                <tr class="hover:bg-gray-50 transition-colors" 
+                    data-name="${name.toLowerCase()}" 
+                    data-email="${c.email.toLowerCase()}" 
+                    data-cargo="${(c.evaluationCargo || '').toLowerCase()}">
+                    <td class="py-5 pl-6 pr-3 text-xs font-mono font-semibold text-gray-400">#${c.evalCandidateId?.slice(-6) || i + 1}</td>
+                    <td class="px-3 py-5 text-sm">
+                        <div class="font-bold text-gray-900 text-base mb-0.5">${name}</div>
+                        <div class="text-xs text-gray-500">${c.email}</div>
+                    </td>
+                    <td class="px-3 py-5 text-center">
+                        <div class="text-xl font-bold ${finalizadas > 0 ? 'text-green-600' : 'text-gray-400'} leading-none">${finalizadas}</div>
+                        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Finalizadas</div>
+                    </td>
+                    <td class="px-3 py-5 text-sm">
+                        <div class="font-semibold text-gray-800">${c.evaluationCargo || '-'}</div>
+                        <div class="text-xs ${statusColor} font-medium mt-0.5">${translateStatus(c.status)}</div>
+                    </td>
+                    <td class="px-3 py-5 text-xs text-gray-600 space-y-1">
+                        <div class="flex items-center gap-1.5"><i class="ph ph-clock-counter-clockwise text-gray-400"></i> Últ act: ${invitedAt}</div>
+                        <div class="flex items-center gap-1.5"><i class="ph ph-hourglass-high text-gray-400"></i> Expira: ${expiresAt}</div>
+                    </td>
+                    <td class="px-3 py-5 text-sm">
+                        <div class="flex items-center gap-1.5 text-gray-700 font-medium">
+                            <i class="ph ph-user-circle text-gray-400"></i> ${invitedBy}
+                        </div>
+                    </td>
+                    <td class="px-3 py-5 text-center pr-6">
+                        <button onclick="openReports('${c.candidateId}', '${name.replace(/'/g, "\\'")}', '${c.email}')"
+                            class="px-4 py-2 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-100 hover:border-gray-300 transition-colors flex items-center gap-1.5 mx-auto whitespace-nowrap">
+                            <i class="ph ph-file-text text-gray-500"></i> Ver reportes
+                        </button>
+                    </td>
+                </tr>`;
+            });
+            grid.innerHTML = html;
+        }
+
+        function translateStatus(s) {
+            const m = { NEW: 'Pendiente', IN_PROGRESS: 'En progreso', COMPLETED: 'Finalizado', ABANDONED: 'Abandonado' };
+            return m[s] || s;
+        }
+
+        function filterTable() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('#candidatesGrid tr[data-name]').forEach(row => {
+                const match = row.dataset.name.includes(q) || row.dataset.email.includes(q) || row.dataset.cargo.includes(q);
+                row.style.display = match ? '' : 'none';
+            });
+        }
+
+        function openReports(candidateId, name, email) {
+            const url = `../reporte_postulante/index.html?candidateId=${encodeURIComponent(candidateId)}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
+            window.location.href = url;
+        }
+
+        function logout() {
+            localStorage.removeItem('kokoro_client_token');
+            window.location.href = '../../login.html';
+        }
+    </script>
+</body>
+
+</html>

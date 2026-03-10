@@ -1,0 +1,630 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digitaliza Tu Prueba | Kokoro Empresas</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col h-screen sticky top-0">
+        <div class="h-16 flex items-center px-6 border-b border-gray-200 gap-3">
+            <div class="w-8 h-8 bg-black text-white font-bold rounded flex items-center justify-center text-sm">K</div>
+            <span class="font-semibold text-lg tracking-tight text-black">Kokoro Clientes</span>
+        </div>
+
+        <div class="p-4 flex-1 overflow-y-auto">
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">Principal</div>
+            <nav class="space-y-1 mb-8">
+                <a href="../evaluaciones/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-black">
+                    <i class="ph ph-star text-lg"></i> Evaluaciones
+                </a>
+                <a href="../index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-black">
+                    <i class="ph ph-squares-four text-lg"></i> Dashboard
+                </a>
+                <a href="../postulantes/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-black">
+                    <i class="ph ph-users text-lg"></i> Postulantes
+                </a>
+                <a href="../perfiles/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-black">
+                    <i class="ph ph-briefcase text-lg"></i> Perfiles (Carpeta)
+                </a>
+            </nav>
+
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">Pruebas</div>
+            <nav class="space-y-1 mb-8">
+                <a href="../biblioteca/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-black">
+                    <i class="ph ph-books text-lg"></i> Biblioteca Kokoro
+                </a>
+                <a href="../crea/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-black">
+                    <i class="ph ph-plus-circle text-lg"></i> Crea Tu Prueba
+                </a>
+                <a href="index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium bg-gray-100 text-black rounded-md">
+                    <i class="ph ph-file-pdf text-lg"></i> Digitaliza Tu Prueba
+                </a>
+            </nav>
+
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">AdministraciÃ³n</div>
+            <nav class="space-y-1">
+                <a href="../configuracion/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-black">
+                    <i class="ph ph-gear text-lg"></i> ConfiguraciÃ³n
+                </a>
+            </nav>
+        </div>
+
+        <div class="border-t border-gray-200 p-4">
+            <button onclick="logout()"
+                class="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-md hover:bg-red-50 transition-colors">
+                <i class="ph ph-sign-out text-lg"></i> Cerrar SesiÃ³n
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
+
+        <!-- Mobile Header -->
+        <header class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 md:hidden">
+            <div class="font-bold flex items-center gap-2">
+                <div class="w-6 h-6 bg-black text-white rounded flex items-center justify-center text-xs">K</div>
+                Kokoro
+            </div>
+            <button class="text-gray-500"><i class="ph ph-list text-2xl"></i></button>
+        </header>
+
+        <main class="flex-1 overflow-y-auto w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="md:flex md:items-center md:justify-between mb-8">
+                <div class="min-w-0 flex-1">
+                    <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                        Transformar Documentos a Pruebas
+                    </h2>
+                    <p class="mt-2 text-sm text-gray-500">Sube tus manuales en PDF y la IA de Kokoro crearÃ¡ un test
+                        validado.</p>
+                </div>
+            </div>
+
+            <!-- 2-Column Layout for Manual Builder -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <!-- Left Column: Test Options -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white shadow sm:rounded-lg overflow-hidden border border-gray-100 sticky top-6">
+                        <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-100">
+                            <h3 class="text-base font-semibold leading-6 text-gray-900">ConfiguraciÃ³n Base</h3>
+                            <p class="mt-1 max-w-2xl text-sm text-gray-500">Ajustes principales de tu prueba.</p>
+                        </div>
+                        <div class="px-4 py-5 sm:p-6 space-y-4">
+                            <div>
+                                <label for="m_name" class="block text-sm font-medium leading-6 text-gray-900">Nombre de
+                                    la Prueba *</label>
+                                <div class="mt-2">
+                                    <input type="text" id="m_name"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6 px-3"
+                                        placeholder="Ej. Prueba TÃ©cnica PHP" required>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="m_desc"
+                                    class="block text-sm font-medium leading-6 text-gray-900">DescripciÃ³n</label>
+                                <div class="mt-2">
+                                    <textarea id="m_desc" rows="3"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6 px-3"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="m_pass" class="block text-sm font-medium leading-6 text-gray-900">%
+                                        AprobaciÃ³n</label>
+                                    <div class="mt-2 relative rounded-md shadow-sm">
+                                        <input type="number" id="m_pass"
+                                            class="block w-full rounded-md border-0 py-1.5 pl-3 pr-7 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6"
+                                            placeholder="70" min="1" max="100">
+                                        <div
+                                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                            <span class="text-gray-500 sm:text-sm">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="m_time" class="block text-sm font-medium leading-6 text-gray-900">Tiempo
+                                        (Min)</label>
+                                    <div class="mt-2">
+                                        <input type="number" id="m_time"
+                                            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6 px-3"
+                                            placeholder="Ilimitado">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="relative flex items-start pt-2">
+                                <div class="flex h-6 items-center">
+                                    <input id="m_is_unlimited" type="checkbox"
+                                        class="h-4 w-4 rounded border-gray-300 text-black focus:ring-black text-black"
+                                        onchange="toggleTimeLimit(this)">
+                                </div>
+                                <div class="ml-3 text-sm leading-6">
+                                    <label for="m_is_unlimited" class="font-medium text-gray-900">Tiempo
+                                        Ilimitado</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-4 sm:px-6 border-t border-gray-100 flex flex-col gap-3">
+                            <!-- Show total points based on Q's -->
+                            <div class="flex justify-between text-sm text-gray-600 mb-2">
+                                <span>Puntaje Total:</span>
+                                <span class="font-bold text-black" id="totalPointsDisplay">0 pts</span>
+                            </div>
+                            <button type="button" onclick="saveCustomTest('draft')"
+                                class="w-full inline-flex justify-center items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors">
+                                <i class="ph ph-floppy-disk mr-2"></i> Guardar Borrador
+                            </button>
+                            <button type="button" onclick="saveCustomTest('published')" id="btnPublish"
+                                class="w-full inline-flex justify-center items-center rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 transition-colors opacity-50 cursor-not-allowed"
+                                disabled>
+                                <i class="ph ph-paper-plane-right mr-2"></i> Publicar Prueba
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Questions Builder -->
+                <div class="lg:col-span-2 space-y-4">
+
+                    <!-- Questions List Container -->
+                    <div id="questionsContainer" class="space-y-4">
+                        <div class="bg-white shadow sm:rounded-lg border border-gray-200 p-12 text-center text-gray-500"
+                            id="emptyQuestionsState">
+                            <i class="ph ph-list-numbers text-4xl mb-3 text-gray-300"></i>
+                            <p>Tu prueba no tiene preguntas todavÃ­a.</p>
+                            <p class="text-xs mt-2">AÃ±ade tu primera pregunta usando los botones inferiores.</p>
+                        </div>
+                    </div>
+
+                    <!-- Add Question Buttons -->
+                    <div class="bg-gray-50 border border-gray-200 border-dashed rounded-lg p-6">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-4 text-center">AÃ±adir Nueva Pregunta</h4>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <button onclick="openQuestionModal('SINGLE_CHOICE')"
+                                class="flex flex-col items-center justify-center p-3 bg-white rounded shadow-sm border border-gray-100 hover:border-blue-500 hover:text-blue-600 transition-colors group">
+                                <i class="ph ph-radio-button text-2xl text-gray-400 group-hover:text-blue-500 mb-1"></i>
+                                <span class="text-xs font-medium text-center">OpciÃ³n Ãšnica</span>
+                            </button>
+                            <button onclick="openQuestionModal('MULTIPLE_CHOICE')"
+                                class="flex flex-col items-center justify-center p-3 bg-white rounded shadow-sm border border-gray-100 hover:border-blue-500 hover:text-blue-600 transition-colors group">
+                                <i
+                                    class="ph ph-check-square-offset text-2xl text-gray-400 group-hover:text-blue-500 mb-1"></i>
+                                <span class="text-xs font-medium text-center">OpciÃ³n MÃºltiple</span>
+                            </button>
+                            <button onclick="openQuestionModal('TRUE_FALSE')"
+                                class="flex flex-col items-center justify-center p-3 bg-white rounded shadow-sm border border-gray-100 hover:border-blue-500 hover:text-blue-600 transition-colors group">
+                                <i
+                                    class="ph ph-arrows-left-right text-2xl text-gray-400 group-hover:text-blue-500 mb-1"></i>
+                                <span class="text-xs font-medium text-center">Verdadero / Falso</span>
+                            </button>
+                            <button onclick="openQuestionModal('OPEN_ENDED')"
+                                class="flex flex-col items-center justify-center p-3 bg-white rounded shadow-sm border border-gray-100 hover:border-blue-500 hover:text-blue-600 transition-colors group">
+                                <i
+                                    class="ph ph-text-align-left text-2xl text-gray-400 group-hover:text-blue-500 mb-1"></i>
+                                <span class="text-xs font-medium text-center">Abierta (Texto)</span>
+                            </button>
+                            <button onclick="openQuestionModal('FILE_OR_IMAGE')"
+                                class="flex flex-col items-center justify-center p-3 bg-white rounded shadow-sm border border-gray-100 hover:border-blue-500 hover:text-blue-600 transition-colors group">
+                                <i class="ph ph-image text-2xl text-gray-400 group-hover:text-blue-500 mb-1"></i>
+                                <span class="text-xs font-medium text-center">Analizar Imagen</span>
+                            </button>
+                            <button onclick="openQuestionModal('TEXT_OR_CASE')"
+                                class="flex flex-col items-center justify-center p-3 bg-white rounded shadow-sm border border-gray-100 hover:border-blue-500 hover:text-blue-600 transition-colors group">
+                                <i class="ph ph-article text-2xl text-gray-400 group-hover:text-blue-500 mb-1"></i>
+                                <span class="text-xs font-medium text-center">Caso PrÃ¡ctico</span>
+                            </button>
+                            <button onclick="openQuestionModal('LIMITED_TIME')"
+                                class="flex flex-col items-center justify-center p-3 bg-white rounded shadow-sm border border-gray-100 hover:border-blue-500 hover:text-blue-600 transition-colors group col-span-2 sm:col-span-2">
+                                <i class="ph ph-timer text-2xl text-gray-400 group-hover:text-blue-500 mb-1"></i>
+                                <span class="text-xs font-medium text-center">Pregunta a Contrarreloj (Limitada en
+                                    Segundos)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Universal Question Modal -->
+    <div id="qModal" class="relative z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div
+                    class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl sm:p-6">
+                    <div>
+                        <div class="mt-3 text-center sm:mt-0 sm:text-left">
+                            <h3 class="text-base font-semibold leading-6 text-gray-900" id="qModalTitle">Constructor de
+                                Pregunta</h3>
+                            <div class="mt-4">
+                                <form id="qForm" class="space-y-4">
+                                    <input type="hidden" id="qType" value="">
+
+                                    <!-- Base Question Text -->
+                                    <div>
+                                        <label class="block text-sm font-medium leading-6 text-gray-900">Enunciado /
+                                            Pregunta *</label>
+                                        <div class="mt-2">
+                                            <textarea id="qText" rows="2"
+                                                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6 px-3"
+                                                required></textarea>
+                                        </div>
+                                    </div>
+
+                                    <!-- Points & Extra Config Row -->
+                                    <div class="grid grid-cols-2 gap-4 border-t border-gray-100 pt-4" id="qExtraRow">
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium leading-6 text-gray-900">Puntaje</label>
+                                            <input type="number" id="qPoints" value="1" min="1"
+                                                class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6 px-3">
+                                        </div>
+                                        <div id="qTimeLimitWrapper" class="hidden">
+                                            <label class="block text-sm font-medium leading-6 text-gray-900">Segundos
+                                                LÃ­mite</label>
+                                            <input type="number" id="qTimeLimit" value="30" min="5"
+                                                class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6 px-3">
+                                        </div>
+                                        <div id="qImageWrapper" class="hidden col-span-2">
+                                            <label class="block text-sm font-medium leading-6 text-gray-900">URL Imagen
+                                                (Caso/Escenario)</label>
+                                            <input type="url" id="qImageUrl" placeholder="https://..."
+                                                class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6 px-3">
+                                        </div>
+                                    </div>
+
+                                    <!-- Dynamic Options Area -->
+                                    <div id="qOptionsArea" class="border-t border-gray-100 pt-4 hidden">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <label class="block text-sm font-medium leading-6 text-gray-900">Opciones de
+                                                Respuesta</label>
+                                            <button type="button" onclick="addOptionRow()" id="addOptBtn"
+                                                class="text-xs text-blue-600 hover:text-blue-800"><i
+                                                    class="ph ph-plus-circle"></i> Agregar OpciÃ³n</button>
+                                        </div>
+                                        <div id="qOptionsList" class="space-y-2">
+                                            <!-- Rows injected here -->
+                                        </div>
+                                    </div>
+
+                                    <!-- Open Ended Area -->
+                                    <div id="qOpenArea" class="border-t border-gray-100 pt-4 hidden">
+                                        <label class="block text-sm font-medium leading-6 text-gray-500 italic">El
+                                            candidato verÃ¡ un campo de texto amplio para redactar su respuesta. La
+                                            validaciÃ³n se harÃ¡ manualmente o por IA posterior.</label>
+                                    </div>
+
+                                    <div id="qModalError" class="text-red-500 text-sm hidden"></div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-gray-200">
+                        <button type="button" onclick="addQuestionToState()"
+                            class="inline-flex w-full justify-center rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 sm:ml-3 sm:w-auto">AÃ±adir
+                            Pregunta</button>
+                        <button type="button" onclick="closeQuestionModal()"
+                            class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        const token = localStorage.getItem('kokoro_client_token');
+        if (!token) window.location.href = '../../login.html';
+
+        let questionsState = [];
+
+        function toggleTimeLimit(checkbox) {
+            const timeInput = document.getElementById('m_time');
+            if (checkbox.checked) {
+                timeInput.value = '';
+                timeInput.disabled = true;
+                timeInput.classList.add('bg-gray-100');
+            } else {
+                timeInput.disabled = false;
+                timeInput.classList.remove('bg-gray-100');
+            }
+        }
+
+        /* --- Question Modal Logic --- */
+        const typeLabels = {
+            'SINGLE_CHOICE': 'SelecciÃ³n Ãšnica',
+            'MULTIPLE_CHOICE': 'OpciÃ³n MÃºltiple',
+            'TRUE_FALSE': 'Verdadero o Falso',
+            'OPEN_ENDED': 'Respuesta Abierta',
+            'FILE_OR_IMAGE': 'AnÃ¡lisis de Imagen',
+            'TEXT_OR_CASE': 'Caso de Estudio (Texto)',
+            'LIMITED_TIME': 'Contrarreloj'
+        };
+
+        function openQuestionModal(type) {
+            document.getElementById('qType').value = type;
+            document.getElementById('qModalTitle').textContent = typeLabels[type] || 'Constructor';
+
+            // Re-hide dynamic sections
+            document.getElementById('qOptionsArea').classList.add('hidden');
+            document.getElementById('qOpenArea').classList.add('hidden');
+            document.getElementById('qTimeLimitWrapper').classList.add('hidden');
+            document.getElementById('qImageWrapper').classList.add('hidden');
+            document.getElementById('addOptBtn').style.display = 'block';
+
+            // Clear lists
+            document.getElementById('qOptionsList').innerHTML = '';
+            document.getElementById('qText').value = '';
+            document.getElementById('qPoints').value = '1';
+
+            // Show config specific to type
+            if (['SINGLE_CHOICE', 'MULTIPLE_CHOICE', 'LIMITED_TIME', 'FILE_OR_IMAGE', 'TEXT_OR_CASE'].includes(type)) {
+                document.getElementById('qOptionsArea').classList.remove('hidden');
+                addOptionRow(); // 1 empty
+                addOptionRow(); // 2 empty
+            }
+
+            if (type === 'TRUE_FALSE') {
+                document.getElementById('qOptionsArea').classList.remove('hidden');
+                document.getElementById('addOptBtn').style.display = 'none'; // Lock options
+                renderTrueFalseOptions();
+            }
+
+            if (type === 'OPEN_ENDED') {
+                document.getElementById('qOpenArea').classList.remove('hidden');
+            }
+
+            if (type === 'LIMITED_TIME') {
+                document.getElementById('qTimeLimitWrapper').classList.remove('hidden');
+            }
+
+            if (type === 'FILE_OR_IMAGE') {
+                document.getElementById('qImageWrapper').classList.remove('hidden');
+            }
+
+            document.getElementById('qModal').classList.remove('hidden');
+        }
+
+        function closeQuestionModal() {
+            document.getElementById('qModal').classList.add('hidden');
+            document.getElementById('qModalError').classList.add('hidden');
+        }
+
+        function addOptionRow(text = '', isCorrect = false) {
+            const list = document.getElementById('qOptionsList');
+            const type = document.getElementById('qType').value;
+            const uid = Math.random().toString(36).substr(2, 9);
+            // Single choice uses radio named groups, multiple uses independent checkboxes
+            const inputType = (type === 'SINGLE_CHOICE' || type === 'LIMITED_TIME' || type === 'FILE_OR_IMAGE' || type === 'TEXT_OR_CASE') ? 'radio' : 'checkbox';
+
+            const div = document.createElement('div');
+            div.className = 'flex items-center gap-2 option-row';
+            div.innerHTML = `
+                <input type="${inputType}" name="optCorrect" value="${uid}" class="${inputType === 'radio' ? 'rounded-full' : 'rounded'} h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-600" ${isCorrect ? 'checked' : ''}>
+                <input type="text" class="opt-text flex-1 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6 px-3" placeholder="Redactar opciÃ³n..." value="${text}" required>
+                <button type="button" onclick="this.parentElement.remove()" class="text-gray-400 hover:text-red-500"><i class="ph ph-trash"></i></button>
+            `;
+            list.appendChild(div);
+        }
+
+        function renderTrueFalseOptions() {
+            const list = document.getElementById('qOptionsList');
+            list.innerHTML = `
+                <div class="flex items-center gap-2 option-row">
+                    <input type="radio" name="optCorrect" value="v" class="rounded-full h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-600" checked>
+                    <input type="text" class="opt-text flex-1 rounded-md border-0 py-1.5 bg-gray-50 text-gray-900 shadow-sm sm:text-sm px-3" value="Verdadero" readonly>
+                </div>
+                <div class="flex items-center gap-2 option-row mt-2">
+                    <input type="radio" name="optCorrect" value="f" class="rounded-full h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-600">
+                    <input type="text" class="opt-text flex-1 rounded-md border-0 py-1.5 bg-gray-50 text-gray-900 shadow-sm sm:text-sm px-3" value="Falso" readonly>
+                </div>
+            `;
+        }
+
+        function addQuestionToState() {
+            const type = document.getElementById('qType').value;
+            const text = document.getElementById('qText').value.trim();
+            const points = parseInt(document.getElementById('qPoints').value) || 1;
+            const errorDiv = document.getElementById('qModalError');
+
+            if (!text) {
+                errorDiv.textContent = 'El enunciado es obligatorio.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            let options = [];
+
+            // Gather Options
+            if (type !== 'OPEN_ENDED') {
+                const rows = document.querySelectorAll('#qOptionsList .option-row');
+                if (rows.length < 2 && type !== 'OPEN_ENDED') {
+                    errorDiv.textContent = 'Debes proveer al menos 2 opciones.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+
+                let hasCorrect = false;
+                rows.forEach(r => {
+                    const optText = r.querySelector('.opt-text').value.trim();
+                    const isCorrect = r.querySelector('input[name="optCorrect"]').checked;
+                    if (isCorrect) hasCorrect = true;
+                    if (optText) options.push({ text: optText, isCorrect });
+                });
+
+                if (!hasCorrect) {
+                    errorDiv.textContent = 'Debes marcar al menos una opciÃ³n como correcta.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+            }
+
+            const qObj = {
+                id: 'q_' + Date.now(),
+                type,
+                text,
+                points,
+                options
+            };
+
+            // Extra metadata
+            if (type === 'LIMITED_TIME') qObj.timeLimitSecs = parseInt(document.getElementById('qTimeLimit').value) || 30;
+            if (type === 'FILE_OR_IMAGE') qObj.imageUrl = document.getElementById('qImageUrl').value;
+
+            questionsState.push(qObj);
+            closeQuestionModal();
+            renderQuestionsList();
+        }
+
+        function removeQuestion(id) {
+            questionsState = questionsState.filter(q => q.id !== id);
+            renderQuestionsList();
+        }
+
+        function renderQuestionsList() {
+            const container = document.getElementById('questionsContainer');
+            const publishBtn = document.getElementById('btnPublish');
+            const pointsDisplay = document.getElementById('totalPointsDisplay');
+
+            if (questionsState.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white shadow sm:rounded-lg border border-gray-200 p-12 text-center text-gray-500" id="emptyQuestionsState">
+                        <i class="ph ph-list-numbers text-4xl mb-3 text-gray-300"></i>
+                        <p>Tu prueba no tiene preguntas todavÃ­a.</p>
+                        <p class="text-xs mt-2">AÃ±ade tu primera pregunta usando los botones inferiores.</p>
+                    </div>`;
+                publishBtn.disabled = true;
+                publishBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                pointsDisplay.textContent = '0 pts';
+                return;
+            }
+
+            publishBtn.disabled = false;
+            publishBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            let totalPoints = 0;
+            let html = '';
+
+            questionsState.forEach((q, index) => {
+                totalPoints += q.points;
+
+                let extraTag = '';
+                if (q.type === 'LIMITED_TIME') extraTag = `<span class="ml-2 inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"><i class="ph ph-timer mr-1"></i> ${q.timeLimitSecs}s</span>`;
+                if (q.type === 'FILE_OR_IMAGE' && q.imageUrl) extraTag = `<span class="ml-2 inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/10"><i class="ph ph-image mr-1"></i> Imagen adjunta</span>`;
+
+                html += `
+                    <div class="bg-white shadow sm:rounded-lg border border-gray-200 p-4 flex gap-4">
+                        <div class="flex-shrink-0 pt-1">
+                            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 font-bold text-gray-500">${index + 1}</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h5 class="text-sm font-semibold text-gray-900">${q.text}</h5>
+                                    <div class="mt-1 flex items-center gap-2">
+                                        <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">${typeLabels[q.type]}</span>
+                                        <span class="text-xs text-blue-600 font-bold">${q.points} pt${q.points > 1 ? 's' : ''}</span>
+                                        ${extraTag}
+                                    </div>
+                                </div>
+                                <button onclick="removeQuestion('${q.id}')" class="text-gray-400 hover:text-red-500" title="Eliminar"><i class="ph ph-trash text-lg"></i></button>
+                            </div>
+                            <!-- Options preview -->
+                            ${q.options && q.options.length > 0 ? `
+                                <ul class="mt-3 text-sm text-gray-500 space-y-1 ml-1 border-l-2 border-gray-100 pl-3">
+                                    ${q.options.map(opt => `
+                                        <li class="flex items-center gap-2 ${opt.isCorrect ? 'text-green-700 font-medium' : ''}">
+                                            <i class="ph ${opt.isCorrect ? 'ph-check-circle' : 'ph-circle'}"></i> ${opt.text}
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            ` : (q.type === 'OPEN_ENDED' ? '<p class="mt-3 text-xs italic text-gray-400">Respuesta abierta extendida.</p>' : '')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            pointsDisplay.textContent = totalPoints + ' pts';
+        }
+
+        async function saveCustomTest(status) {
+            const name = document.getElementById('m_name').value.trim();
+            const desc = document.getElementById('m_desc').value.trim();
+            const passScore = document.getElementById('m_pass').value;
+            const timeLimit = document.getElementById('m_is_unlimited').checked ? 0 : (parseInt(document.getElementById('m_time').value) || 0);
+
+            if (!name) { alert("Obligatorio: Nombre de la prueba."); return; }
+            if (status === 'published' && questionsState.length === 0) { alert("No puedes publicar una prueba vacÃ­a."); return; }
+
+            const payload = {
+                name,
+                description: desc,
+                passingScore: passScore,
+                totalDuration: timeLimit,
+                isAiGenerated: 0,
+                // THE CORE LOGIC CHANGE: Persisting all manually built questions as a JSON string
+                testKeys: JSON.stringify({
+                    status: status,
+                    questions: questionsState
+                })
+            };
+
+            const btn = document.getElementById('btnPublish'); // Simplified, both disable
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = 'Guardando...';
+
+            try {
+                const res = await fetch('../../../api/client/custom_tests/save.php', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert(`Prueba ${status === 'published' ? 'Publicada' : 'Guardada'}! Redirigiendo a biblioteca...`);
+                    window.location.href = '../biblioteca/index.html';
+                } else {
+                    alert("Error: " + data.message);
+                }
+            } catch (r) {
+                alert("Error de red guardando la prueba. Verifica la consola.");
+                console.error(r);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = orig;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('kokoro_client_token');
+            window.location.href = '../../login.html';
+        }
+    </script>
+</body>
+
+</html>

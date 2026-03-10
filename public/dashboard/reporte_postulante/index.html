@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes de Postulante | Kokoro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-[#f4f7f9] min-h-screen flex text-gray-900 font-sans">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col h-screen sticky top-0 shrink-0">
+        <div class="h-16 flex items-center px-6 border-b border-gray-200 gap-3">
+            <div class="w-8 h-8 bg-[#1e293b] text-white font-bold rounded flex items-center justify-center text-sm">K
+            </div>
+            <span class="font-bold text-lg tracking-tight text-[#1e293b]">Kokoro Clientes</span>
+        </div>
+        <div class="p-4 flex-1 overflow-y-auto">
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">Principal</div>
+            <nav class="space-y-1 mb-8">
+                <a href="../evaluaciones/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors"><i
+                        class="ph ph-star text-lg"></i> Evaluaciones</a>
+                <a href="../index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors"><i
+                        class="ph ph-squares-four text-lg"></i> Dashboard</a>
+                <a href="../postulantes/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors"><i
+                        class="ph ph-users text-lg"></i> Postulantes</a>
+                <a href="../perfiles/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors"><i
+                        class="ph ph-briefcase text-lg"></i> Perfiles (Carpeta)</a>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-gray-200">
+            <button onclick="logout()"
+                class="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+                <i class="ph ph-sign-out text-lg"></i> Cerrar Sesión
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <header class="bg-white border-b border-gray-200 h-[72px] flex items-center justify-between px-8 shrink-0">
+            <div class="flex items-center gap-3">
+                <button onclick="history.back()"
+                    class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors">
+                    <i class="ph ph-arrow-left"></i>
+                </button>
+                <div class="font-bold text-xl tracking-tight text-gray-900">Reportes del postulante</div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="relative w-64">
+                    <i class="ph ph-magnifying-glass absolute left-4 top-3 text-gray-400"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar por evaluación, fecha o ID"
+                        oninput="filterReports()"
+                        class="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-full focus:outline-none focus:ring-1 focus:ring-black placeholder-gray-400 bg-white">
+                </div>
+                <select onchange="sortReports(this.value)"
+                    class="px-4 py-2.5 text-sm border border-gray-200 rounded-full bg-white focus:outline-none focus:ring-1 focus:ring-black font-medium text-gray-700">
+                    <option value="desc">Fecha: más reciente</option>
+                    <option value="asc">Fecha: más antiguo</option>
+                </select>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto px-8 py-8">
+            <div class="w-full max-w-4xl mx-auto">
+
+                <!-- Candidate Header Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-7 mb-6 fade-in">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h2 id="candidateName" class="text-2xl font-bold text-gray-900 mb-1">—</h2>
+                            <p class="text-sm text-gray-500 font-medium">Historial de evaluaciones disponibles</p>
+                        </div>
+                        <div id="totalBadge"
+                            class="px-4 py-1.5 rounded-full bg-gray-100 text-sm font-bold text-gray-600">
+                            — mostrando
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Table -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden fade-in">
+                    <table class="min-w-full divide-y divide-gray-100">
+                        <thead class="bg-gray-50/80">
+                            <tr>
+                                <th
+                                    class="py-4 pl-6 pr-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                    #</th>
+                                <th
+                                    class="px-3 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                    Evaluación</th>
+                                <th
+                                    class="px-3 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                    Fecha</th>
+                                <th
+                                    class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-widest pr-6">
+                                    Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportsGrid" class="divide-y divide-gray-100 bg-white">
+                            <tr>
+                                <td colspan="4" class="p-12 text-center text-gray-400">
+                                    <i class="ph ph-spinner animate-spin text-3xl mb-2 block text-gray-300"></i>
+                                    Cargando reportes...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('kokoro_client_token');
+        if (!token) window.location.href = '../../login.html';
+
+        const params = new URLSearchParams(window.location.search);
+        const candidateId = params.get('candidateId');
+        const candidateName = decodeURIComponent(params.get('name') || '—');
+        const candidateEmail = decodeURIComponent(params.get('email') || '');
+
+        document.getElementById('candidateName').textContent = candidateName + (candidateEmail ? ` — ${candidateEmail}` : '');
+
+        let allReports = [];
+
+        document.addEventListener('DOMContentLoaded', loadReports);
+
+        async function loadReports() {
+            try {
+                const res = await fetch(`../../../api/client/candidates/reports.php?candidateId=${candidateId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    allReports = data.data.reports || [];
+                    renderReports(allReports);
+                } else {
+                    showGridError(data.message || 'Error cargando reportes.');
+                }
+            } catch (e) {
+                showGridError('Error de conexión.');
+            }
+        }
+
+        function renderReports(reports) {
+            const grid = document.getElementById('reportsGrid');
+            document.getElementById('totalBadge').textContent = `${reports.length}/${allReports.length} mostrando`;
+
+            if (!reports.length) {
+                grid.innerHTML = `<tr><td colspan="4" class="p-16 text-center text-gray-500">
+                    <i class="ph ph-file-x text-4xl block mb-3 text-gray-300"></i>
+                    No hay evaluaciones disponibles para este postulante.
+                </td></tr>`;
+                return;
+            }
+
+            let html = '';
+            reports.forEach((r, i) => {
+                const fecha = r.invitedAt ? r.invitedAt.substring(0, 10) : '-';
+                html += `
+                <tr class="hover:bg-gray-50 transition-colors" data-cargo="${(r.evaluationCargo || '').toLowerCase()}" data-fecha="${fecha}">
+                    <td class="py-5 pl-6 pr-3 text-xs font-mono font-semibold text-gray-400">#${r.evalCandidateId?.slice(-5) || i + 1}</td>
+                    <td class="px-3 py-5 text-sm">
+                        <div class="font-bold text-gray-900 text-base mb-0.5">${r.evaluationCargo || '-'}</div>
+                        <div class="text-xs text-gray-400">Se abre en nueva pestaña</div>
+                    </td>
+                    <td class="px-3 py-5 text-sm text-gray-600">${fecha}</td>
+                    <td class="px-3 py-5 text-center pr-6">
+                        <button onclick="openReport('${r.evalCandidateId}', '${(r.evaluationCargo || '').replace(/'/g, "\\'")}', '${fecha}')"
+                            class="px-5 py-2 rounded-full border border-gray-300 text-sm font-bold text-gray-700 hover:bg-gray-100 transition-colors">
+                            Abrir
+                        </button>
+                    </td>
+                </tr>`;
+            });
+            grid.innerHTML = html;
+        }
+
+        function openReport(evalCandidateId, cargo, fecha) {
+            const url = `../reporte/index.html?ecId=${encodeURIComponent(evalCandidateId)}&name=${encodeURIComponent(candidateName)}&email=${encodeURIComponent(candidateEmail)}&cargo=${encodeURIComponent(cargo)}&fecha=${encodeURIComponent(fecha)}`;
+            window.open(url, '_blank');
+        }
+
+        function filterReports() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#reportsGrid tr[data-cargo]');
+            rows.forEach(r => {
+                r.style.display = (r.dataset.cargo.includes(q) || r.dataset.fecha.includes(q)) ? '' : 'none';
+            });
+            const visible = [...rows].filter(r => r.style.display !== 'none').length;
+            document.getElementById('totalBadge').textContent = `${visible}/${allReports.length} mostrando`;
+        }
+
+        function sortReports(dir) {
+            const sorted = [...allReports].sort((a, b) => {
+                const da = new Date(a.invitedAt), db = new Date(b.invitedAt);
+                return dir === 'desc' ? db - da : da - db;
+            });
+            renderReports(sorted);
+        }
+
+        function showGridError(msg) {
+            document.getElementById('reportsGrid').innerHTML = `<tr><td colspan="4" class="p-8 text-center text-red-500 text-sm">${msg}</td></tr>`;
+        }
+
+        function logout() {
+            localStorage.removeItem('kokoro_client_token');
+            window.location.href = '../../login.html';
+        }
+    </script>
+</body>
+
+</html>

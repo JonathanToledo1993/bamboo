@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión | Kokoro Empresas</title>
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="text-center flex justify-center mb-4">
+            <div class="kokoro-logo-box text-3xl">K</div>
+        </div>
+        <h2 class="mt-4 text-center text-3xl font-extrabold text-gray-900">
+            Bienvenido a Kokoro
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-600">
+            Inicia sesión en tu cuenta empresarial.
+        </p>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100">
+            <form id="clientLoginForm" class="space-y-6">
+
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Compañía Email</label>
+                    <div class="mt-1">
+                        <input id="email" name="email" type="email" required class="form-input"
+                            placeholder="tu@empresa.com">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                    <div class="mt-1">
+                        <input id="password" name="password" type="password" required class="form-input">
+                    </div>
+                </div>
+
+                <div id="errorAlert" class="alert-error"></div>
+
+                <div>
+                    <button id="loginBtn" type="submit" class="btn-primary">
+                        Iniciar Sesión
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('clientLoginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const btn = document.getElementById('loginBtn');
+            const alert = document.getElementById('errorAlert');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            btn.disabled = true;
+            btn.textContent = "Iniciando sesión...";
+            alert.style.display = "none";
+
+            try {
+                const response = await fetch('../api/auth/login_client.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || "Error iniciando sesión");
+                }
+
+                localStorage.setItem('kokoro_client_token', data.data.token);
+                localStorage.setItem('kokoro_client_user', JSON.stringify(data.data.user));
+
+                // Redirect to Client Dashboard
+                window.location.href = "dashboard/index.html";
+
+            } catch (error) {
+                alert.textContent = error.message;
+                alert.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Iniciar Sesión";
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('kokoro_client_token');
+            if (token) {
+                window.location.href = "dashboard/index.html";
+            }
+        });
+    </script>
+</body>
+
+</html>

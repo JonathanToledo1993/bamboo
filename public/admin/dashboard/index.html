@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard General | AdminOps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <!-- Iconos Phosphor -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        const token = localStorage.getItem('kokoro_admin_token');
+        const user = JSON.parse(localStorage.getItem('kokoro_admin_user') || '{}');
+
+        if (!token) {
+            window.location.href = "../login.html";
+        }
+
+        function logout() {
+            localStorage.removeItem('kokoro_admin_token');
+            localStorage.removeItem('kokoro_admin_user');
+            window.location.href = "../login.html";
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <!-- Navbar / Layout Header -->
+    <header class="bg-black text-white border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Branding & nav -->
+                <div class="flex items-center gap-6">
+                    <a href="index.html" class="flex items-center gap-2">
+                        <div
+                            class="w-8 h-8 bg-white text-black font-bold rounded flex items-center justify-center text-sm">
+                            K
+                        </div>
+                        <span class="font-semibold text-lg tracking-tight hidden sm:block">AdminOps</span>
+                    </a>
+
+                    <nav class="hidden md:flex gap-4 ml-8">
+                        <a href="index.html"
+                            class="text-white px-3 py-2 text-sm font-medium transition-colors border-b-2 border-white">Dashboard</a>
+                        <a href="../empresas/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Empresas</a>
+                        <a href="../pruebas/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Catálogo
+                            de Pruebas</a>
+                        <a href="../config/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Configuración</a>
+                    </nav>
+                </div>
+
+                <!-- User profile & Logout -->
+                <div class="flex items-center gap-4">
+                    <div class="text-sm text-gray-300 hidden sm:block">
+                        <span id="headerName">...</span> <span class="text-gray-500" id="headerRole"></span>
+                    </div>
+                    <button onclick="logout()" class="text-sm text-gray-400 hover:text-white transition-colors">
+                        Salir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Header Section -->
+        <div class="sm:flex sm:items-center sm:justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900">Dashboard General</h1>
+                <p class="mt-2 text-sm text-gray-500">
+                    Visión general del estado del sistema, consumo global y volumen de clientes.
+                </p>
+            </div>
+            <div class="mt-4 sm:mt-0">
+                <a href="../empresas/create.html"
+                    class="inline-flex items-center justify-center rounded-md bg-black px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+                    <i class="ph ph-plus mr-2 text-lg"></i>
+                    Nueva Empresa
+                </a>
+            </div>
+        </div>
+
+        <!-- KPI Grid -->
+        <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="relative overflow-hidden rounded-lg bg-white px-4 pt-5 pb-12 shadow sm:px-6 sm:pt-6">
+                <dt>
+                    <div class="absolute rounded-md bg-blue-500 p-3">
+                        <i class="ph ph-buildings text-white text-xl"></i>
+                    </div>
+                    <p class="ml-16 truncate text-sm font-medium text-gray-500">Empresas Activas</p>
+                </dt>
+                <dd class="ml-16 flex items-baseline pb-6 sm:pb-7">
+                    <p class="text-2xl font-bold text-gray-900" id="kpiCompanies">-</p>
+                </dd>
+            </div>
+
+            <div class="relative overflow-hidden rounded-lg bg-white px-4 pt-5 pb-12 shadow sm:px-6 sm:pt-6">
+                <dt>
+                    <div class="absolute rounded-md bg-purple-500 p-3">
+                        <i class="ph ph-coins text-white text-xl"></i>
+                    </div>
+                    <p class="ml-16 truncate text-sm font-medium text-gray-500">Créditos Consumidos</p>
+                </dt>
+                <dd class="ml-16 flex items-baseline pb-6 sm:pb-7">
+                    <p class="text-2xl font-bold text-gray-900" id="kpiCredits">-</p>
+                </dd>
+            </div>
+
+            <div class="relative overflow-hidden rounded-lg bg-white px-4 pt-5 pb-12 shadow sm:px-6 sm:pt-6">
+                <dt>
+                    <div class="absolute rounded-md bg-green-500 p-3">
+                        <i class="ph ph-users text-white text-xl"></i>
+                    </div>
+                    <p class="ml-16 truncate text-sm font-medium text-gray-500">Candidatos Tot.</p>
+                </dt>
+                <dd class="ml-16 flex items-baseline pb-6 sm:pb-7">
+                    <p class="text-2xl font-bold text-gray-900" id="kpiCandidates">-</p>
+                </dd>
+            </div>
+
+            <div class="relative overflow-hidden rounded-lg bg-white px-4 pt-5 pb-12 shadow sm:px-6 sm:pt-6">
+                <dt>
+                    <div class="absolute rounded-md bg-orange-500 p-3">
+                        <i class="ph ph-exam text-white text-xl"></i>
+                    </div>
+                    <p class="ml-16 truncate text-sm font-medium text-gray-500">Pruebas Finalizadas</p>
+                </dt>
+                <dd class="ml-16 flex items-baseline pb-6 sm:pb-7">
+                    <p class="text-2xl font-bold text-gray-900" id="kpiTests">-</p>
+                </dd>
+            </div>
+        </dl>
+
+    </main>
+
+    <script>
+        document.getElementById('headerName').textContent = user.name;
+        document.getElementById('headerRole').textContent = `(${user.role})`;
+
+        async function fetchMetrics() {
+            try {
+                const res = await fetch('../../../api/admin/dashboard/metrics.php', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.status === 401 || res.status === 403) {
+                    logout();
+                    return;
+                }
+
+                const data = await res.json();
+                if (data.status === 'success') {
+                    const m = data.data.metrics;
+                    document.getElementById('kpiCompanies').textContent = m.totalCompanies;
+                    document.getElementById('kpiCredits').textContent = m.totalCreditsConsumed;
+                    document.getElementById('kpiCandidates').textContent = m.totalCandidates;
+                    document.getElementById('kpiTests').textContent = m.totalTestsCompleted;
+                }
+            } catch (e) {
+                console.error("Error fetching metrics", e);
+            }
+        }
+
+        fetchMetrics();
+    </script>
+</body>
+
+</html>

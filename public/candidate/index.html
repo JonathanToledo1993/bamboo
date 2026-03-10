@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluaciones Kokoro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="text-center flex justify-center mb-4">
+            <div class="kokoro-logo-box text-3xl">K</div>
+        </div>
+        <h2 class="mt-4 text-center text-3xl font-extrabold text-gray-900">
+            Plataforma de Evaluación
+        </h2>
+    </div>
+
+    <!-- Carga / Error -->
+    <div id="loader" class="mt-8 sm:mx-auto sm:w-full sm:max-w-md text-center">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        <p class="mt-2 text-sm text-gray-500">Validando invitación segura...</p>
+    </div>
+
+    <div id="errorPane" class="mt-8 sm:mx-auto sm:w-full sm:max-w-md hidden">
+        <div class="bg-red-50 py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-red-100 text-center">
+            <i class="ph ph-warning-circle text-4xl text-red-500 mb-2"></i>
+            <h3 class="text-lg font-medium text-red-800">Acceso Denegado</h3>
+            <p id="errorMsg" class="mt-2 text-sm text-red-700">El link no es válido.</p>
+        </div>
+    </div>
+
+    <!-- Bienvenida Válida -->
+    <div id="welcomePane" class="mt-8 sm:mx-auto sm:w-full sm:max-w-md hidden">
+        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100">
+            <h3 class="text-xl font-bold text-gray-900 mb-2">¡Hola, <span id="candName" class="text-blue-600"></span>!
+            </h3>
+            <p class="text-sm text-gray-500 mb-6">Estás a punto de iniciar una prueba confidencial psicométrica y de
+                habilidades orquestada por la empresa que te contactó.</p>
+
+            <div class="bg-gray-50 p-4 rounded border border-gray-200 mb-6">
+                <h4 class="text-sm font-semibold text-gray-900" id="testName">Cargando test...</h4>
+                <ul class="mt-2 text-xs text-gray-600 space-y-1 list-disc pl-4">
+                    <li>Tiempo estimado: <span id="testTime" class="font-bold"></span> minutos.</li>
+                    <li>Por favor, ubícate en un ambiente sin distracciones.</li>
+                    <li>No cierres ni recargues la página una vez iniciada la prueba.</li>
+                </ul>
+            </div>
+
+            <button id="startBtn" class="btn-primary w-full shadow-lg h-12 text-lg">
+                Comenzar Evaluación
+            </button>
+        </div>
+    </div>
+
+    <!-- Consumo de API (SPA) -->
+    <script>
+        // 1. Obtener token de la URL: ?token=abc123xyz
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+
+        const loader = document.getElementById('loader');
+        const errorPane = document.getElementById('errorPane');
+        const welcomePane = document.getElementById('welcomePane');
+
+        async function init() {
+            if (!token) {
+                showError("No se proporcionó un token de acceso en la URL.");
+                return;
+            }
+
+            try {
+                const res = await fetch(`../../api/candidate/validate.php?token=${token}`);
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    throw new Error(data.error);
+                }
+
+                const cand = data.data.candidate;
+                const test = data.data.test;
+
+                // Render Success state
+                document.getElementById('candName').textContent = cand.name.split(" ")[0]; // First name
+                document.getElementById('testName').textContent = test.name;
+                document.getElementById('testTime').textContent = test.durationMins;
+
+                loader.classList.add('hidden');
+                welcomePane.classList.remove('hidden');
+
+            } catch (e) {
+                showError(e.message);
+            }
+        }
+
+        function showError(msg) {
+            loader.classList.add('hidden');
+            welcomePane.classList.add('hidden');
+            errorPane.classList.remove('hidden');
+            document.getElementById('errorMsg').textContent = msg;
+        }
+
+        // Listener de Iniciar Prueba
+        document.getElementById('startBtn').addEventListener('click', () => {
+            // Redirect a la interfaz real del Test pasando el token en Sesion / URL
+            window.location.href = `test.html?token=${token}`;
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

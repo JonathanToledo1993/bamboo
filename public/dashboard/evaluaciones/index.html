@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluaciones | Kokoro Empresas</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #111827;
+        }
+
+        .toggle-checkbox:checked+.toggle-label {
+            background-color: #111827;
+        }
+    </style>
+</head>
+
+<body class="bg-[#f4f7f9] min-h-screen flex text-gray-900 font-sans">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col h-screen sticky top-0 shrink-0">
+        <div class="h-16 flex items-center px-6 border-b border-gray-200 gap-3">
+            <div class="w-8 h-8 bg-[#1e293b] text-white font-bold rounded flex items-center justify-center text-sm">K
+            </div>
+            <span class="font-bold text-lg tracking-tight text-[#1e293b]">Kokoro Clientes</span>
+        </div>
+
+        <div class="p-4 flex-1 overflow-y-auto">
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">Principal</div>
+            <nav class="space-y-1 mb-8">
+                <!-- Evaluaciones is the top item now based on Image 5 -->
+                <a href="index.html"
+                    class="flex items-center gap-3 px-3 py-3 text-sm font-medium bg-[#475569] text-white rounded-xl shadow-sm">
+                    <i class="ph ph-star text-lg"></i> Evaluaciones
+                </a>
+                <a href="../index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                    <i class="ph ph-squares-four text-lg"></i> Dashboard
+                </a>
+                <a href="../postulantes/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                    <i class="ph ph-users text-lg"></i> Postulantes
+                </a>
+                <a href="../perfiles/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                    <i class="ph ph-briefcase text-lg"></i> Perfiles (Carpeta)
+                </a>
+            </nav>
+
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">Pruebas</div>
+            <nav class="space-y-1 mb-8">
+                <a href="../biblioteca/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                    <i class="ph ph-books text-lg"></i> Biblioteca Kokoro
+                </a>
+                <a href="../crea/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                    <i class="ph ph-plus-circle text-lg"></i> Crea Tu Prueba
+                </a>
+                <a href="../digitaliza/index.html"
+                    class="flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                    <div class="flex items-center gap-3"><i class="ph ph-file-pdf text-lg"></i> Digitaliza Tu Prueba
+                    </div>
+                    <span
+                        class="bg-black text-white text-[10px] px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">NEW</span>
+                </a>
+            </nav>
+
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">Administración</div>
+            <nav class="space-y-1">
+                <a href="../configuracion/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                    <i class="ph ph-gear text-lg"></i> Configuración
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-gray-200">
+            <div class="bg-white border text-left border-gray-200 rounded-lg p-3 mb-4 shadow-sm">
+                <p class="text-xs font-bold text-gray-800 uppercase tracking-wider mb-1">GRATIS</p>
+                <p class="text-xs text-gray-500 mb-0.5">1 créditos disponibles</p>
+                <p class="text-xs text-gray-500">Expira : 03/04/2026</p>
+            </div>
+
+            <button onclick="logout()"
+                class="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+                <i class="ph ph-sign-out text-lg"></i> Cerrar Sesión
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-h-0 overflow-hidden relative">
+
+        <!-- Header Global Nav -->
+        <header
+            class="bg-white border-b border-gray-200 h-[72px] flex items-center justify-between px-4 sm:px-8 shrink-0">
+            <div class="font-bold flex items-center gap-2 text-xl tracking-tight text-gray-900">
+                <img src="https://api.dicebear.com/7.x/shapes/svg?seed=kokoro" alt="Kokoro"
+                    class="w-8 h-8 rounded-md md:hidden">
+                <span class="md:hidden">Kokoro</span>
+            </div>
+
+            <div class="flex items-center gap-5 ml-auto">
+                <button type="button" onclick="openCreateModal()"
+                    class="hidden md:inline-flex items-center justify-center rounded-full bg-black px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-gray-800 transition-colors">
+                    + Crear evaluación
+                </button>
+                <button
+                    class="relative p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors hidden sm:block">
+                    <i class="ph ph-bell text-xl"></i>
+                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+                </button>
+                <button
+                    class="w-10 h-10 rounded-full border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-700 font-bold hover:bg-gray-100 transition-colors shrink-0">
+                    JT
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto w-full px-4 sm:px-8 py-8">
+            <div class="w-full max-w-[1400px] mx-auto">
+
+                <!-- Page Top White Block -->
+                <div
+                    class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8 flex flex-col justify-between gap-6">
+                    <div>
+                        <h2 class="text-3xl font-bold leading-7 text-gray-900 tracking-tight mb-2">
+                            Mis evaluaciones
+                        </h2>
+                        <p class="text-sm text-gray-500 font-medium">
+                            Gestiona tus procesos de evaluación, revisa su estado y realiza acciones rápidas sobre cada
+                            evaluación.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Evaluaciones Tools Nav -->
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+                    <div class="flex items-center bg-gray-100 p-1 rounded-full gap-1">
+                        <button id="tabActivas" onclick="switchTab('activas')"
+                            class="px-6 py-2.5 text-sm font-bold rounded-full transition-all bg-black text-white shadow-sm">
+                            Activas
+                        </button>
+                        <button id="tabArchivadas" onclick="switchTab('archivadas')"
+                            class="px-6 py-2.5 text-sm font-bold text-gray-500 rounded-full transition-all hover:bg-gray-200">
+                            Archivadas
+                        </button>
+                    </div>
+
+                    <div class="relative w-full md:w-80">
+                        <i class="ph ph-magnifying-glass absolute left-4 top-3 text-gray-400"></i>
+                        <input type="text" id="searchInput" placeholder="Buscar por nombre, creador o código"
+                            oninput="filterTable()"
+                            class="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-full focus:outline-none focus:ring-1 focus:ring-black placeholder-gray-400 bg-white">
+                    </div>
+                </div>
+
+                <!-- Table Container -->
+                <div class="bg-white shadow-sm sm:rounded-2xl border border-gray-200 overflow-x-auto w-full">
+                    <table class="min-w-full divide-y divide-gray-100">
+                        <thead class="bg-gray-50/50">
+                            <tr>
+                                <th scope="col"
+                                    class="py-4 pl-6 pr-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest bg-gray-50/80">
+                                    #</th>
+                                <th scope="col"
+                                    class="px-3 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-widest bg-gray-50/80">
+                                    Evaluación</th>
+                                <th scope="col"
+                                    class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-widest bg-gray-50/80">
+                                    Postulantes</th>
+                                <th scope="col"
+                                    class="px-3 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-widest bg-gray-50/80">
+                                    Estado de los postulantes</th>
+                                <th scope="col"
+                                    class="px-3 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-widest bg-gray-50/80">
+                                    Fechas</th>
+                                <th scope="col"
+                                    class="px-3 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-widest bg-gray-50/80 pr-6">
+                                    Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 bg-white" id="evalGrid">
+                            <tr>
+                                <td colspan="6" class="p-12 text-center text-gray-500">
+                                    <i class="ph ph-spinner animate-spin text-4xl mb-3 text-gray-300 mx-auto"></i>
+                                    <p>Cargando evaluaciones...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- GLOBAL WIZARD: CREAR EVALUACIÓN -->
+    <div id="createEvalModal" class="relative z-[70] hidden fade-in" aria-labelledby="modal-title" role="dialog"
+        aria-modal="true">
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-70 transition-opacity backdrop-blur-sm shadow-2xl"></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div
+                    class="relative transform overflow-visible rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 w-full max-w-[650px] flex flex-col">
+
+                    <!-- Header -->
+                    <div class="px-8 py-6 border-b border-gray-100 flex items-center justify-between shrink-0">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-1" id="evalModalTitle">Crear evaluación</h3>
+                            <p class="text-sm text-gray-500 font-medium">Define el cargo, perfil e idioma para
+                                configurar tu nueva evaluación.</p>
+                        </div>
+                        <button type="button" onclick="closeCreateModal()"
+                            class="flex items-center justify-center w-8 h-8 rounded-full border border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors">
+                            <i class="ph ph-x"></i>
+                        </button>
+                    </div>
+
+                    <!-- Body Form -->
+                    <div class="p-8 space-y-6 bg-white overflow-visible">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Nombre del cargo a evaluar <span
+                                    class="text-red-500">*</span></label>
+                            <input type="text" id="evalCargo"
+                                class="block w-full rounded-xl border border-gray-300 py-3.5 px-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-shadow text-base"
+                                placeholder="Ej. Gerente de Ventas">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Selecciona el Perfil Base <span
+                                    class="text-red-500">*</span></label>
+                            <select id="evalProfile"
+                                class="block w-full rounded-xl border border-gray-300 py-3.5 px-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-shadow text-base bg-white">
+                                <option value="">Cargando perfiles...</option>
+                            </select>
+                        </div>
+
+                        <div class="pt-4 space-y-5">
+                            <!-- Toggle 1: Confidencial -->
+                            <div class="flex items-start justify-between">
+                                <div class="pr-4">
+                                    <h4 class="text-sm font-bold text-gray-900 mb-1">Evaluación confidencial</h4>
+                                    <p class="text-[13px] text-gray-500 leading-snug">Si activas esta opción, los
+                                        postulantes no verán el nombre ni el logo de tu empresa.</p>
+                                </div>
+                                <div
+                                    class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in mt-1">
+                                    <input type="checkbox" name="toggleConfidencial" id="toggleConfidencial"
+                                        class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 z-10 top-0 left-0 transition-all duration-200" />
+                                    <label for="toggleConfidencial"
+                                        class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-200"></label>
+                                </div>
+                            </div>
+
+                            <!-- Toggle 2: Expiración -->
+                            <div class="flex items-start justify-between">
+                                <div class="pr-4">
+                                    <h4 class="text-sm font-bold text-gray-900 mb-1">Definir fecha de finalización</h4>
+                                    <p class="text-[13px] text-gray-500 leading-snug">Al activar esta opción, la
+                                        evaluación se cerrará automáticamente en la fecha indicada.</p>
+
+                                    <input type="date" id="evalExpireDate"
+                                        class="mt-3 hidden w-[200px] rounded-lg border border-gray-300 py-2 px-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black">
+                                </div>
+                                <div
+                                    class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in mt-1">
+                                    <input type="checkbox" name="toggleExpire" id="toggleExpire"
+                                        class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 z-10 top-0 left-0 transition-all duration-200"
+                                        onchange="document.getElementById('evalExpireDate').classList.toggle('hidden', !this.checked)" />
+                                    <label for="toggleExpire"
+                                        class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-200"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Footer -->
+                    <div
+                        class="px-8 py-5 border-t border-gray-100 flex items-center justify-end shrink-0 bg-[#f8fafc] rounded-b-3xl">
+                        <div class="flex gap-3">
+                            <button type="button" onclick="closeCreateModal()"
+                                class="px-6 py-3 rounded-full text-sm font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 transition-colors">Cancelar</button>
+                            <button type="button" id="btnSubmitEval" onclick="submitEvaluation()"
+                                class="px-8 py-3 rounded-full text-sm font-bold text-white bg-black hover:bg-gray-800 transition-colors shadow-md min-w-[140px]">Guardar</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Scripts -->
+    <script>
+        const token = localStorage.getItem('kokoro_client_token');
+        if (!token) window.location.href = '../../login.html';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchEvaluations();
+        });
+
+        // ==========================
+        //  EVALUATIONS DASHBOARD
+        // ==========================
+        async function fetchEvaluations() {
+            try {
+                const res = await fetch('../../../api/client/evaluations/list.php', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.status === 'success' || data.success) {
+                    // Store all evaluations for tab filtering
+                    allEvaluations = data.data.evaluations || [];
+                    // Show only current tab's evaluations
+                    // MySQL returns TINYINT as string '0'/'1', use parseInt
+                    const filtered = allEvaluations.filter(e => currentTab === 'activas' ? parseInt(e.archived) !== 1 : parseInt(e.archived) === 1);
+                    renderEvaluations(filtered);
+                } else if (res.status === 401) {
+                    logout();
+                } else {
+                    document.getElementById('evalGrid').innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-500 text-sm">Error cargando datos.</td></tr>`;
+                }
+            } catch (err) { }
+        }
+
+        function renderEvaluations(evals) {
+            const grid = document.getElementById('evalGrid');
+            if (!evals || evals.length === 0) {
+                grid.innerHTML = `<tr><td colspan="6" class="p-16 text-center text-gray-500 font-medium">No hay evaluaciones activas.<br><button onclick="openCreateModal()" class="mt-3 text-black font-bold border-b border-black">Crear nueva evaluación</button></td></tr>`;
+                return;
+            }
+
+            let html = '';
+            evals.forEach(e => {
+                const total = parseInt(e.totalCandidates || 0);
+                const finished = parseInt(e.finishedCandidates || 0);
+                const pending = total - finished;
+
+                let progressHtml = '';
+                if (total === 0) {
+                    progressHtml = `<span class="text-sm font-medium text-gray-400">Sin postulantes</span>`;
+                } else {
+                    const percent = (finished / total) * 100;
+                    progressHtml = `
+                    <div class="w-full max-w-[200px]">
+                        <div class="flex h-2.5 overflow-hidden rounded-full bg-orange-500">
+                            <div style="width: ${percent}%" class="flex flex-col justify-center overflow-hidden bg-green-500 text-white text-center whitespace-nowrap"></div>
+                        </div>
+                        <div class="flex items-center gap-3 mt-1.5 text-xs font-semibold">
+                            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Finalizados: ${finished}</span>
+                            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span> Pendientes: ${pending}</span>
+                        </div>
+                    </div>
+                    `;
+                }
+
+                html += `
+                <tr class="hover:bg-gray-50 transition-colors" data-cargo="${e.cargo.toLowerCase()}" data-creator="${(e.creatorName || '').toLowerCase()}" data-id="${e.id.toLowerCase()}">
+                    <td class="py-5 pl-6 pr-3 text-xs font-mono font-semibold text-gray-400">${e.id}</td>
+                    <td class="px-3 py-5 text-sm">
+                        <div class="font-bold text-gray-900 text-base mb-0.5" title="${e.profileKey}">${e.cargo}</div>
+                        <div class="text-xs text-gray-500 flex items-center gap-1"><i class="ph ph-user text-gray-400"></i> ${e.creatorName || '-'}</div>
+                    </td>
+                    <td class="px-3 py-5 text-center">
+                        <div class="text-xl font-bold text-gray-900 leading-none">${total}</div>
+                        <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Postulantes</div>
+                    </td>
+                    <td class="px-3 py-5 text-sm align-middle">
+                        ${progressHtml}
+                    </td>
+                    <td class="px-3 py-5 text-xs text-gray-600 space-y-1">
+                        <div class="flex items-center gap-1.5"><i class="ph ph-calendar-blank text-gray-400"></i> Creada: ${e.createdAt.substring(0, 10)}</div>
+                        <div class="flex items-center gap-1.5"><i class="ph ph-hourglass-high text-gray-400"></i> Expira: ${e.expiresAt ? e.expiresAt.substring(0, 10) : '-'}</div>
+                        <div class="flex items-center gap-1.5"><i class="ph ph-clock-counter-clockwise text-gray-400"></i> Últ act: ${e.updatedAt.substring(0, 10)}</div>
+                    </td>
+                    <td class="px-3 py-5 text-center pr-6 relative">
+                        <div class="relative inline-block text-left">
+                            <button onclick="toggleActionsMenu('menu-${e.id}')"
+                                class="w-8 h-8 rounded-full border border-gray-200 text-gray-500 hover:text-black hover:border-black inline-flex items-center justify-center transition-colors shadow-sm bg-white">
+                                <i class="ph ph-dots-three text-lg"></i>
+                            </button>
+                            <div id="menu-${e.id}"
+                                class="hidden absolute right-0 z-50 mt-2 w-52 origin-top-right rounded-xl bg-white shadow-lg border border-gray-200 py-1 focus:outline-none">
+                                <a href="ver_evaluacion.html?id=${e.id}"
+                                    class="flex items-center gap-2 w-full px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-black transition-colors text-left">
+                                    <i class="ph ph-folder-open text-gray-400"></i>
+                                    Abrir evaluación
+                                </a>
+                                <button onclick="openInviteModal('${e.id}', '${e.cargo.replace(/'/g, "\\'")}')"
+                                    class="flex items-center gap-2 w-full px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-black transition-colors">
+                                    <i class="ph ph-paper-plane-tilt text-gray-400"></i>
+                                    Enviar evaluación
+                                </button>
+                                <div class="border-t border-gray-100 my-1"></div>
+                                <button onclick="archiveEvaluation('${e.id}', '${e.cargo.replace(/'/g, "\\'")}')"
+                                    class="flex items-center gap-2 w-full px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
+                                    <i class="ph ph-archive-box"></i>
+                                    Archivar evaluación
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        // ==========================
+        //  CREATE EVALUATION MODAL
+        // ==========================
+        async function openCreateModal() {
+            // Load profiles first
+            try {
+                const res = await fetch('../../../api/client/profiles/list.php', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                const select = document.getElementById('evalProfile');
+                select.innerHTML = '<option value="">Selecciona un perfil...</option>';
+
+                if (data.status === 'success' && data.data.profiles) {
+                    data.data.profiles.forEach(p => {
+                        select.innerHTML += `<option value="${p.id}">${p.name} (${p.hierarchy || 'Sin jerarquía'}) - ${p.totalMinutes ?? 0} min</option>`;
+                    });
+                }
+            } catch (err) { }
+
+            document.getElementById('createEvalModal').classList.remove('hidden');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createEvalModal').classList.add('hidden');
+            // Reset
+            document.getElementById('evalCargo').value = '';
+            document.getElementById('evalProfile').value = '';
+            document.getElementById('toggleConfidencial').checked = false;
+            document.getElementById('toggleExpire').checked = false;
+            document.getElementById('evalExpireDate').classList.add('hidden');
+            document.getElementById('evalExpireDate').value = '';
+        }
+
+        async function submitEvaluation() {
+            const cargo = document.getElementById('evalCargo').value.trim();
+            const profileId = document.getElementById('evalProfile').value;
+            const isConfidential = document.getElementById('toggleConfidencial').checked;
+            const toggleExpire = document.getElementById('toggleExpire').checked;
+            const expiresAt = toggleExpire ? document.getElementById('evalExpireDate').value : null;
+
+            if (!cargo || !profileId) {
+                alert('El Nombre del Cargo y el Perfil Base son obligatorios.');
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitEval');
+            btn.innerHTML = `<i class="ph ph-spinner animate-spin text-lg"></i>`;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('../../../api/client/evaluations/create.php', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ cargo, profileId, isConfidential, expiresAt })
+                });
+
+                const data = await res.json();
+                if (data.status === 'success' || data.success) {
+                    closeCreateModal();
+                    fetchEvaluations(); // reload table
+                } else {
+                    alert(data.message || data.error);
+                }
+            } catch (err) {
+                alert('Error al guardar evaluación.');
+            } finally {
+                btn.innerHTML = `Guardar`;
+                btn.disabled = false;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('kokoro_client_token');
+            window.location.href = '../../login.html';
+        }
+
+        // ==========================
+        //  TAB SWITCHING
+        // ==========================
+        let currentTab = 'activas';
+        let allEvaluations = [];
+
+        function switchTab(tab) {
+            currentTab = tab;
+            const tabActivas = document.getElementById('tabActivas');
+            const tabArchivadas = document.getElementById('tabArchivadas');
+            if (tab === 'activas') {
+                tabActivas.className = 'px-6 py-2.5 text-sm font-bold rounded-full transition-all bg-black text-white shadow-sm';
+                tabArchivadas.className = 'px-6 py-2.5 text-sm font-bold text-gray-500 rounded-full transition-all hover:bg-gray-200';
+            } else {
+                tabArchivadas.className = 'px-6 py-2.5 text-sm font-bold rounded-full transition-all bg-black text-white shadow-sm';
+                tabActivas.className = 'px-6 py-2.5 text-sm font-bold text-gray-500 rounded-full transition-all hover:bg-gray-200';
+            }
+            const filtered = allEvaluations.filter(e => tab === 'activas' ? parseInt(e.archived) !== 1 : parseInt(e.archived) === 1);
+            renderEvaluations(filtered);
+        }
+
+        function filterTable() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#evalGrid tr[data-cargo]');
+            rows.forEach(row => {
+                const cargo = row.dataset.cargo || '';
+                const creator = row.dataset.creator || '';
+                const id = row.dataset.id || '';
+                row.style.display = (cargo.includes(q) || creator.includes(q) || id.includes(q)) ? '' : 'none';
+            });
+        }
+
+        // ==========================
+        //  DROPDOWN ACTIONS MENU
+        // ==========================
+        function toggleActionsMenu(menuId) {
+            // Close all open menus first
+            document.querySelectorAll('[id^="menu-"]').forEach(menu => {
+                if (menu.id !== menuId) menu.classList.add('hidden');
+            });
+            document.getElementById(menuId).classList.toggle('hidden');
+        }
+
+        // Close menus when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('[id^="menu-"]') && !e.target.closest('button[onclick^="toggleActionsMenu"]')) {
+                document.querySelectorAll('[id^="menu-"]').forEach(m => m.classList.add('hidden'));
+            }
+        });
+
+        // ==========================
+        //  ARCHIVE EVALUATION
+        // ==========================
+        async function archiveEvaluation(evalId, cargo) {
+            if (!confirm(`¿Archivar la evaluación "${cargo}"? No se podrán enviar más invitaciones a esta evaluación.`)) return;
+            try {
+                const res = await fetch('../../../api/client/evaluations/archive.php', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ evaluationId: evalId })
+                });
+                const data = await res.json();
+                if (data.status === 'success' || data.success) {
+                    fetchEvaluations();
+                } else {
+                    alert(data.message || 'Error al archivar.');
+                }
+            } catch (err) {
+                alert('Error de conexión.');
+            }
+        }
+
+        // ==========================
+        //  INVITE MODAL
+        // ==========================
+        let _inviteEvalId = null;
+
+        function openInviteModal(evalId, cargo) {
+            _inviteEvalId = evalId;
+            document.getElementById('inviteModalTitle').textContent = `Invita postulantes a tu evaluación`;
+            document.getElementById('inviteSubtitle').textContent = cargo;
+            // Build link
+            const link = `${window.location.origin}/app_admin/public/candidate/test.html?token=${evalId}`;
+            document.getElementById('inviteLinkInput').value = link;
+            // Reset form
+            document.getElementById('inviteNombre').value = '';
+            document.getElementById('inviteApellido').value = '';
+            document.getElementById('inviteEmail').value = '';
+            document.getElementById('inviteModal').classList.remove('hidden');
+            // Close dropdown
+            document.querySelectorAll('[id^="menu-"]').forEach(m => m.classList.add('hidden'));
+        }
+
+        function closeInviteModal() {
+            document.getElementById('inviteModal').classList.add('hidden');
+            _inviteEvalId = null;
+        }
+
+        async function sendEmailInvite() {
+            const nombre = document.getElementById('inviteNombre').value.trim();
+            const apellido = document.getElementById('inviteApellido').value.trim();
+            const email = document.getElementById('inviteEmail').value.trim();
+            if (!nombre || !email) { alert('Nombre y email son obligatorios.'); return; }
+
+            const btn = document.getElementById('btnSendInvite');
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+            try {
+                const res = await fetch('../../../api/client/candidates/invite.php', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ evaluationId: _inviteEvalId, firstName: nombre, lastName: apellido, email })
+                });
+                const data = await res.json();
+                if (data.status === 'success' || data.success) {
+                    document.getElementById('inviteNombre').value = '';
+                    document.getElementById('inviteApellido').value = '';
+                    document.getElementById('inviteEmail').value = '';
+                    btn.textContent = '✓ Invitado!';
+                    setTimeout(() => { btn.textContent = 'Invitar postulante'; btn.disabled = false; }, 2000);
+                } else {
+                    alert(data.message || 'Error al enviar invitación.');
+                    btn.disabled = false;
+                    btn.textContent = 'Invitar postulante';
+                }
+            } catch (e) {
+                alert('Error de conexión.'); btn.disabled = false; btn.textContent = 'Invitar postulante';
+            }
+        }
+
+        function copyInviteLink() {
+            const input = document.getElementById('inviteLinkInput');
+            navigator.clipboard.writeText(input.value).then(() => {
+                const btn = document.getElementById('btnCopyLink');
+                btn.textContent = '¡Copiado!';
+                setTimeout(() => btn.textContent = 'Copiar', 2000);
+            });
+        }
+
+        function shareWhatsApp() {
+            const link = document.getElementById('inviteLinkInput');
+            window.open(`https://wa.me/?text=${encodeURIComponent('Te invito a completar esta evaluación: ' + link.value)}`, '_blank');
+        }
+    </script>
+
+    <!-- INVITE MODAL -->
+    <div id="inviteModal" class="relative z-[80] hidden" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-900/70 backdrop-blur-sm" onclick="closeInviteModal()"></div>
+        <div class="fixed inset-0 z-10 flex items-center justify-center p-4">
+            <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden">
+
+                <!-- Header -->
+                <div class="flex items-start justify-between px-8 py-6 border-b border-gray-100">
+                    <div>
+                        <h3 id="inviteModalTitle" class="text-xl font-bold text-gray-900 mb-0.5">Invita postulantes a tu
+                            evaluación</h3>
+                        <p id="inviteSubtitle" class="text-sm text-gray-500 font-medium"></p>
+                    </div>
+                    <button onclick="closeInviteModal()"
+                        class="ml-4 mt-1 w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-colors shrink-0">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+
+                    <!-- Left: Email Invite -->
+                    <div class="p-8">
+                        <h4 class="text-sm font-bold text-gray-900 mb-1">Invitación por correo</h4>
+                        <p class="text-xs text-gray-500 mb-5">Completa los datos para invitar por email.</p>
+                        <div class="space-y-3">
+                            <input id="inviteNombre" type="text" placeholder="Nombre"
+                                class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder-gray-400">
+                            <input id="inviteApellido" type="text" placeholder="Apellido"
+                                class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder-gray-400">
+                            <input id="inviteEmail" type="email" placeholder="Email"
+                                class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder-gray-400">
+                        </div>
+                        <button id="btnSendInvite" onclick="sendEmailInvite()"
+                            class="mt-5 w-full py-3.5 rounded-xl bg-[#1e293b] text-white text-sm font-bold hover:bg-black transition-colors">
+                            Invitar postulante
+                        </button>
+                        <p class="text-xs text-gray-400 text-center mt-3">Puedes editar el mensaje del correo en tu
+                            configuración.</p>
+                    </div>
+
+                    <!-- Right: Link / WhatsApp / Bulk -->
+                    <div class="p-8 space-y-7">
+
+                        <!-- Link -->
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-900 mb-1">Invitación por link</h4>
+                            <p class="text-xs text-gray-500 mb-3">Invita postulantes compartiendo el link de tu
+                                evaluación.</p>
+                            <div class="flex gap-2">
+                                <input id="inviteLinkInput" type="text" readonly
+                                    class="flex-1 min-w-0 border border-gray-200 rounded-xl px-3 py-2.5 text-xs text-gray-600 bg-gray-50 focus:outline-none truncate">
+                                <button id="btnCopyLink" onclick="copyInviteLink()"
+                                    class="shrink-0 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-100 transition-colors">
+                                    Copiar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- WhatsApp -->
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-900 mb-1">Invitación por WhatsApp</h4>
+                            <p class="text-xs text-gray-500 mb-3">Comparte el link directo en WhatsApp.</p>
+                            <button onclick="shareWhatsApp()"
+                                class="w-full py-3 rounded-xl bg-[#1e293b] text-white text-sm font-bold hover:bg-black transition-colors flex items-center justify-center gap-2">
+                                <i class="ph ph-whatsapp-logo text-lg"></i>
+                                Invitar por WhatsApp
+                            </button>
+                        </div>
+
+                        <!-- Bulk -->
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-900 mb-1">Invitación masiva</h4>
+                            <p class="text-xs text-gray-500 mb-3">Descarga nuestra plantilla y cárgala con tus
+                                postulantes.</p>
+                            <div class="flex flex-wrap gap-2">
+                                <button
+                                    class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors">Cargar
+                                    plantilla</button>
+                                <button
+                                    class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors">Cargar
+                                    archivo</button>
+                                <button
+                                    class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors">Descargar
+                                    plantilla</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

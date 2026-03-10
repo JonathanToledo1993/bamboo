@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo de Evaluación | Kokoro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .option-card {
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .option-card:hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+        .option-card.selected {
+            border-color: #2563eb;
+            background-color: #dbeafe;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header / Progress Bar -->
+    <header class="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                    <span class="text-white font-black text-xs">K</span>
+                </div>
+                <div>
+                    <h1 id="testName" class="text-sm font-bold text-gray-900">Cargando prueba...</h1>
+                    <p id="progressText" class="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Pregunta
+                        0 de 0</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full border border-gray-100">
+                    <i class="ph ph-clock text-blue-600"></i>
+                    <span id="timer" class="text-sm font-mono font-bold text-gray-700">00:00</span>
+                </div>
+                <button onclick="confirmExit()" class="text-gray-400 hover:text-red-500 transition-colors">
+                    <i class="ph ph-x-circle text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Global Progress Bar -->
+        <div class="w-full bg-gray-100 h-1">
+            <div id="progressBar" class="bg-blue-600 h-1 transition-all duration-500" style="width: 0%"></div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-3xl mx-auto w-full px-4 py-12">
+
+        <!-- Loading State -->
+        <div id="stepLoading" class="flex flex-col items-center justify-center py-20">
+            <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p class="mt-4 text-gray-500 font-medium">Preparando tus preguntas...</p>
+        </div>
+
+        <!-- Exam View -->
+        <div id="stepExam" class="hidden fade-in">
+            <div id="questionContainer" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-12">
+                <span id="questionCategory"
+                    class="inline-block px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold uppercase mb-4">Competencia</span>
+                <h2 id="questionText" class="text-xl md:text-2xl font-bold text-gray-900 leading-tight mb-10">
+                    ¿Esta es una pregunta de ejemplo para visualizar el diseño?
+                </h2>
+
+                <div id="optionsList" class="space-y-3">
+                    <!-- Options injected here -->
+                </div>
+            </div>
+
+            <div class="mt-8 flex items-center justify-between">
+                <button id="btnPrev" onclick="prevQuestion()"
+                    class="px-6 py-3 rounded-2xl font-bold text-gray-400 hover:text-gray-900 transition-colors flex items-center gap-2">
+                    <i class="ph ph-arrow-left"></i> Anterior
+                </button>
+                <button id="btnNext" onclick="nextQuestion()"
+                    class="px-8 py-3 bg-black text-white rounded-2xl font-bold shadow-lg hover:bg-gray-800 transition-all flex items-center gap-2 disabled:bg-gray-200 disabled:cursor-not-allowed">
+                    Continuar <i class="ph ph-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Success/Finished State -->
+        <div id="stepFinished" class="hidden text-center py-12 fade-in">
+            <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="ph ph-check-circle text-green-500 text-4xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">¡Prueba Finalizada!</h2>
+            <p class="text-gray-500 mb-8 max-w-sm mx-auto">Tus respuestas han sido guardadas. Ahora puedes continuar con
+                las pruebas restantes.</p>
+            <button onclick="goBack()"
+                class="px-10 py-4 bg-black text-white rounded-2xl font-bold shadow-xl hover:scale-105 transition-all">
+                Volver al listado
+            </button>
+        </div>
+
+    </main>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const testId = urlParams.get('test');
+
+        let questions = [];
+        let currentIndex = 0;
+        let answers = {}; // questionId: answerId
+        let timeLeft = 0;
+        let timerInterval = null;
+
+        async function init() {
+            if (!token || !testId) {
+                alert('Faltan parámetros de acceso.');
+                window.location.href = 'test.html';
+                return;
+            }
+
+            try {
+                const res = await fetch(`../../api/candidate/get_exam.php?token=${token}&testId=${testId}`);
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    questions = data.data.questions;
+                    document.getElementById('testName').textContent = data.data.test.name;
+                    timeLeft = data.data.test.durationMins * 60;
+
+                    document.getElementById('stepLoading').classList.add('hidden');
+                    document.getElementById('stepExam').classList.remove('hidden');
+
+                    startTimer();
+                    showQuestion(0);
+                } else {
+                    alert(data.message);
+                    window.location.href = 'test.html';
+                }
+            } catch (e) {
+                alert('Error al cargar el examen.');
+            }
+        }
+
+        function showQuestion(index) {
+            currentIndex = index;
+            const q = questions[index];
+
+            // Header updates
+            document.getElementById('progressText').textContent = `Pregunta ${index + 1} de ${questions.length}`;
+            document.getElementById('progressBar').style.width = `${((index + 1) / questions.length) * 100}%`;
+
+            // UI updates
+            document.getElementById('questionText').textContent = q.questionText;
+            document.getElementById('btnPrev').style.visibility = index === 0 ? 'hidden' : 'visible';
+
+            if (index === questions.length - 1) {
+                document.getElementById('btnNext').innerHTML = 'Finalizar Prueba <i class="ph ph-check-circle"></i>';
+            } else {
+                document.getElementById('btnNext').innerHTML = 'Continuar <i class="ph ph-arrow-right"></i>';
+            }
+
+            // Render options
+            const list = document.getElementById('optionsList');
+            list.innerHTML = q.options.map(opt => `
+                <div class="option-card p-5 rounded-2xl bg-white border border-gray-100 flex items-center justify-between ${answers[q.id] === opt.id ? 'selected' : ''}" 
+                     onclick="selectOption('${q.id}', '${opt.id}')">
+                    <span class="text-gray-700 font-medium">${opt.text}</span>
+                    <div class="w-5 h-5 rounded-full border-2 border-gray-200 flex items-center justify-center transition-all ${answers[q.id] === opt.id ? 'bg-blue-600 border-blue-600' : ''}">
+                        <div class="w-1.5 h-1.5 bg-white rounded-full ${answers[q.id] === opt.id ? 'block' : 'hidden'}"></div>
+                    </div>
+                </div>
+            `).join('');
+
+            updateNextButton();
+        }
+
+        function selectOption(qId, aId) {
+            answers[qId] = aId;
+            showQuestion(currentIndex);
+        }
+
+        function updateNextButton() {
+            const btn = document.getElementById('btnNext');
+            btn.disabled = !answers[questions[currentIndex].id];
+        }
+
+        function nextQuestion() {
+            if (currentIndex < questions.length - 1) {
+                showQuestion(currentIndex + 1);
+            } else {
+                submitExam();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                showQuestion(currentIndex - 1);
+            }
+        }
+
+        async function submitExam() {
+            if (!confirm('¿Estás seguro que deseas finalizar esta prueba?')) return;
+
+            const btn = document.getElementById('btnNext');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Enviando...';
+
+            const payload = {
+                token: token,
+                testId: testId,
+                answers: Object.entries(answers).map(([qId, aId]) => ({ qId, aId }))
+            };
+
+            try {
+                const res = await fetch('../../api/candidate/submit_exam.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error("Non-JSON response:", text);
+                    alert('Error en el servidor. El servidor no devolvió una respuesta válida.');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Finalizar Prueba <i class="ph ph-check-circle"></i>';
+                    return;
+                }
+
+                if (data.status === 'success') {
+                    clearInterval(timerInterval);
+                    document.getElementById('stepExam').classList.add('hidden');
+                    document.getElementById('stepFinished').classList.remove('hidden');
+                } else {
+                    alert(data.status + ": " + (data.message || 'Error desconocido'));
+                    btn.disabled = false;
+                    btn.innerHTML = 'Finalizar Prueba <i class="ph ph-check-circle"></i>';
+                }
+            } catch (e) {
+                console.error("Fetch error:", e);
+                alert('Error al enviar tus respuestas: ' + e.message);
+                btn.disabled = false;
+            }
+        }
+
+        function startTimer() {
+            const display = document.getElementById('timer');
+            timerInterval = setInterval(() => {
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                display.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert('El tiempo de la prueba ha expirado. Tus respuestas actuales serán enviadas.');
+                    submitExam();
+                } else {
+                    timeLeft--;
+                }
+
+                // Warn on low time
+                if (timeLeft < 60) {
+                    display.classList.add('text-red-500');
+                    display.classList.add('animate-pulse');
+                }
+            }, 1000);
+        }
+
+        function confirmExit() {
+            if (confirm('¿Seguro que quieres salir de la prueba? Los progresos no guardados se perderán.')) {
+                goBack();
+            }
+        }
+
+        function goBack() {
+            window.location.href = `test.html?st=${token}`;
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

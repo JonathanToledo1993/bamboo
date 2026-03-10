@@ -1,0 +1,16 @@
+# Bloquear acceso directo a archivos sensibles desde el navegador
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "*.env*">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Bloquear acceso a archivos de configuración PHP desde la web
+<FilesMatch "^(env|db|ai)\.php$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>

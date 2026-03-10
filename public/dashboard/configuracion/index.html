@@ -1,0 +1,886 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración | Kokoro Empresas</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .cfg-tab-content {
+            display: none;
+        }
+
+        .cfg-tab-content.active {
+            display: block;
+        }
+
+        .cfg-tab.active {
+            border-color: black;
+            color: black;
+        }
+
+        .cfg-tab {
+            border-color: transparent;
+            color: #6b7280;
+        }
+
+        .cfg-tab:hover {
+            border-color: #d1d5db;
+            color: #374151;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex">
+
+    <!-- Sidebar Nav - Desktop -->
+    <aside class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col h-screen sticky top-0 shrink-0">
+        <div class="h-[72px] flex items-center px-6 border-b border-gray-200 gap-3 shrink-0">
+            <div class="w-8 h-8 font-bold bg-black text-white rounded-md flex items-center justify-center text-sm">
+                K
+            </div>
+            <span class="font-bold text-lg tracking-tight text-gray-900">Kokoro</span>
+        </div>
+
+        <div class="p-4 flex-1 overflow-y-auto">
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 px-3">Principal</div>
+            <nav class="space-y-1 mb-8">
+                <a href="../evaluaciones/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                    <i class="ph ph-star text-lg"></i> Mis Evaluaciones
+                </a>
+                <a href="../postulantes/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                    <i class="ph ph-users text-lg"></i> Postulantes
+                </a>
+                <a href="../perfiles/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                    <i class="ph ph-briefcase text-lg"></i> Perfiles (Carpeta)
+                </a>
+                <a href="../biblioteca/index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
+                    <i class="ph ph-books text-lg"></i> Biblioteca Kokoro
+                </a>
+            </nav>
+
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 px-3">Administración</div>
+            <nav class="space-y-1">
+                <a href="index.html"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium bg-gray-100 text-black rounded-lg">
+                    <i class="ph ph-gear text-lg"></i> Configuración
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-gray-200">
+            <!-- Free Credits Block Mock -->
+            <div class="bg-white border text-left border-gray-200 rounded-lg p-3 mb-4 shadow-sm">
+                <p class="text-xs font-bold text-gray-800 uppercase tracking-wider mb-1">GRATIS</p>
+                <p class="text-xs text-gray-500 mb-0.5">1 créditos disponibles</p>
+                <p class="text-xs text-gray-500">Expira : 03/04/2026</p>
+            </div>
+
+            <button onclick="logout()"
+                class="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+                <i class="ph ph-sign-out text-lg"></i> Cerrar Sesión
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-h-0 overflow-hidden relative">
+
+        <!-- Header Global Nav (User Request: Always visible Create Evaluation button, notifications, avatar) -->
+        <header
+            class="bg-white border-b border-gray-200 h-[72px] flex items-center justify-between px-4 sm:px-8 shrink-0">
+            <div class="font-bold flex items-center gap-2 text-xl tracking-tight text-gray-900">
+                <img src="https://api.dicebear.com/7.x/shapes/svg?seed=kokoro" alt="Kokoro"
+                    class="w-8 h-8 rounded-md md:hidden">
+                <span class="md:hidden">Kokoro</span>
+            </div>
+
+            <div class="flex items-center gap-4 ml-auto">
+                <button type="button" onclick="openCreateEvaluationModal()"
+                    class="hidden md:inline-flex items-center justify-center rounded-full bg-black px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-gray-800 transition-colors">
+                    + Crear evaluación
+                </button>
+                <button
+                    class="relative p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors hidden sm:block">
+                    <i class="ph ph-bell text-xl"></i>
+                    <span
+                        class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                </button>
+                <button
+                    class="w-10 h-10 rounded-full border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-700 font-bold hover:bg-gray-100 transition-colors shrink-0">
+                    JT
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto w-full px-4 sm:px-8 py-8">
+            <div class="w-full max-w-6xl mx-auto">
+
+                <!-- Page Top White Block -->
+                <div
+                    class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                        <h2 class="text-3xl font-bold leading-7 text-gray-900 tracking-tight mb-2">
+                            Configuración de Cuenta
+                        </h2>
+                        <p class="text-sm text-gray-500 font-medium">
+                            Ajusta tu perfil, controla a los miembros del equipo y edita plantillas de notificación.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tabs Navigation -->
+                <div class="mb-8 overflow-x-auto">
+                    <nav class="flex space-x-8 border-b border-gray-200 min-w-max" aria-label="Tabs">
+                        <button onclick="switchTab('tab-micuenta')"
+                            class="cfg-tab active whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium"
+                            id="btn-tab-micuenta">Mi Cuenta</button>
+                        <button onclick="switchTab('tab-equipo')"
+                            class="cfg-tab whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium"
+                            id="btn-tab-equipo">Gestión de Equipo</button>
+                        <button onclick="switchTab('tab-notificaciones')"
+                            class="cfg-tab whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium"
+                            id="btn-tab-notificaciones">Notificaciones</button>
+                        <button onclick="switchTab('tab-plantillas')"
+                            class="cfg-tab whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium"
+                            id="btn-tab-plantillas">Plantillas de Correo</button>
+                    </nav>
+                </div>
+
+                <!-- SUBMENU 1: Mi Cuenta -->
+                <div id="tab-micuenta" class="cfg-tab-content active space-y-6 max-w-3xl pb-20">
+                    <form id="formMiCuenta">
+                        <!-- Info Personal -->
+                        <div class="bg-white shadow-sm sm:rounded-2xl border border-gray-200 mb-6 overflow-hidden">
+                            <div class="px-6 py-6 sm:p-8">
+                                <h3 class="text-base font-bold leading-6 text-gray-900 mb-4">InformaciÃ³n personal
+                                </h3>
+                                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700">Nombre</label>
+                                        <input type="text" id="u_name"
+                                            class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3 border transition-colors">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700">Apellido</label>
+                                        <input type="text" id="u_lastName"
+                                            class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3 border transition-colors">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contacto -->
+                        <div class="bg-white shadow-sm sm:rounded-2xl border border-gray-200 mb-6 overflow-hidden">
+                            <div class="px-6 py-6 sm:p-8">
+                                <h3 class="text-base font-bold leading-6 text-gray-900 mb-4">Contacto</h3>
+                                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 mb-6">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700">PaÃ­s</label>
+                                        <select id="u_country"
+                                            class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3 border bg-white transition-colors">
+                                            <option value="México">México</option>
+                                            <option value="Colombia">Colombia</option>
+                                            <option value="Perú">Perú</option>
+                                            <option value="Ecuador">Ecuador</option>
+                                            <option value="Chile">Chile</option>
+                                            <option value="Argentina">Argentina</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700">Teléfono</label>
+                                        <input type="text" id="u_phone" placeholder="+52 123 456 7890"
+                                            class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3 border transition-colors">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700">Correo corporativo
+                                            (Login)</label>
+                                        <input type="email" id="u_emailWork" readonly
+                                            class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm bg-gray-50 text-gray-500 sm:text-sm py-2.5 px-3 border cursor-not-allowed">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700">Correo personal
+                                            (Opcional)</label>
+                                        <input type="email" id="u_emailPersonal"
+                                            class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3 border transition-colors">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Empresa -->
+                        <div class="bg-white shadow-sm sm:rounded-2xl border border-gray-200 mb-6 overflow-hidden">
+                            <div class="px-6 py-6 sm:p-8">
+                                <h3 class="text-base font-bold leading-6 text-gray-900 mb-4">Empresa</h3>
+                                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 mb-6">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700">Razón social</label>
+                                        <input type="text" id="c_name"
+                                            class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3 border transition-colors">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700">RUC / NIT
+                                            empresa</label>
+                                        <input type="text" id="c_rfc"
+                                            class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3 border transition-colors">
+                                    </div>
+                                </div>
+                                <div class="mt-6">
+                                    <label class="block text-sm font-semibold text-gray-700">Logo de la empresa</label>
+                                    <div class="mt-3 flex items-center gap-x-4">
+                                        <div class="h-14 w-14 rounded-full border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden"
+                                            id="logoPreview">
+                                            <i class="ph ph-buildings text-gray-400 text-2xl"></i>
+                                        </div>
+                                        <button type="button"
+                                            class="rounded-full bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors">Seleccionar
+                                            archivo</button>
+                                        <span class="text-xs text-gray-500">PNG/JPG (Opcional)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 mt-8">
+                            <button type="button" onclick="saveMiCuenta()" id="btnSaveMiCuenta"
+                                class="rounded-full bg-black px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-gray-800 transition-colors">Guardar
+                                Cambios</button>
+                            <span id="saveMiCuentaStatus"
+                                class="text-sm font-medium text-green-600 hidden flex items-center gap-2"><i
+                                    class="ph ph-check-circle text-lg"></i> Todo está guardado.</span>
+                        </div>
+
+                        <!-- Password / Security settings block separated from main form -->
+                        <div
+                            class="bg-white shadow-sm sm:rounded-2xl border border-gray-200 mb-6 mt-12 overflow-hidden">
+                            <div class="px-6 py-6 sm:p-8">
+                                <h3 class="text-base font-bold leading-6 text-gray-900 mb-4">Seguridad</h3>
+                                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 mb-6">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700">Nueva contraseña (Min.
+                                            6
+                                            caracteres)</label>
+                                        <input type="password" id="u_newPwd"
+                                            class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3 border transition-colors">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700">Confirmar nueva
+                                            contraseña</label>
+                                        <input type="password" id="u_confirmPwd"
+                                            class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3 border transition-colors">
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4 mt-6">
+                                    <button type="button" onclick="changePassword()" id="btnChangePassword"
+                                        class="rounded-full bg-gray-900 px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-gray-800 transition-colors">Actualizar
+                                        Contraseña</button>
+                                    <span id="changePasswordStatus" class="text-sm font-medium text-green-600 hidden"><i
+                                            class="ph ph-check-circle"></i> Contraseña actualizada.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- SUBMENU 2: Gestión de Equipo -->
+                <div id="tab-equipo" class="cfg-tab-content space-y-6 pb-20">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold leading-6 text-gray-900">Administra miembros, roles y acceso
+                        </h3>
+                        <p class="text-sm text-gray-500">Los usuarios invitados recibirÃ¡n un correo para activar su
+                            cuenta
+                            corporativa.</p>
+                    </div>
+
+                    <!-- Team Table -->
+                    <div class="bg-white shadow-sm sm:rounded-2xl overflow-hidden border border-gray-200 mb-8 w-full">
+                        <table class="min-w-full divide-y divide-gray-100">
+                            <thead class="bg-gray-50/50">
+                                <tr>
+                                    <th scope="col"
+                                        class="py-4 pl-6 pr-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest bg-gray-50/80">
+                                        #
+                                    </th>
+                                    <th scope="col"
+                                        class="px-3 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-widest bg-gray-50/80">
+                                        Nombre
+                                    </th>
+                                    <th scope="col"
+                                        class="px-3 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-widest bg-gray-50/80">
+                                        Email
+                                    </th>
+                                    <th scope="col"
+                                        class="px-3 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-widest bg-gray-50/80">
+                                        Rol
+                                    </th>
+                                    <th scope="col"
+                                        class="px-3 py-4 text-right pr-6 text-xs font-bold text-gray-500 uppercase tracking-widest bg-gray-50/80">
+                                        <span class="sr-only">Acciones</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white" id="teamTableBody">
+                                <tr>
+                                    <td colspan="5" class="p-4 text-center text-sm text-gray-500">Cargando equipo...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Add Member Form -->
+                    <div class="bg-white shadow-sm sm:rounded-2xl border border-gray-200 w-full overflow-hidden">
+                        <div class="px-6 py-6 sm:p-8">
+                            <h3 class="text-base font-bold leading-6 text-gray-900 mb-4">AÃ±ade usuarios a tu equipo
+                            </h3>
+                            <div class="rounded-xl bg-yellow-50 p-4 mb-6 border border-yellow-200">
+                                <div class="flex">
+                                    <div class="flex-shrink-0"><i class="ph ph-info text-yellow-500 text-lg"></i></div>
+                                    <div class="ml-3 flex-1 md:flex md:justify-between">
+                                        <p class="text-sm text-yellow-700">Al agregar un usuario, se le enviarÃ¡ un
+                                            correo
+                                            para que establezca su contraseña. El estado serÃ¡ PENDIENTE hasta que
+                                            active.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <form id="formAddMember" class="max-w-3xl">
+                                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 mb-6">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700">Nombre</label>
+                                        <input type="text" id="t_name"
+                                            class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3 border transition-colors"
+                                            required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Apellido</label>
+                                        <input type="text" id="t_lastName"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2 px-3 border"
+                                            required>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 mb-6">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700">Email
+                                            (Corporativo)</label>
+                                        <input type="email" id="t_email"
+                                            class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3 border transition-colors"
+                                            required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700">Teléfono
+                                            (Opcional)</label>
+                                        <input type="text" id="t_phone"
+                                            class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3 border transition-colors">
+                                    </div>
+                                </div>
+                                <div class="mb-6 w-1/2">
+                                    <label class="block text-sm font-semibold text-gray-700">Rol</label>
+                                    <div class="mt-2 flex items-center gap-3">
+                                        <select id="t_role"
+                                            class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3 border bg-white transition-colors">
+                                            <option value="recruiter">Reclutador</option>
+                                            <option value="admin">Administrador</option>
+                                        </select>
+                                        <a href="#"
+                                            class="text-xs text-blue-600 hover:underline whitespace-nowrap hidden">Define
+                                            permisos</a>
+                                    </div>
+                                </div>
+                                <div class="pt-2 flex items-center gap-4">
+                                    <button type="button" onclick="addTeamMember()" id="btnSaveTeam"
+                                        class="rounded-full bg-black px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-gray-800 transition-colors">Agregar
+                                        usuario</button>
+                                    <span id="saveTeamStatus"
+                                        class="text-sm font-medium text-red-600 hidden flex items-center gap-2"></span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUBMENU 3: Notificaciones -->
+                <div id="tab-notificaciones" class="cfg-tab-content space-y-6 max-w-3xl pb-20">
+                    <div class="bg-white shadow-sm sm:rounded-2xl border border-gray-200 overflow-hidden">
+                        <div class="px-6 py-6 sm:p-8">
+                            <h3 class="text-base font-bold leading-6 text-gray-900 mb-6">Ajustes de Notificaciones
+                            </h3>
+                            <ul role="list" class="divide-y divide-gray-100">
+                                <li class="flex items-center justify-between py-4">
+                                    <div class="flex flex-col pr-8">
+                                        <p class="text-sm font-bold text-gray-900 mb-1" id="privacy-option-1-label">
+                                            Correo
+                                            por
+                                            evaluaciÃ³n completada</p>
+                                        <p class="text-sm text-gray-500" id="privacy-option-1-description">Recibir un
+                                            correo
+                                            cada vez que tus postulantes completan una evaluaciÃ³n.</p>
+                                    </div>
+                                    <button type="button" onclick="toggleSwitch(this, 'n_onComplete')"
+                                        class="bg-blue-600 relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                                        role="switch" aria-checked="true">
+                                        <span
+                                            class="translate-x-5 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+                                    </button>
+                                    <input type="hidden" id="n_onComplete" value="true">
+                                </li>
+                                <li class="flex items-center justify-between py-4">
+                                    <div class="flex flex-col pr-8">
+                                        <p class="text-sm font-bold text-gray-900 mb-1" id="privacy-option-2-label">
+                                            Resumen
+                                            diario</p>
+                                        <p class="text-sm text-gray-500" id="privacy-option-2-description">Recibir un
+                                            correo
+                                            diario con un resumen de las evaluaciones finalizadas.</p>
+                                    </div>
+                                    <button type="button" onclick="toggleSwitch(this, 'n_daily')"
+                                        class="bg-gray-200 relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                                        role="switch" aria-checked="false">
+                                        <span
+                                            class="translate-x-0 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+                                    </button>
+                                    <input type="hidden" id="n_daily" value="false">
+                                </li>
+                            </ul>
+                            <div class="mt-8 flex items-center gap-4">
+                                <button type="button" onclick="saveNotifications()" id="btnSaveNotif"
+                                    class="rounded-full bg-black px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-gray-800 transition-colors">Guardar
+                                    Cambios</button>
+                                <span id="saveNotifStatus"
+                                    class="text-sm font-medium text-green-600 hidden flex items-center gap-2"><i
+                                        class="ph ph-check-circle text-lg"></i> Preferencias actualizadas.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUBMENU 4: Plantillas de Correo -->
+                <div id="tab-plantillas" class="cfg-tab-content pb-20 max-w-5xl">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold leading-6 text-gray-900">Plantillas de correo</h3>
+                        <p class="text-sm text-gray-500">Edita visualmente el correo que reciben los candidatos. Los
+                            campos
+                            dinÃ¡micos se insertan con un clic.</p>
+                    </div>
+
+                    <div class="flex flex-col lg:flex-row gap-6 items-start">
+                        <!-- Editor Izquierdo -->
+                        <div class="flex-1 w-full bg-white shadow-sm sm:rounded-2xl border border-gray-200 p-8">
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-gray-700">Plantilla (1
+                                    disponible)</label>
+                                <select
+                                    class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3 border bg-gray-50 cursor-not-allowed text-gray-500"
+                                    disabled>
+                                    <option>Nueva EvaluaciÃ³n: InvitaciÃ³n Postulante</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="flex justify-between text-sm font-semibold text-gray-700">
+                                    Asunto
+                                    <span class="font-normal text-gray-400" id="subjCount">36 caracteres</span>
+                                </label>
+                                <input type="text" id="tpl_subject" onkeyup="updateCount(this, 'subjCount')"
+                                    class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-2.5 px-3 border transition-colors"
+                                    value="Fuiste invitado a una evaluaciÃ³n en [{{NOMBRE_EMPRESA}}]">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Cuerpo del Mensaje</label>
+
+                                <!-- Editor Toolbar -->
+                                <div class="border border-gray-300 border-b-0 rounded-t-md bg-gray-50 p-2 flex gap-2">
+                                    <button type="button" class="p-1 text-gray-600 hover:bg-gray-200 rounded"
+                                        onclick="document.execCommand('bold')"><i class="ph ph-text-b"></i></button>
+                                    <button type="button" class="p-1 text-gray-600 hover:bg-gray-200 rounded"
+                                        onclick="document.execCommand('italic')"><i
+                                            class="ph ph-text-italic"></i></button>
+                                    <button type="button" class="p-1 text-gray-600 hover:bg-gray-200 rounded"
+                                        onclick="document.execCommand('underline')"><i
+                                            class="ph ph-text-underline"></i></button>
+                                    <button type="button" class="p-1 text-gray-600 hover:bg-gray-200 rounded ml-2"
+                                        onclick="document.execCommand('insertUnorderedList')"><i
+                                            class="ph ph-list-bullets"></i></button>
+                                </div>
+
+                                <!-- Editor ContentEditable -->
+                                <div id="tpl_body" contenteditable="true"
+                                    class="min-h-[250px] overflow-y-auto block w-full rounded-b-md border border-gray-300 shadow-sm focus:outline-none focus:ring-1 focus:ring-black sm:text-sm p-4 prose prose-sm max-w-none">
+                                    <p>Hola {{NOMBRE_POSTULANTE}}, has sido invitado a completar la evaluaciÃ³n:
+                                        <strong>{{NOMBRE_EVALUACION}}</strong>.
+                                    </p>
+                                    <p><br></p>
+                                    <p>Haz clic en el siguiente enlace para comenzar:</p>
+                                    <p><br></p>
+                                    <p><a href="{{LINK_EVALUACION}}" class="btn">Comenzar evaluaciÃ³n</a></p>
+                                </div>
+                            </div>
+
+                            <!-- Footer actions -->
+                            <div class="mt-8 flex items-center justify-between border-t border-gray-100 pt-6">
+                                <div class="flex gap-4">
+                                    <button type="button" onclick="saveTemplate()" id="btnSaveTpl"
+                                        class="rounded-full bg-black px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-gray-800 transition-colors">Guardar
+                                        plantilla</button>
+                                    <button type="button" onclick="loadConfig()"
+                                        class="rounded-full bg-white px-6 py-2.5 text-sm font-bold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors">Restablecer</button>
+                                </div>
+                                <span id="saveTplStatus"
+                                    class="text-sm font-medium text-green-600 hidden flex items-center gap-2"><i
+                                        class="ph ph-check-circle text-lg"></i> Todo está guardado.</span>
+                            </div>
+                        </div>
+
+                        <!-- Panel Derecho de Variables -->
+                        <div
+                            class="w-full lg:w-72 flex-shrink-0 bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+                            <h4 class="text-sm font-semibold text-gray-900 mb-2">Campos personalizados</h4>
+                            <p class="text-xs text-gray-500 mb-4">Haz clic para insertar en la posiciÃ³n del cursor
+                                (Asunto
+                                o
+                                Mensaje).</p>
+
+                            <div class="space-y-2" id="tokensList">
+                                <button type="button" onclick="insertToken('{{NOMBRE_POSTULANTE}}')"
+                                    class="w-full text-left px-3 py-2 text-xs font-mono bg-white border border-gray-300 rounded hover:border-blue-500 hover:text-blue-600 transition-colors">{{NOMBRE_POSTULANTE}}</button>
+                                <button type="button" onclick="insertToken('{{APELLIDO_POSTULANTE}}')"
+                                    class="w-full text-left px-3 py-2 text-xs font-mono bg-white border border-gray-300 rounded hover:border-blue-500 hover:text-blue-600 transition-colors">{{APELLIDO_POSTULANTE}}</button>
+                                <button type="button" onclick="insertToken('{{NOMBRE_EMPRESA}}')"
+                                    class="w-full text-left px-3 py-2 text-xs font-mono bg-white border border-gray-300 rounded hover:border-blue-500 hover:text-blue-600 transition-colors">{{NOMBRE_EMPRESA}}</button>
+                                <button type="button" onclick="insertToken('{{NOMBRE_EVALUACION}}')"
+                                    class="w-full text-left px-3 py-2 text-xs font-mono bg-white border border-gray-300 rounded hover:border-blue-500 hover:text-blue-600 transition-colors">{{NOMBRE_EVALUACION}}</button>
+                                <button type="button" onclick="insertToken('{{LINK_EVALUACION}}')"
+                                    class="w-full text-left px-3 py-2 text-xs font-mono bg-white border border-gray-300 rounded hover:border-blue-500 hover:text-blue-600 transition-colors">{{LINK_EVALUACION}}</button>
+                                <button type="button" onclick="insertToken('{{FECHA_EXPIRACION}}')"
+                                    class="w-full text-left px-3 py-2 text-xs font-mono bg-white border border-gray-300 rounded hover:border-blue-500 hover:text-blue-600 transition-colors">{{FECHA_EXPIRACION}}</button>
+                                <button type="button" onclick="insertToken('{{USUARIO_CREADOR}}')"
+                                    class="w-full text-left px-3 py-2 text-xs font-mono bg-white border border-gray-300 rounded hover:border-blue-500 hover:text-blue-600 transition-colors">{{USUARIO_CREADOR}}</button>
+                            </div>
+
+                            <div class="mt-6 border-t border-gray-200 pt-4">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Vista previa rÃ¡pida</h4>
+                                <div class="bg-white p-3 rounded border border-gray-200 text-xs text-gray-600">
+                                    <strong>De:</strong> Kokoro Eval<br>
+                                    <strong>Para:</strong> maria.perez@email.com<br>
+                                    <strong>Asunto:</strong> Fuiste invi...<br>
+                                    <div class="mt-2 text-[10px] bg-gray-50 p-2 rounded">
+                                        [El contenido enriquecido se enviarÃ¡ con los estilos del HTML cargado].
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        const token = localStorage.getItem('kokoro_client_token');
+        if (!token) window.location.href = '../../login.html';
+
+        // TABS LOGIC
+        function switchTab(tabId) {
+            document.querySelectorAll('.cfg-tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.cfg-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById('btn-' + tabId).classList.add('active');
+        }
+
+        // TOGGLE SWITCH LOGIC (Notificaciones)
+        function toggleSwitch(btn, inputId) {
+            const isChecked = btn.getAttribute('aria-checked') === 'true';
+            btn.setAttribute('aria-checked', !isChecked);
+            if (!isChecked) {
+                btn.classList.replace('bg-gray-200', 'bg-blue-600');
+                btn.querySelector('span').classList.replace('translate-x-0', 'translate-x-5');
+                document.getElementById(inputId).value = 'true';
+            } else {
+                btn.classList.replace('bg-blue-600', 'bg-gray-200');
+                btn.querySelector('span').classList.replace('translate-x-5', 'translate-x-0');
+                document.getElementById(inputId).value = 'false';
+            }
+        }
+
+        // INIT LOAD
+        document.addEventListener('DOMContentLoaded', loadConfig);
+
+        async function loadConfig() {
+            try {
+                const res = await fetch('../../../api/client/config/get.php', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    // 1. Mi Cuenta
+                    const user = data.data.user || {};
+                    const co = data.data.company || {};
+                    document.getElementById('u_name').value = user.firstName || '';
+                    document.getElementById('u_lastName').value = user.lastName || '';
+                    document.getElementById('u_emailWork').value = user.emailWork || '';
+                    document.getElementById('u_emailPersonal').value = user.emailPersonal || '';
+                    document.getElementById('u_phone').value = user.phone || '';
+                    if (co.country) document.getElementById('u_country').value = co.country;
+
+                    document.getElementById('c_name').value = co.name || '';
+                    document.getElementById('c_rfc').value = co.rfc || '';
+
+                    // 2. Gestion Equipo
+                    const team = data.data.team || [];
+                    const tbody = document.getElementById('teamTableBody');
+                    if (team.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-sm text-gray-500">Solo tÃº estás en este equipo.</td></tr>';
+                    } else {
+                        tbody.innerHTML = '';
+                        team.forEach((m, idx) => {
+                            let badge = m.status === 'ACTIVE' ? '<span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">ACTIVO</span>' : '<span class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">PENDIENTE</span>';
+                            tbody.innerHTML += `
+                            <tr>
+                                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">${idx + 1}</td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${m.firstName} ${m.lastName || ''} ${badge}</td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${m.emailWork}</td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 capitalize">${m.role}</td>
+                                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                                    <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Editar</a>
+                                    <a href="#" class="text-red-600 hover:text-red-900">Eliminar</a>
+                                </td>
+                            </tr>`;
+                        });
+                    }
+
+                    // 3. Notificaciones
+                    const n = data.data.notifications || {};
+                    const btnComplete = document.getElementById('n_onComplete').previousElementSibling;
+                    const btnDaily = document.getElementById('n_daily').previousElementSibling;
+
+                    if (n.emailOnEvalCompleted !== (document.getElementById('n_onComplete').value === 'true')) toggleSwitch(btnComplete, 'n_onComplete');
+                    if (n.dailySummary !== (document.getElementById('n_daily').value === 'true')) toggleSwitch(btnDaily, 'n_daily');
+
+                    // 4. Plantillas
+                    const t = data.data.templates || [];
+                    if (t.length > 0) {
+                        document.getElementById('tpl_subject').value = t[0].subject;
+                        document.getElementById('tpl_body').innerHTML = t[0].bodyHtml;
+                    }
+                    updateCount(document.getElementById('tpl_subject'), 'subjCount');
+
+                } else if (res.status === 401) {
+                    window.location.href = '../../login.html';
+                }
+            } catch (error) {
+                console.error("Error cargando config", error);
+            }
+        }
+
+        // SAVE LOGIC: 1. Mi Cuenta
+        // CHANGE LOGIC: Password Update
+        async function changePassword() {
+            const confirmPwd = document.getElementById('u_confirmPwd').value;
+            const newPwd = document.getElementById('u_newPwd').value;
+            const btn = document.getElementById('btnChangePassword');
+            const stat = document.getElementById('changePasswordStatus');
+
+            stat.classList.add('hidden');
+
+            if (!confirmPwd || !newPwd) {
+                alert("Ambos campos son obligatorios.");
+                return;
+            }
+
+            if (confirmPwd !== newPwd) {
+                alert("Las contraseñas no coinciden.");
+                return;
+            }
+
+            if (newPwd.length < 6) {
+                alert("La nueva contraseña debe tener min. 6 caracteres.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = 'Actualizando...';
+
+            try {
+                const res = await fetch('../../../api/client/config/change_password.php', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ confirmPassword: confirmPwd, newPassword: newPwd })
+                });
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    document.getElementById('u_confirmPwd').value = '';
+                    document.getElementById('u_newPwd').value = '';
+                    stat.classList.remove('hidden');
+                    setTimeout(() => stat.classList.add('hidden'), 5000);
+                } else {
+                    alert(data.message);
+                }
+            } catch (e) {
+                alert('Fallo de red al cambiar contraseña.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Actualizar Contraseña';
+            }
+        }
+
+        async function saveMiCuenta() {
+            const payload = {
+                action: 'mi_cuenta',
+                user: {
+                    firstName: document.getElementById('u_name').value,
+                    lastName: document.getElementById('u_lastName').value,
+                    phone: document.getElementById('u_phone').value,
+                    emailPersonal: document.getElementById('u_emailPersonal').value
+                },
+                company: {
+                    name: document.getElementById('c_name').value,
+                    rfc: document.getElementById('c_rfc').value,
+                    country: document.getElementById('u_country').value
+                }
+            };
+
+            await genericSaveFunction(payload, 'btnSaveMiCuenta', 'saveMiCuentaStatus');
+        }
+
+        // SAVE LOGIC: 2. Add Team Member
+        async function addTeamMember() {
+            const btn = document.getElementById('btnSaveTeam');
+            const stat = document.getElementById('saveTeamStatus');
+            const f = document.getElementById('formAddMember');
+
+            if (!f.checkValidity()) { f.reportValidity(); return; }
+
+            const payload = {
+                action: 'add_team',
+                member: {
+                    firstName: document.getElementById('t_name').value,
+                    lastName: document.getElementById('t_lastName').value,
+                    email: document.getElementById('t_email').value,
+                    phone: document.getElementById('t_phone').value,
+                    role: document.getElementById('t_role').value
+                }
+            };
+
+            btn.disabled = true;
+            btn.innerHTML = 'Enviando invitación...';
+            try {
+                const res = await fetch('../../../api/client/config/save.php', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    f.reset();
+                    loadConfig(); // Reload team table
+                    stat.innerHTML = '<i class="ph ph-check text-green-600 text-lg"></i> InvitaciÃ³n enviada.';
+                    stat.classList.replace('text-red-600', 'text-green-600');
+                    stat.classList.remove('hidden');
+                    setTimeout(() => stat.classList.add('hidden'), 3000);
+                } else {
+                    stat.textContent = 'Error: ' + data.message;
+                    stat.classList.replace('text-green-600', 'text-red-600');
+                    stat.classList.remove('hidden');
+                }
+            } catch (e) { console.error(e); } finally { btn.disabled = false; btn.innerHTML = 'Agregar usuario'; }
+        }
+
+        // SAVE LOGIC: 3. Notifications
+        async function saveNotifications() {
+            const payload = {
+                action: 'notifications',
+                emailOnEvalCompleted: document.getElementById('n_onComplete').value === 'true',
+                dailySummary: document.getElementById('n_daily').value === 'true'
+            };
+            await genericSaveFunction(payload, 'btnSaveNotif', 'saveNotifStatus');
+        }
+
+        // SAVE LOGIC: 4. Templates
+        async function saveTemplate() {
+            const payload = {
+                action: 'template',
+                key: 'invitation_eval', // fixed for now, scalable later
+                subject: document.getElementById('tpl_subject').value,
+                bodyHtml: document.getElementById('tpl_body').innerHTML
+            };
+            await genericSaveFunction(payload, 'btnSaveTpl', 'saveTplStatus');
+        }
+
+        // GENERAL API POST AND UX
+        async function genericSaveFunction(payload, btnId, statusId) {
+            const btn = document.getElementById(btnId);
+            const rawHtml = btn.innerHTML;
+            const stat = document.getElementById(statusId);
+
+            btn.disabled = true;
+            btn.innerHTML = 'Guardando...';
+            stat.classList.add('hidden');
+
+            try {
+                const res = await fetch('../../../api/client/config/save.php', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    stat.classList.remove('hidden');
+                    setTimeout(() => stat.classList.add('hidden'), 3000);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (e) {
+                alert('Fallo de red al guardar.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = rawHtml;
+            }
+        }
+
+        // EXTRAS
+        function updateCount(el, spanId) {
+            document.getElementById(spanId).textContent = el.value.length + " caracteres";
+        }
+
+        let lastFocusedNode = null;
+        document.getElementById('tpl_body').addEventListener('blur', function () {
+            lastFocusedNode = document.getSelection().anchorNode;
+        });
+
+        function insertToken(tokenKey) {
+            const subj = document.getElementById('tpl_subject');
+            const body = document.getElementById('tpl_body');
+
+            // Si el focus mÃ¡s reciente estsaba en el ASUNTO
+            if (document.activeElement === subj) {
+                const start = subj.selectionStart;
+                const end = subj.selectionEnd;
+                subj.value = subj.value.substring(0, start) + tokenKey + subj.value.substring(end);
+                updateCount(subj, 'subjCount');
+            } else {
+                // Insertar en WYSIWYG body
+                body.focus();
+                document.execCommand('insertText', false, tokenKey);
+            }
+        }
+    </script>
+</body>
+
+</html>

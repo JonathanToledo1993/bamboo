@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Empresa | AdminOps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        const token = localStorage.getItem('kokoro_admin_token');
+        const user = JSON.parse(localStorage.getItem('kokoro_admin_user') || '{}');
+
+        if (!token) {
+            window.location.href = "../login.html";
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const companyId = urlParams.get('id');
+
+        if (!companyId) {
+            window.location.href = "index.html";
+        }
+
+        function logout() {
+            localStorage.removeItem('kokoro_admin_token');
+            localStorage.removeItem('kokoro_admin_user');
+            window.location.href = "../login.html";
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <header class="bg-black text-white border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Branding & nav -->
+                <div class="flex items-center gap-6">
+                    <a href="../dashboard/index.html" class="flex items-center gap-2">
+                        <div
+                            class="w-8 h-8 bg-white text-black font-bold rounded flex items-center justify-center text-sm">
+                            K</div>
+                        <span class="font-semibold text-lg tracking-tight hidden sm:block">AdminOps</span>
+                    </a>
+                    <nav class="hidden md:flex gap-4 ml-8">
+                        <a href="../dashboard/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Dashboard</a>
+                        <a href="index.html"
+                            class="text-white px-3 py-2 text-sm font-medium transition-colors border-b-2 border-white">Empresas</a>
+                        <a href="../pruebas/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Catálogo
+                            de Pruebas</a>
+                        <a href="../config/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Configuración</a>
+                    </nav>
+                </div>
+                <!-- User profile & Logout -->
+                <div class="flex items-center gap-4">
+                    <button onclick="logout()"
+                        class="text-sm text-gray-400 hover:text-white transition-colors">Salir</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Breadcrumbs & Header -->
+        <nav class="flex items-center text-sm text-gray-500 mb-4 gap-2">
+            <a href="index.html" class="hover:text-black hover:underline">Empresas</a>
+            <i class="ph ph-caret-right text-gray-400"></i>
+            <span class="font-medium text-gray-900" id="breadName">Cargando...</span>
+        </nav>
+
+        <div class="sm:flex sm:items-center sm:justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <div
+                    class="w-16 h-16 bg-white border border-gray-200 rounded-xl flex items-center justify-center shadow-sm">
+                    <i class="ph ph-buildings text-3xl text-gray-400"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold tracking-tight text-gray-900 flex items-center gap-3">
+                        <span id="cNameTitle">---</span>
+                        <span id="cStatusBadge"
+                            class="inline-flex items-center rounded-md px-2 py-1 text-xs font-semibold ring-1 ring-inset"></span>
+                    </h1>
+                    <p class="mt-1 text-sm text-gray-500" id="cIdDisplay">ID: ---</p>
+                </div>
+            </div>
+            <div class="mt-4 sm:mt-0 flex gap-3">
+                <button type="button" onclick="openCreditModal()"
+                    class="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
+                    <i class="ph ph-plus-circle mr-2 text-lg"></i>
+                    Recargar Créditos
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+            <!-- CONTENIDO PRINCIPAL (COL-SPAN 2) -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- Panel 1: Info General -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="border-b border-gray-200 bg-gray-50 px-6 py-4">
+                        <h3 class="font-bold text-gray-900">Información General</h3>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Razon Social / RFC</p>
+                            <p class="mt-1 text-sm text-gray-900" id="cRfc">---</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">País</p>
+                            <p class="mt-1 text-sm text-gray-900" id="cCountry">---</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 2: Administrador Principal -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="border-b border-gray-200 bg-gray-50 px-6 py-4 flex justify-between items-center">
+                        <h3 class="font-bold text-gray-900">Administrador Root</h3>
+                        <button onclick="promptPasswordReset()" id="btnResetPwd"
+                            class="text-sm text-blue-600 hover:text-blue-800 font-medium hidden">Resetear
+                            Contraseña</button>
+                    </div>
+                    <div class="p-6 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-lg"
+                            id="uInitials">
+                            --
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-900" id="uName">---</p>
+                            <p class="text-sm text-gray-500" id="uEmail">---</p>
+                        </div>
+                        <div class="ml-auto text-right text-sm">
+                            <p class="text-gray-500">Último acceso</p>
+                            <p class="font-medium text-gray-900" id="uLogin">Nunca</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- SIDEBAR DERECHO (COL-SPAN 1) METRICAS -->
+            <div class="space-y-6">
+
+                <!-- Card de Contrato y Creditos -->
+                <div class="bg-white rounded-xl shadow-sm border border-blue-200 overflow-hidden">
+                    <div class="bg-blue-600 px-6 py-4">
+                        <h3 class="font-bold text-white flex items-center gap-2">
+                            <i class="ph ph-wallet text-xl"></i> Billetera y Contrato
+                        </h3>
+                    </div>
+                    <div class="p-6">
+
+                        <div class="mb-6">
+                            <p class="text-xs font-bold uppercase text-gray-500 tracking-wider mb-1">Plan Actual</p>
+                            <p class="text-xl font-black text-gray-900" id="ctPlanName">---</p>
+                        </div>
+
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100 text-center">
+                            <p class="text-sm font-medium text-gray-500 mb-1">Créditos Disponibles</p>
+                            <p class="text-4xl font-black text-blue-600" id="ctCredits">--</p>
+                        </div>
+
+                        <div>
+                            <p class="text-sm flex justify-between py-2 border-b border-gray-100">
+                                <span class="text-gray-500">Candidatos Registrados</span>
+                                <span class="font-bold text-gray-900" id="stCands">0</span>
+                            </p>
+                            <p class="text-sm flex justify-between py-2 border-b border-gray-100">
+                                <span class="text-gray-500">Vencimiento Licencia</span>
+                                <span class="font-bold text-gray-900" id="ctDate">---</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal Recargar Créditos -->
+    <div id="creditModal" class="hidden relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-500/75 transition-opacity"></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div
+                    class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6">
+                    <div>
+                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+                            <i class="ph ph-coins text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-5">
+                            <h3 class="text-base font-semibold text-gray-900" id="modal-title">Agregar Créditos Manuales
+                            </h3>
+                            <div class="mt-2 text-sm text-gray-500 text-left">
+                                <label class="block font-medium text-gray-700 mb-1">Cantidad de Créditos *</label>
+                                <input type="number" id="addVol" value="10" min="1" class="w-full form-input mt-1">
+
+                                <label class="block font-medium text-gray-700 mb-1 mt-4">Nota / Motivo
+                                    (Opcional)</label>
+                                <input type="text" id="addNote" placeholder="Ej. Compra factura #334"
+                                    class="w-full form-input mt-1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+                        <button type="button" onclick="submitCredits()" id="btnSaveCredit"
+                            class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:col-start-2">Recargar</button>
+                        <button type="button" onclick="closeCreditModal()"
+                            class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchCompanyDetail() {
+            try {
+                const res = await fetch(`../../../api/admin/companies/get.php?id=${companyId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.error);
+
+                const info = data.data;
+
+                // Headers & Brand
+                document.getElementById('breadName').textContent = info.company.name;
+                document.getElementById('cNameTitle').textContent = info.company.name;
+                document.getElementById('cIdDisplay').textContent = `ID: ${info.company.id}`;
+
+                const sBadge = document.getElementById('cStatusBadge');
+                if (info.company.isActive == 1) {
+                    sBadge.textContent = 'ACTIVO';
+                    sBadge.className = 'inline-flex items-center rounded-md px-2 py-1 text-xs font-semibold ring-1 ring-inset bg-green-50 text-green-700 ring-green-600/20';
+                } else {
+                    sBadge.textContent = 'INACTIVO';
+                    sBadge.className = 'inline-flex items-center rounded-md px-2 py-1 text-xs font-semibold ring-1 ring-inset bg-red-50 text-red-700 ring-red-600/10';
+                }
+
+                // General
+                document.getElementById('cRfc').textContent = info.company.rfc || 'No registrado';
+                document.getElementById('cCountry').textContent = info.company.country || 'No registrado';
+
+                // Root User
+                currentRootUserId = info.rootUser.id;
+                document.getElementById('uName').textContent = info.rootUser.name;
+                document.getElementById('uEmail').textContent = info.rootUser.email;
+                if (info.rootUser.id) {
+                    document.getElementById('btnResetPwd').classList.remove('hidden');
+                }
+                if (info.rootUser.name) {
+                    document.getElementById('uInitials').textContent = info.rootUser.name.substring(0, 2).toUpperCase();
+                }
+                if (info.rootUser.lastLoginAt) {
+                    document.getElementById('uLogin').textContent = info.rootUser.lastLoginAt;
+                }
+
+                // Contract & Credits
+                const pt = info.contract.plan === 'UNLIMITED' ? 'Subscripción Ilimitada' : 'Pago por Consumo';
+                document.getElementById('ctPlanName').textContent = pt;
+                document.getElementById('ctCredits').textContent = info.contract.plan === 'UNLIMITED' ? '∞' : info.contract.actualCredits;
+                document.getElementById('ctDate').textContent = info.contract.endDate;
+                document.getElementById('stCands').textContent = info.stats.totalCandidates;
+
+            } catch (err) {
+                alert("Error cargando perfil: " + err.message);
+                window.location.href = "index.html";
+            }
+        }
+
+        function openCreditModal() {
+            document.getElementById('creditModal').classList.remove('hidden');
+        }
+
+        function closeCreditModal() {
+            document.getElementById('creditModal').classList.add('hidden');
+            document.getElementById('addVol').value = 10;
+            document.getElementById('addNote').value = "";
+        }
+
+        async function submitCredits() {
+            const vol = document.getElementById('addVol').value;
+            const note = document.getElementById('addNote').value;
+            const btn = document.getElementById('btnSaveCredit');
+
+            if (vol <= 0) return alert("Ingrese un valor válido");
+
+            btn.disabled = true;
+            btn.innerHTML = "Procesando...";
+
+            try {
+                const res = await fetch(`../../../api/admin/contracts/add_credits.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ companyId, amount: vol, note: note })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.error);
+
+                alert("Créditos agregados exitosamente.");
+                fetchCompanyDetail(); // reload credits
+                closeCreditModal();
+
+            } catch (e) {
+                alert("Error: " + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "Recargar";
+            }
+        }
+
+        async function promptPasswordReset() {
+            if (!currentRootUserId) return;
+            const newPass = prompt("Ingrese la nueva contraseña para este usuario (min. 6 caracteres):");
+            if (!newPass) return;
+            if (newPass.length < 6) return alert("La contraseña es muy corta.");
+
+            try {
+                const res = await fetch(`../../../api/admin/users/reset_password.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userId: currentRootUserId, newPassword: newPass })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+
+                alert("Contraseña restablecida exitosamente.");
+            } catch (err) {
+                alert("Error: " + err.message);
+            }
+        }
+
+        fetchCompanyDetail();
+    </script>
+</body>
+
+</html>

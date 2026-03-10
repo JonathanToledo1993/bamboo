@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empresas | AdminOps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <!-- Iconos Phosphor -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        // Guardia de Navegación Frontend: Verificar si el Admin está autenticado antes de renderizar
+        const token = localStorage.getItem('kokoro_admin_token');
+        const user = JSON.parse(localStorage.getItem('kokoro_admin_user') || '{}');
+
+        if (!token) {
+            window.location.href = "../login.html";
+        }
+
+        function logout() {
+            localStorage.removeItem('kokoro_admin_token');
+            localStorage.removeItem('kokoro_admin_user');
+            window.location.href = "../login.html";
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <!-- Navbar / Layout Header -->
+    <header class="bg-black text-white border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Branding & nav -->
+                <div class="flex items-center gap-6">
+                    <a href="index.html" class="flex items-center gap-2">
+                        <div
+                            class="w-8 h-8 bg-white text-black font-bold rounded flex items-center justify-center text-sm">
+                            K
+                        </div>
+                        <span class="font-semibold text-lg tracking-tight hidden sm:block">AdminOps</span>
+                    </a>
+
+                    <nav class="hidden md:flex gap-4 ml-8">
+                        <a href="../dashboard/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Dashboard</a>
+                        <a href="index.html"
+                            class="text-white px-3 py-2 text-sm font-medium transition-colors border-b-2 border-white">Empresas</a>
+                        <a href="../pruebas/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Catálogo
+                            de Pruebas</a>
+                        <a href="../config/index.html"
+                            class="text-gray-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Configuración</a>
+                    </nav>
+                </div>
+
+                <!-- User profile & Logout -->
+                <div class="flex items-center gap-4">
+                    <div class="text-sm text-gray-300 hidden sm:block">
+                        <span id="headerName">...</span> <span class="text-gray-500" id="headerRole"></span>
+                    </div>
+                    <button onclick="logout()" class="text-sm text-gray-400 hover:text-white transition-colors">
+                        Salir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Header Section -->
+        <div class="sm:flex sm:items-center sm:justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900">Directorio de Empresas</h1>
+                <p class="mt-2 text-sm text-gray-500">
+                    Administra las cuentas de clientes, monitoriza su consumo de créditos y gestionar sus membresías.
+                </p>
+            </div>
+            <div class="mt-4 sm:mt-0">
+                <button type="button"
+                    class="inline-flex items-center justify-center rounded-md bg-black px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+                    <i class="ph ph-plus mr-2 text-lg"></i>
+                    Nueva Empresa
+                </button>
+            </div>
+        </div>
+
+        <!-- DataTable -->
+        <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-lg overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-300 pointer" id="companiesTable">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
+                            Empresa</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Plan</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Créditos</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Usuarios</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Estado</th>
+                        <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                            <span class="sr-only">Admin</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white" id="companiesBody">
+                    <tr>
+                        <td colspan="6" class="p-6 text-center text-gray-500">Cargando empresas...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        // Poblar datos de cabecera
+        document.getElementById('headerName').textContent = user.name;
+        document.getElementById('headerRole').textContent = `(${user.role})`;
+
+        // Fetch de Empresas
+        async function fetchCompanies() {
+            try {
+                const res = await fetch('../../../api/admin/companies/list.php', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    if (res.status === 401 || res.status === 403) logout();
+                    throw new Error(data.error);
+                }
+
+                const tbody = document.getElementById('companiesBody');
+                tbody.innerHTML = '';
+
+                data.data.forEach(company => {
+                    const row = document.createElement('tr');
+
+                    const planBadge = company.plan === "UNLIMITED"
+                        ? `<span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">Unlimited</span>`
+                        : `<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">Pay per Use</span>`;
+
+                    const statusBadge = company.isActive
+                        ? `<span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Activa</span>`
+                        : `<span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">Inactiva</span>`;
+
+                    const creditVal = company.plan === 'UNLIMITED' ? '∞' : company.actualCredits;
+
+                    row.innerHTML = `
+                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                            <div class="flex items-center">
+                                <div class="h-10 w-10 flex-shrink-0 bg-gray-100 rounded-full flex justify-center items-center text-gray-500">
+                                    <i class="ph ph-buildings text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="font-medium text-gray-900">${company.name}</div>
+                                    <div class="text-gray-500 text-xs">${company.rfc || 'Sin RFC'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm">${planBadge}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 font-semibold">${creditVal}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${company.userCount}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm">${statusBadge}</td>
+                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                            <a href="detail.html?id=${company.id}" class="text-blue-600 hover:text-blue-900 flex items-center justify-end gap-1">
+                                Detalle <i class="ph ph-caret-right"></i>
+                            </a>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+            } catch (e) {
+                document.getElementById('companiesBody').innerHTML = `<tr><td colspan="6" class="p-6 text-center text-red-500">${e.message}</td></tr>`;
+            }
+        }
+
+        fetchCompanies();
+    </script>
+</body>
+
+</html>
