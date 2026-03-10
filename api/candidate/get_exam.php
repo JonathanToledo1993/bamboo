@@ -33,9 +33,16 @@ try {
         die(json_encode(["status" => "error", "message" => "Prueba no encontrada."]));
     }
 
-    $stmtQ = $pdo->prepare("SELECT id, questionText, type, dimension, orderNum FROM catalog_questions WHERE testId = ? ORDER BY orderNum ASC");
+    $stmtQ = $pdo->prepare("SELECT id, questionText, type, dimension, orderNum, options as optionsJson FROM catalog_questions WHERE testId = ? ORDER BY orderNum ASC, createdAt ASC");
     $stmtQ->execute([$testId]);
     $questions = $stmtQ->fetchAll(PDO::FETCH_ASSOC);
+
+    // Also try with key fallback (same robust logic as questions.php)
+    if (empty($questions)) {
+        $stmtQ2 = $pdo->prepare("SELECT id, questionText, type, dimension, orderNum, options as optionsJson FROM catalog_questions WHERE testId = (SELECT `key` FROM catalog_tests WHERE id = ? LIMIT 1) OR testId = (SELECT id FROM catalog_tests WHERE `key` = ? LIMIT 1) ORDER BY orderNum ASC, createdAt ASC");
+        $stmtQ2->execute([$testId, $testId]);
+        $questions = $stmtQ2->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     $questionIds = array_column($questions, 'id');
     $answers = [];
@@ -51,7 +58,22 @@ try {
 
     $result = [];
     foreach ($questions as $q) {
-        $result[] = ["id" => $q['id'], "questionText" => $q['questionText'], "type" => $q['type'], "options" => $answers[$q['id']] ?? []];
+        // Use catalog_answers if available, otherwise fall back to JSON options column
+        $opts = $answers[$q['id']] ?? [];
+        if (empty($opts) && !empty($q['optionsJson'])) {
+            $jsonOpts = json_decode($q['optionsJson'], true);
+            if (is_array($jsonOpts)) {
+                foreach ($jsonOpts as $i => $optItem) {
+                    if (is_string($optItem)) {
+                        $opts[] = ["id" => "opt_" . $i, "text" => $optItem];
+                    }
+                    elseif (is_array($optItem) && isset($optItem['text'])) {
+                        $opts[] = ["id" => $optItem['id'] ?? ("opt_" . $i), "text" => $optItem['text']];
+                    }
+                }
+            }
+        }
+        $result[] = ["id" => $q['id'], "questionText" => $q['questionText'], "type" => $q['type'], "options" => $opts];
     }
 
     if ($ec['status'] === 'NEW') {

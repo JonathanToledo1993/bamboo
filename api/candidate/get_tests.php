@@ -14,10 +14,12 @@ if (empty($token)) {
 
 try {
     $sqlCand = "
-        SELECT ec.id as evaluationCandidateId, ec.evaluationId, ec.status, e.profileKey, e.cargo, c.firstName
+        SELECT ec.id as evaluationCandidateId, ec.evaluationId, ec.status, e.profileKey, e.cargo, 
+               c.firstName, c.lastName, co.name as companyName
         FROM evaluation_candidates ec
         INNER JOIN evaluations e ON ec.evaluationId = e.id
         INNER JOIN candidates c ON ec.candidateId = c.id
+        LEFT JOIN companies co ON e.companyId = co.id
         WHERE ec.secureToken = ?
     ";
     $stmtCand = $pdo->prepare($sqlCand);
@@ -71,10 +73,20 @@ try {
         ];
     }
 
+    $completedCount = count(array_filter($testsList, fn($t) => $t['isCompleted']));
+    $pendingCount = count($testsList) - $completedCount;
+    $totalDurationMins = array_sum(array_column($testsAssigned, 'durationMins'));
+
     echo json_encode(["status" => "success", "data" => [
             "candidateFirstName" => $evalCand['firstName'],
+            "candidateLastName" => $evalCand['lastName'] ?? '',
+            "companyName" => $evalCand['companyName'] ?? '',
             "cargo" => $evalCand['cargo'],
             "overallStatus" => $evalCand['status'],
+            "totalTests" => count($testsList),
+            "completedTests" => $completedCount,
+            "pendingTests" => $pendingCount,
+            "totalDurationMins" => $totalDurationMins,
             "tests" => $testsList
         ]]);
 }

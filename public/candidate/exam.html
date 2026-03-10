@@ -33,27 +33,113 @@
 
         .option-card {
             cursor: pointer;
-            transition: all 0.2s;
-            border: 2px solid transparent;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid #e2e8f0;
         }
 
         .option-card:hover {
             border-color: #3b82f6;
             background-color: #eff6ff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
         }
 
         .option-card.selected {
             border-color: #2563eb;
             background-color: #dbeafe;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+            transform: scale(1.01);
+        }
+
+        .option-card.selected .radio-dot {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .option-card.selected .radio-dot .inner-dot {
+            display: block;
+        }
+
+        /* Camera preview */
+        #cameraPreview {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            width: 120px;
+            height: 90px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            object-fit: cover;
+            z-index: 100;
+            opacity: 0.8;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-urgent {
+            background-color: #fef3c7 !important;
+            border-color: #fbbf24 !important;
+        }
+
+        .header-urgent .timer-text {
+            color: #dc2626 !important;
+            animation: pulse 1s infinite;
+        }
+
+        /* Fullscreen warning */
+        #fullscreenWarning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            padding: 2rem;
         }
     </style>
 </head>
 
 <body class="min-h-screen flex flex-col">
 
+    <!-- Fullscreen Warning Overlay -->
+    <div id="fullscreenWarning">
+        <i class="ph ph-monitor text-6xl mb-4 text-yellow-400"></i>
+        <h2 class="text-2xl font-bold mb-2">Pantalla completa requerida</h2>
+        <p class="text-gray-300 mb-6 max-w-sm">Para continuar con tu evaluación, debes mantener la pantalla completa
+            activada.</p>
+        <button onclick="reEnterFullscreen()"
+            class="px-8 py-3 bg-white text-black rounded-xl font-bold hover:bg-gray-100 transition-colors">
+            Volver a pantalla completa
+        </button>
+    </div>
+
+    <!-- Start Overlay (needed for fullscreen user gesture) -->
+    <div id="startOverlay"
+        class="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center p-8 text-center">
+        <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-6">
+            <i class="ph ph-monitor text-blue-600 text-3xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">¿Listo para comenzar?</h2>
+        <p class="text-gray-500 text-sm mb-8 max-w-sm">Tu prueba se abrirá en modo pantalla completa para garantizar la
+            integridad de la evaluación.</p>
+        <button id="btnEnterExam" onclick="enterExam()"
+            class="px-10 py-4 bg-[#1e293b] text-white rounded-2xl font-bold shadow-lg hover:bg-black transition-all text-lg">
+            <i class="ph ph-play-circle mr-2"></i> Iniciar Prueba
+        </button>
+    </div>
+
+    <!-- Camera elements (hidden) -->
+    <video id="cameraPreview" autoplay muted playsinline class="hidden"></video>
+    <canvas id="cameraCanvas" class="hidden" width="640" height="480"></canvas>
+
     <!-- Header / Progress Bar -->
-    <header class="bg-white border-b border-gray-100 sticky top-0 z-50">
+    <header id="examHeader" class="bg-white border-b border-gray-100 sticky top-0 z-50 transition-colors duration-500">
         <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
@@ -69,7 +155,12 @@
             <div class="flex items-center gap-6">
                 <div class="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full border border-gray-100">
                     <i class="ph ph-clock text-blue-600"></i>
-                    <span id="timer" class="text-sm font-mono font-bold text-gray-700">00:00</span>
+                    <span id="timer" class="timer-text text-sm font-mono font-bold text-gray-700">00:00</span>
+                </div>
+                <div id="cameraIndicator"
+                    class="hidden flex items-center gap-1.5 px-3 py-1.5 bg-red-50 rounded-full border border-red-100">
+                    <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                    <span class="text-[10px] font-bold text-red-600 uppercase">Cámara</span>
                 </div>
                 <button onclick="confirmExit()" class="text-gray-400 hover:text-red-500 transition-colors">
                     <i class="ph ph-x-circle text-2xl"></i>
@@ -96,7 +187,7 @@
                 <span id="questionCategory"
                     class="inline-block px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold uppercase mb-4">Competencia</span>
                 <h2 id="questionText" class="text-xl md:text-2xl font-bold text-gray-900 leading-tight mb-10">
-                    ¿Esta es una pregunta de ejemplo para visualizar el diseño?
+                    Cargando pregunta...
                 </h2>
 
                 <div id="optionsList" class="space-y-3">
@@ -136,6 +227,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
         const testId = urlParams.get('test');
+        const cameraRequested = urlParams.get('cam') === '1';
 
         let questions = [];
         let currentIndex = 0;
@@ -143,12 +235,40 @@
         let timeLeft = 0;
         let timerInterval = null;
 
+        // Camera & snapshot variables
+        let cameraStream = null;
+        let snapshotTimers = [];
+        let snapshotsTaken = 0;
+        const MAX_SNAPSHOTS = 9;
+
         async function init() {
             if (!token || !testId) {
                 alert('Faltan parámetros de acceso.');
                 window.location.href = 'test.html';
                 return;
             }
+            // Show the start overlay - user must click to trigger fullscreen
+            document.getElementById('startOverlay').style.display = 'flex';
+        }
+
+        async function enterExam() {
+            // This runs from a user click, so fullscreen is allowed
+            try {
+                await document.documentElement.requestFullscreen();
+            } catch (e) {
+                console.warn('Fullscreen unavailable:', e);
+            }
+
+            // Hide overlay
+            document.getElementById('startOverlay').style.display = 'none';
+
+            // Setup camera if requested
+            if (cameraRequested) {
+                await setupCamera();
+            }
+
+            // Listen for fullscreen changes
+            document.addEventListener('fullscreenchange', onFullscreenChange);
 
             try {
                 const res = await fetch(`../../api/candidate/get_exam.php?token=${token}&testId=${testId}`);
@@ -164,6 +284,11 @@
 
                     startTimer();
                     showQuestion(0);
+
+                    // Schedule random snapshots
+                    if (cameraStream) {
+                        scheduleSnapshots(timeLeft);
+                    }
                 } else {
                     alert(data.message);
                     window.location.href = 'test.html';
@@ -173,6 +298,81 @@
             }
         }
 
+        // ==================== CAMERA ====================
+        async function setupCamera() {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 } });
+                const video = document.getElementById('cameraPreview');
+                video.srcObject = cameraStream;
+                video.classList.remove('hidden');
+                document.getElementById('cameraIndicator').classList.remove('hidden');
+                document.getElementById('cameraIndicator').classList.add('flex');
+            } catch (err) {
+                console.warn('Camera not available:', err);
+            }
+        }
+
+        function scheduleSnapshots(totalSeconds) {
+            // Distribute MAX_SNAPSHOTS randomly across the test duration
+            const times = [];
+            for (let i = 0; i < MAX_SNAPSHOTS; i++) {
+                // Random time between 5 seconds and (totalSeconds - 10)
+                const t = Math.floor(Math.random() * Math.max(1, totalSeconds - 15)) + 5;
+                times.push(t);
+            }
+            times.sort((a, b) => a - b);
+
+            times.forEach(t => {
+                const timerId = setTimeout(() => {
+                    captureSnapshot();
+                }, t * 1000);
+                snapshotTimers.push(timerId);
+            });
+        }
+
+        function captureSnapshot() {
+            if (!cameraStream) return;
+            const video = document.getElementById('cameraPreview');
+            const canvas = document.getElementById('cameraCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+            snapshotsTaken++;
+
+            // Send to server in background
+            fetch('../../api/candidate/upload_snapshot.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: token,
+                    testId: testId,
+                    snapshotIndex: snapshotsTaken,
+                    image: dataUrl
+                })
+            }).catch(err => console.warn('Snapshot upload failed:', err));
+        }
+
+        // ==================== FULLSCREEN ====================
+        function onFullscreenChange() {
+            if (!document.fullscreenElement) {
+                // User exited fullscreen - show warning
+                document.getElementById('fullscreenWarning').style.display = 'flex';
+            } else {
+                document.getElementById('fullscreenWarning').style.display = 'none';
+            }
+        }
+
+        async function reEnterFullscreen() {
+            try {
+                await document.documentElement.requestFullscreen();
+                document.getElementById('fullscreenWarning').style.display = 'none';
+            } catch (e) {
+                console.warn('Cannot re-enter fullscreen:', e);
+            }
+        }
+
+        // ==================== EXAM LOGIC ====================
         function showQuestion(index) {
             currentIndex = index;
             const q = questions[index];
@@ -194,11 +394,11 @@
             // Render options
             const list = document.getElementById('optionsList');
             list.innerHTML = q.options.map(opt => `
-                <div class="option-card p-5 rounded-2xl bg-white border border-gray-100 flex items-center justify-between ${answers[q.id] === opt.id ? 'selected' : ''}" 
+                <div class="option-card p-5 rounded-2xl bg-white flex items-center justify-between ${answers[q.id] === opt.id ? 'selected' : ''}" 
                      onclick="selectOption('${q.id}', '${opt.id}')">
                     <span class="text-gray-700 font-medium">${opt.text}</span>
-                    <div class="w-5 h-5 rounded-full border-2 border-gray-200 flex items-center justify-center transition-all ${answers[q.id] === opt.id ? 'bg-blue-600 border-blue-600' : ''}">
-                        <div class="w-1.5 h-1.5 bg-white rounded-full ${answers[q.id] === opt.id ? 'block' : 'hidden'}"></div>
+                    <div class="radio-dot w-5 h-5 rounded-full border-2 border-gray-200 flex items-center justify-center transition-all ${answers[q.id] === opt.id ? 'bg-blue-600 border-blue-600' : ''}">
+                        <div class="inner-dot w-1.5 h-1.5 bg-white rounded-full ${answers[q.id] === opt.id ? 'block' : 'hidden'}"></div>
                     </div>
                 </div>
             `).join('');
@@ -256,7 +456,7 @@
                     data = JSON.parse(text);
                 } catch (e) {
                     console.error("Non-JSON response:", text);
-                    alert('Error en el servidor. El servidor no devolvió una respuesta válida.');
+                    alert('Error en el servidor.');
                     btn.disabled = false;
                     btn.innerHTML = 'Finalizar Prueba <i class="ph ph-check-circle"></i>';
                     return;
@@ -264,6 +464,15 @@
 
                 if (data.status === 'success') {
                     clearInterval(timerInterval);
+                    snapshotTimers.forEach(t => clearTimeout(t));
+
+                    // Stop camera
+                    if (cameraStream) {
+                        cameraStream.getTracks().forEach(track => track.stop());
+                        document.getElementById('cameraPreview').classList.add('hidden');
+                        document.getElementById('cameraIndicator').classList.add('hidden');
+                    }
+
                     document.getElementById('stepExam').classList.add('hidden');
                     document.getElementById('stepFinished').classList.remove('hidden');
                 } else {
@@ -280,6 +489,8 @@
 
         function startTimer() {
             const display = document.getElementById('timer');
+            const header = document.getElementById('examHeader');
+
             timerInterval = setInterval(() => {
                 const mins = Math.floor(timeLeft / 60);
                 const secs = timeLeft % 60;
@@ -293,10 +504,9 @@
                     timeLeft--;
                 }
 
-                // Warn on low time
+                // Warn on low time (< 60 seconds)
                 if (timeLeft < 60) {
-                    display.classList.add('text-red-500');
-                    display.classList.add('animate-pulse');
+                    header.classList.add('header-urgent');
                 }
             }, 1000);
         }
@@ -308,6 +518,14 @@
         }
 
         function goBack() {
+            // Exit fullscreen
+            if (document.fullscreenElement) {
+                document.exitFullscreen().catch(() => { });
+            }
+            // Stop camera
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+            }
             window.location.href = `test.html?st=${token}`;
         }
 

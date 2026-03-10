@@ -4,17 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceder a Evaluación | Kokoro</title>
+    <title>Evaluación | Kokoro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         body {
-            font-family: 'Inter', 'Segoe UI', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         .fade-in {
-            animation: fadeIn 0.4s ease;
+            animation: fadeIn 0.4s ease-out;
         }
 
         @keyframes fadeIn {
@@ -28,99 +29,270 @@
                 transform: translateY(0);
             }
         }
+
+        /* Custom Toggle Switch */
+        .toggle-switch {
+            appearance: none;
+            width: 44px;
+            height: 24px;
+            background: #cbd5e1;
+            border-radius: 999px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+
+        .toggle-switch:checked {
+            background: #1e293b;
+        }
+
+        .toggle-switch:checked::after {
+            transform: translateX(20px);
+        }
+
+        .test-card {
+            transition: all 0.2s ease;
+            border: 1px solid #e2e8f0;
+        }
+
+        .test-card:hover {
+            border-color: #94a3b8;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            transform: translateY(-2px);
+        }
+
+        .test-card.completed {
+            opacity: 0.6;
+            background: #f8fafc;
+        }
     </style>
 </head>
 
-<body class="bg-[#f4f7f9] min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-[#f4f7f9] min-h-screen flex flex-col text-gray-900">
 
     <!-- Header -->
-    <header class="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 h-14 flex items-center px-6 z-10">
-        <div class="font-bold flex items-center gap-2 text-gray-900">
-            <div class="w-7 h-7 bg-[#1e293b] text-white rounded flex items-center justify-center text-sm font-black">K
+    <header
+        class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 lg:px-10 sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-[#1e293b] text-white rounded-lg flex items-center justify-center">
+                <span class="font-black text-sm">K</span>
             </div>
-            Kokoro Evaluaciones
+            <span class="font-bold text-lg tracking-tight text-[#1e293b]">kokoro</span>
         </div>
+        <button onclick="showHelp()"
+            class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-500 border border-gray-200 rounded-full hover:bg-gray-50 transition-colors">
+            <i class="ph ph-question text-lg"></i> Necesito ayuda
+        </button>
     </header>
 
     <!-- STEP 1: Registration Form -->
-    <div id="stepRegister" class="w-full max-w-md mt-14 fade-in">
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 p-8">
-            <div class="mb-7 text-center">
-                <div class="w-14 h-14 bg-[#f0f4ff] rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="ph ph-clipboard-text text-[#3b5bdb] text-2xl"></i>
+    <div id="stepRegister" class="flex-1 flex items-center justify-center p-4 fade-in">
+        <div class="w-full max-w-md">
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-200 p-8">
+                <div class="mb-7 text-center">
+                    <div class="w-14 h-14 bg-[#f0f4ff] rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="ph ph-clipboard-text text-[#3b5bdb] text-2xl"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900 mb-1">Accede a tu evaluación</h1>
+                    <p class="text-sm text-gray-500">Ingresa tus datos para comenzar el proceso de evaluación.</p>
                 </div>
-                <h1 class="text-2xl font-bold text-gray-900 mb-1">Accede a tu evaluación</h1>
-                <p class="text-sm text-gray-500">Ingresa tus datos para comenzar el proceso de evaluación.</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wide">Nombre
+                            *</label>
+                        <input id="regFirstName" type="text" placeholder="Tu nombre"
+                            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black placeholder-gray-400">
+                    </div>
+                    <div>
+                        <label
+                            class="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wide">Apellido</label>
+                        <input id="regLastName" type="text" placeholder="Tu apellido"
+                            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black placeholder-gray-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wide">Correo
+                            electrónico *</label>
+                        <input id="regEmail" type="email" placeholder="tu@email.com"
+                            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black placeholder-gray-400">
+                    </div>
+                </div>
+
+                <button id="btnStartEval" onclick="registerAndStart()"
+                    class="mt-6 w-full py-3.5 rounded-xl bg-[#1e293b] text-white text-sm font-bold hover:bg-black transition-colors flex items-center justify-center gap-2">
+                    <i class="ph ph-arrow-right"></i>
+                    Comenzar evaluación
+                </button>
+
+                <p class="text-xs text-gray-400 text-center mt-4">
+                    Tus datos son confidenciales y solo serán utilizados por la empresa evaluadora.
+                </p>
             </div>
-
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wide">Nombre *</label>
-                    <input id="regFirstName" type="text" placeholder="Tu nombre"
-                        class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black placeholder-gray-400">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wide">Apellido</label>
-                    <input id="regLastName" type="text" placeholder="Tu apellido"
-                        class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black placeholder-gray-400">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wide">Correo
-                        electrónico *</label>
-                    <input id="regEmail" type="email" placeholder="tu@email.com"
-                        class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black placeholder-gray-400">
-                </div>
-            </div>
-
-            <button id="btnStartEval" onclick="registerAndStart()"
-                class="mt-6 w-full py-3.5 rounded-xl bg-[#1e293b] text-white text-sm font-bold hover:bg-black transition-colors flex items-center justify-center gap-2">
-                <i class="ph ph-arrow-right"></i>
-                Comenzar evaluación
-            </button>
-
-            <p class="text-xs text-gray-400 text-center mt-4">
-                Tus datos son confidenciales y solo serán utilizados por la empresa evaluadora.
-            </p>
         </div>
     </div>
 
-    <!-- STEP 2: Test UI -->
-    <div id="stepTest" class="hidden w-full max-w-3xl mt-14 fade-in">
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 p-8">
-            <div class="mb-8 flex items-center justify-between">
+    <!-- STEP 2: Two-Column Dashboard -->
+    <div id="stepDashboard" class="hidden flex-1 fade-in">
+        <div class="flex flex-col lg:flex-row min-h-[calc(100vh-64px)]">
+
+            <!-- LEFT SIDEBAR -->
+            <aside
+                class="w-full lg:w-80 xl:w-96 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 p-6 lg:p-8 flex flex-col gap-6 shrink-0 overflow-y-auto">
+
+                <!-- Información del proceso -->
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-900" id="candidateGreeting">¡Hola!</h2>
-                    <p class="text-gray-500" id="cargoInfo">Tu evaluación para el puesto de ...</p>
+                    <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Información del proceso
+                    </h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex gap-2">
+                            <span class="font-semibold text-gray-500 w-20 shrink-0">Postulante:</span>
+                            <span class="text-gray-900 font-medium" id="sidebarName">—</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <span class="font-semibold text-gray-500 w-20 shrink-0">Proceso:</span>
+                            <span class="text-gray-900 font-medium" id="sidebarCargo">—</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <span class="font-semibold text-gray-500 w-20 shrink-0">Empresa:</span>
+                            <span class="text-gray-900 font-medium" id="sidebarCompany">—</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-wider"
-                    id="overallStatusBadge">
-                    En Proceso
-                </div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="testsGrid">
-                <!-- Cards will be injected here -->
-            </div>
+                <hr class="border-gray-100">
 
-            <div id="bottomInfoBar" class="mt-10 pt-8 border-t border-gray-100 flex items-center justify-between">
-                <div class="text-sm text-gray-400" id="bottomInfoText">
-                    <i class="ph ph-info mr-1"></i> Completa todas las pruebas para finalizar el proceso.
+                <!-- Tus pruebas -->
+                <div>
+                    <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">Tus pruebas</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 font-medium">Por completar:</span>
+                            <span class="font-bold text-gray-900" id="sidebarPending">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 font-medium">Finalizadas:</span>
+                            <span class="font-bold text-green-600" id="sidebarCompleted">0</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="font-mono text-[10px] text-gray-300">
-                    Token: <span id="tokenDisplay"></span>
+
+                <hr class="border-gray-100">
+
+                <!-- Consejos para el éxito -->
+                <div>
+                    <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">Consejos para el éxito
+                    </h3>
+                    <div class="space-y-2.5">
+                        <div class="flex items-center gap-2.5 text-sm text-gray-600">
+                            <i class="ph ph-check-circle text-green-500 text-lg shrink-0"></i>
+                            <span>Mantén pantalla completa</span>
+                        </div>
+                        <div class="flex items-center gap-2.5 text-sm text-gray-600">
+                            <i class="ph ph-check-circle text-green-500 text-lg shrink-0"></i>
+                            <span>Termina en una sesión</span>
+                        </div>
+                        <div class="flex items-center gap-2.5 text-sm text-gray-600">
+                            <i class="ph ph-check-circle text-green-500 text-lg shrink-0"></i>
+                            <span>Observa el cronómetro</span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100">
+
+                <!-- Configuración -->
+                <div>
+                    <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">Configuración</h3>
+                    <div class="space-y-4">
+                        <label class="flex items-center justify-between gap-3 cursor-pointer">
+                            <span class="text-sm text-blue-700 underline underline-offset-2">Acepto los términos y
+                                condiciones</span>
+                            <input type="checkbox" class="toggle-switch" id="switchTerms" checked>
+                        </label>
+                        <label class="flex items-center justify-between gap-3 cursor-pointer">
+                            <span class="text-sm text-blue-700 underline underline-offset-2">Política de
+                                privacidad</span>
+                            <input type="checkbox" class="toggle-switch" id="switchPrivacy" checked>
+                        </label>
+                        <label class="flex items-center justify-between gap-3 cursor-pointer">
+                            <span class="text-sm text-blue-700 underline underline-offset-2">Acepto la activación de mi
+                                cámara</span>
+                            <input type="checkbox" class="toggle-switch" id="switchCamera" checked>
+                        </label>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- RIGHT CONTENT -->
+            <div class="flex-1 p-6 lg:p-10 overflow-y-auto">
+
+                <!-- Greeting header -->
+                <div class="flex items-start justify-between mb-8">
+                    <div>
+                        <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-1" id="mainGreeting">Bienvenido a tu
+                            evaluación</h1>
+                        <p class="text-sm text-gray-500" id="mainSubtitle">Tu evaluación tiene — pruebas y un tiempo
+                            máximo de — minutos.</p>
+                    </div>
+                    <div class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shrink-0"
+                        id="overallStatusBadge">
+                        En Proceso
+                    </div>
+                </div>
+
+                <!-- Tests Grid -->
+                <div id="testsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Cards will be built dynamically -->
+                </div>
+
+                <!-- Completed Banner -->
+                <div id="completedBanner"
+                    class="hidden mt-6 bg-green-50 border border-green-100 rounded-2xl p-10 text-center fade-in">
+                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="ph ph-check-circle text-green-500 text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">¡Has completado todas las evaluaciones!</h3>
+                    <p class="text-gray-500 text-sm max-w-md mx-auto">Tus respuestas han sido registradas exitosamente.
+                        Ya puedes cerrar esta ventana.</p>
+                </div>
+
+                <!-- Footer Info -->
+                <div class="mt-10 pt-6 border-t border-gray-100 flex items-center justify-between">
+                    <div class="text-sm text-gray-400" id="bottomInfoText">
+                        <i class="ph ph-info mr-1"></i> Completa todas las pruebas para finalizar el proceso.
+                    </div>
+                    <div class="font-mono text-[10px] text-gray-300">
+                        Token: <span id="tokenDisplay"></span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- STEP 3: Error -->
-    <div id="stepError" class="hidden w-full max-w-md mt-14 fade-in">
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 p-8 text-center">
-            <div class="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="ph ph-warning text-red-500 text-2xl"></i>
+    <div id="stepError" class="hidden flex-1 flex items-center justify-center p-4 fade-in">
+        <div class="w-full max-w-md">
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-200 p-8 text-center">
+                <div class="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="ph ph-warning text-red-500 text-2xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">Acceso no válido</h2>
+                <p id="errorMsg" class="text-sm text-gray-500">Este link de evaluación no es válido o ya expiró.</p>
             </div>
-            <h2 class="text-xl font-bold text-gray-900 mb-2">Acceso no válido</h2>
-            <p id="errorMsg" class="text-sm text-gray-500">Este link de evaluación no es válido o ya expiró.</p>
         </div>
     </div>
 
@@ -131,7 +303,6 @@
 
         async function init() {
             if (secureToken) {
-                // Si ya tenemos secureToken, cargar las pruebas directamente
                 localStorage.setItem('kokoro_secure_token', secureToken);
                 document.getElementById('stepRegister').classList.add('hidden');
                 loadTests();
@@ -147,26 +318,36 @@
 
                 if (data.status === 'success') {
                     const info = data.data;
-                    document.getElementById('candidateGreeting').textContent = `¡Hola, ${info.candidateFirstName}!`;
-                    document.getElementById('cargoInfo').textContent = `Tu evaluación para el puesto de ${info.cargo}`;
-                    document.getElementById('overallStatusBadge').textContent = info.overallStatus === 'COMPLETED' ? 'Finalizado' : 'En Proceso';
+                    const fullName = `${info.candidateFirstName} ${info.candidateLastName || ''}`.trim();
+
+                    // Sidebar
+                    document.getElementById('sidebarName').textContent = fullName;
+                    document.getElementById('sidebarCargo').textContent = info.cargo || '—';
+                    document.getElementById('sidebarCompany').textContent = info.companyName || '—';
+                    document.getElementById('sidebarPending').textContent = info.pendingTests ?? 0;
+                    document.getElementById('sidebarCompleted').textContent = info.completedTests ?? 0;
+
+                    // Main content
+                    document.getElementById('mainGreeting').textContent = 'Bienvenido a tu evaluación';
+                    document.getElementById('mainSubtitle').textContent =
+                        `Tu evaluación tiene ${info.totalTests} prueba${info.totalTests !== 1 ? 's' : ''} y un tiempo máximo de ${info.totalDurationMins} minutos.`;
                     document.getElementById('tokenDisplay').textContent = secureToken.substring(0, 8) + '...';
 
+                    // Status badge
+                    const badge = document.getElementById('overallStatusBadge');
                     if (info.overallStatus === 'COMPLETED') {
-                        document.getElementById('testsGrid').innerHTML = `
-                            <div class="col-span-1 md:col-span-2 text-center py-10 border border-green-100 rounded-3xl bg-green-50/50">
-                                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <i class="ph ph-check-circle text-green-500 text-4xl"></i>
-                                </div>
-                                <h3 class="text-2xl font-bold text-gray-900 mb-2">¡Has completado todas las evaluaciones!</h3>
-                                <p class="text-gray-500 text-sm max-w-md mx-auto px-4">Tus respuestas han sido registradas exitosamente. Ya puedes cerrar esta ventana, nosotros nos pondremos en contacto contigo pronto.</p>
-                            </div>
-                        `;
-                        document.getElementById('bottomInfoText').innerHTML = `<i class="ph ph-check text-green-500 mr-1"></i> Proceso completado`;
+                        badge.textContent = 'Finalizado';
+                        badge.className = 'px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shrink-0 bg-green-50 text-green-600 border border-green-200';
+                        document.getElementById('testsGrid').classList.add('hidden');
+                        document.getElementById('completedBanner').classList.remove('hidden');
+                        document.getElementById('bottomInfoText').innerHTML = '<i class="ph ph-check text-green-500 mr-1"></i> Proceso completado';
                     } else {
+                        badge.textContent = 'En Proceso';
+                        badge.className = 'px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shrink-0 bg-blue-50 text-blue-600 border border-blue-200';
                         renderTests(info.tests);
                     }
-                    document.getElementById('stepTest').classList.remove('hidden');
+
+                    document.getElementById('stepDashboard').classList.remove('hidden');
                 } else {
                     showError(data.message);
                 }
@@ -178,30 +359,24 @@
         function renderTests(tests) {
             const grid = document.getElementById('testsGrid');
             grid.innerHTML = tests.map(t => {
-                const icon = t.isCompleted ? 'ph-check-circle' : 'ph-play-circle';
-                const iconColor = t.isCompleted ? 'text-green-500' : 'text-blue-600';
-                const bgIcon = t.isCompleted ? 'bg-green-50' : 'bg-blue-50';
-
+                const isCompleted = t.isCompleted;
                 return `
-                <div class="border border-gray-100 rounded-2xl p-5 bg-white shadow-sm flex flex-col h-full hover:border-gray-200 transition-all">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="w-10 h-10 ${bgIcon} rounded-xl flex items-center justify-center ${iconColor}">
-                            <i class="ph ${icon} text-xl"></i>
-                        </div>
-                        ${t.isCompleted ? '<span class="text-[10px] font-bold uppercase text-green-600 bg-green-50 px-2 py-1 rounded">Completado</span>' : ''}
+                <div class="test-card rounded-2xl p-6 bg-white ${isCompleted ? 'completed' : ''} flex flex-col">
+                    <div class="flex items-start justify-between mb-3">
+                        <h3 class="font-bold text-gray-900 text-base">${t.name}</h3>
+                        ${isCompleted ? '<span class="text-[10px] font-bold uppercase text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-100 shrink-0">Completado</span>' : ''}
                     </div>
-                    <h3 class="font-bold text-gray-900 mb-1">${t.name}</h3>
-                    <p class="text-xs text-gray-500 mb-4 flex-1 line-clamp-2">${t.description}</p>
-                    
-                    <div class="flex items-center justify-between mt-auto pt-4 border-t border-gray-50">
-                        <span class="text-[11px] text-gray-400 font-medium">
-                            <i class="ph ph-clock mr-1"></i> ${t.durationMins} mins
+                    <p class="text-xs text-gray-500 mb-5 flex-1 line-clamp-2">${t.description || ''}</p>
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                        <span class="text-xs text-gray-400 font-medium">
+                            <i class="ph ph-clock mr-1"></i> Promedio ${t.durationMins} minutos
                         </span>
-                        ${t.isCompleted ?
-                        '<button disabled class="text-xs font-bold text-gray-300 italic">Prueba terminada</button>' :
-                        `<button onclick="startTest('${t.id}')" class="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 group">
-                             Comenzar <i class="ph ph-arrow-right group-hover:translate-x-0.5 transition-transform"></i>
-                           </button>`
+                        <span class="text-xs text-gray-400">máximo ${Math.round(t.durationMins * 1.5)}</span>
+                    </div>
+                    <div class="mt-4">
+                        ${isCompleted
+                        ? '<button disabled class="w-full py-3 rounded-xl bg-gray-100 text-gray-400 text-sm font-bold cursor-not-allowed">Prueba terminada</button>'
+                        : `<button onclick="startTest('${t.id}')" class="w-full py-3 rounded-xl bg-[#1e293b] text-white text-sm font-bold hover:bg-black transition-colors">Comenzar</button>`
                     }
                     </div>
                 </div>
@@ -248,15 +423,53 @@
             }
         }
 
-        function startTest(testId) {
-            window.location.href = `exam.html?token=${secureToken}&test=${testId}`;
+        async function startTest(testId) {
+            // Validate switches
+            if (!document.getElementById('switchTerms').checked) {
+                alert('Debes aceptar los términos y condiciones para continuar.');
+                return;
+            }
+            if (!document.getElementById('switchPrivacy').checked) {
+                alert('Debes aceptar la política de privacidad para continuar.');
+                return;
+            }
+
+            const cameraEnabled = document.getElementById('switchCamera').checked;
+
+            if (cameraEnabled) {
+                try {
+                    // Request camera permissions before starting
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    // Store that camera was granted
+                    sessionStorage.setItem('kokoro_camera_granted', 'true');
+                    // Stop the stream for now, exam.html will re-request
+                    stream.getTracks().forEach(track => track.stop());
+                } catch (err) {
+                    alert('Para continuar, necesitas permitir el acceso a tu cámara. Por favor, actívala en tu navegador e intenta de nuevo.');
+                    return;
+                }
+            }
+
+            // Enter fullscreen before navigating
+            try {
+                await document.documentElement.requestFullscreen();
+            } catch (e) {
+                // Some browsers block fullscreen without user gesture, continue anyway
+                console.warn('Fullscreen request denied:', e);
+            }
+
+            window.location.href = `exam.html?token=${secureToken}&test=${testId}&cam=${cameraEnabled ? '1' : '0'}`;
         }
 
         function showError(msg) {
             document.getElementById('stepRegister').classList.add('hidden');
-            document.getElementById('stepTest').classList.add('hidden');
+            document.getElementById('stepDashboard').classList.add('hidden');
             document.getElementById('stepError').classList.remove('hidden');
             document.getElementById('errorMsg').textContent = msg;
+        }
+
+        function showHelp() {
+            alert('Si necesitas ayuda, contacta al equipo que te invitó a esta evaluación.');
         }
 
         init();
