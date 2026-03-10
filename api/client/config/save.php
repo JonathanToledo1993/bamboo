@@ -19,6 +19,36 @@ $data = json_decode($json, true);
 $action = $data['action'] ?? '';
 
 try {
+    // Prevent crashes if DB schema is outdated
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS `email_templates` (
+          `id` varchar(50) NOT NULL PRIMARY KEY,
+          `companyId` varchar(50) NOT NULL,
+          `key` varchar(50) NOT NULL,
+          `name` varchar(100) NOT NULL,
+          `subject` varchar(255) NOT NULL,
+          `bodyHtml` text NOT NULL,
+          `createdAt` timestamp NULL DEFAULT current_timestamp(),
+          `updatedAt` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+        CREATE TABLE IF NOT EXISTS `notification_settings` (
+          `id` varchar(50) NOT NULL PRIMARY KEY,
+          `userId` varchar(50) NOT NULL,
+          `emailOnEvalCompleted` tinyint(1) DEFAULT 1,
+          `dailySummary` tinyint(1) DEFAULT 0,
+          `dailySummaryTime` tinyint(2) DEFAULT 8,
+          `createdAt` timestamp NULL DEFAULT current_timestamp(),
+          `updatedAt` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+          UNIQUE KEY `userId` (`userId`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ");
+    try { $pdo->exec("ALTER TABLE users ADD COLUMN lastName varchar(150) NULL AFTER name"); } catch(Exception $e){}
+    try { $pdo->exec("ALTER TABLE users ADD COLUMN phone varchar(50) NULL AFTER email"); } catch(Exception $e){}
+    try { $pdo->exec("ALTER TABLE users ADD COLUMN emailPersonal varchar(150) NULL AFTER phone"); } catch(Exception $e){}
+} catch (Exception $e) {}
+
+try {
     switch ($action) {
         case 'mi_cuenta':
             $user = $data['user'] ?? [];
@@ -44,16 +74,25 @@ try {
             $stmt = $pdo->prepare("INSERT INTO users_invitations (id, companyId, email, role, token, expiresAt) VALUES (?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))");
             $stmt->execute([$invId, $companyId, $email, $member['role'] ?? 'recruiter', $tkn]);
 
+            // Obtener el nombre de la empresa
+            $stmtC = $pdo->prepare("SELECT name FROM companies WHERE id = ?");
+            $stmtC->execute([$companyId]);
+            $compName = $stmtC->fetchColumn() ?: "Tu Empresa";
+
             // Mail Simulator: En producción aquí despacharíamos SMTP mandrill/sendgrid
+            $inviteLink = "https://integritas.ec/app_admin/public/login.html?action=setup&token={$tkn}";
+            require_once '../../utils/Mailer.php';
+            Mailer::sendTeamInvite($email, $member['firstName'] ?? 'Usuario', $compName, $inviteLink);
             break;
 
         case 'notifications':
             $emailOnEval = $data['emailOnEvalCompleted'] ?? true;
             $daily = $data['dailySummary'] ?? false;
+            $time = $data['dailySummaryTime'] ?? 8;
 
-            $stmt = $pdo->prepare("INSERT INTO notification_settings (id, userId, emailOnEvalCompleted, dailySummary) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE emailOnEvalCompleted=?, dailySummary=?");
+            $stmt = $pdo->prepare("INSERT INTO notification_settings (id, userId, emailOnEvalCompleted, dailySummary, dailySummaryTime) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE emailOnEvalCompleted=?, dailySummary=?, dailySummaryTime=?");
             $nId = 'ns_' . uniqid();
-            $stmt->execute([$nId, $userId, (int)$emailOnEval, (int)$daily, (int)$emailOnEval, (int)$daily]);
+            $stmt->execute([$nId, $userId, (int)$emailOnEval, (int)$daily, (int)$time, (int)$emailOnEval, (int)$daily, (int)$time]);
             break;
 
         case 'template':

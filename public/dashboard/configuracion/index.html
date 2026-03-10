@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuración | Kokoro Empresas</title>
+    <title>Configuración | Psycopanda Empresas</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../../assets/css/style.css">
@@ -40,10 +40,8 @@
     <!-- Sidebar Nav - Desktop -->
     <aside class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col h-screen sticky top-0 shrink-0">
         <div class="h-[72px] flex items-center px-6 border-b border-gray-200 gap-3 shrink-0">
-            <div class="w-8 h-8 font-bold bg-black text-white rounded-md flex items-center justify-center text-sm">
-                K
-            </div>
-            <span class="font-bold text-lg tracking-tight text-gray-900">Kokoro</span>
+            <i class="ph-fill ph-panda text-3xl"></i>
+            <span class="font-bold text-lg tracking-tight text-gray-900">Psycopanda</span>
         </div>
 
         <div class="p-4 flex-1 overflow-y-auto">
@@ -63,7 +61,7 @@
                 </a>
                 <a href="../biblioteca/index.html"
                     class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors">
-                    <i class="ph ph-books text-lg"></i> Biblioteca Kokoro
+                    <i class="ph ph-books text-lg"></i> Biblioteca Psycopanda
                 </a>
             </nav>
 
@@ -98,9 +96,9 @@
         <header
             class="bg-white border-b border-gray-200 h-[72px] flex items-center justify-between px-4 sm:px-8 shrink-0">
             <div class="font-bold flex items-center gap-2 text-xl tracking-tight text-gray-900">
-                <img src="https://api.dicebear.com/7.x/shapes/svg?seed=kokoro" alt="Kokoro"
+                <img src="https://api.dicebear.com/7.x/shapes/svg?seed=kokoro" alt="Psycopanda"
                     class="w-8 h-8 rounded-md md:hidden">
-                <span class="md:hidden">Kokoro</span>
+                <span class="md:hidden">Psycopanda</span>
             </div>
 
             <div class="flex items-center gap-4 ml-auto">
@@ -436,22 +434,37 @@
                                     </button>
                                     <input type="hidden" id="n_onComplete" value="true">
                                 </li>
-                                <li class="flex items-center justify-between py-4">
-                                    <div class="flex flex-col pr-8">
-                                        <p class="text-sm font-bold text-gray-900 mb-1" id="privacy-option-2-label">
-                                            Resumen
-                                            diario</p>
-                                        <p class="text-sm text-gray-500" id="privacy-option-2-description">Recibir un
-                                            correo
-                                            diario con un resumen de las evaluaciones finalizadas.</p>
+                                <li class="py-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex flex-col pr-8">
+                                            <p class="text-sm font-bold text-gray-900 mb-1" id="privacy-option-2-label">
+                                                Resumen
+                                                diario</p>
+                                            <p class="text-sm text-gray-500" id="privacy-option-2-description">Recibir un
+                                                correo
+                                                diario con un resumen de las evaluaciones finalizadas.</p>
+                                        </div>
+                                        <button type="button" onclick="toggleSwitch(this, 'n_daily')"
+                                            class="bg-gray-200 relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                                            role="switch" aria-checked="false">
+                                            <span
+                                                class="translate-x-0 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+                                        </button>
+                                        <input type="hidden" id="n_daily" value="false">
                                     </div>
-                                    <button type="button" onclick="toggleSwitch(this, 'n_daily')"
-                                        class="bg-gray-200 relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
-                                        role="switch" aria-checked="false">
-                                        <span
-                                            class="translate-x-0 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
-                                    </button>
-                                    <input type="hidden" id="n_daily" value="false">
+                                    <div class="mt-4 flex items-center gap-3" id="n_dailyTimeContainer" style="display: none;">
+                                        <label class="text-sm font-semibold text-gray-700">Hora de envío:</label>
+                                        <select id="n_dailyTime" class="rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black sm:text-sm py-1.5 px-3 border bg-white transition-colors">
+                                            <option value="6">06:00</option>
+                                            <option value="7">07:00</option>
+                                            <option value="8">08:00</option>
+                                            <option value="9">09:00</option>
+                                            <option value="12">12:00</option>
+                                            <option value="15">15:00</option>
+                                            <option value="18">18:00</option>
+                                            <option value="20">20:00</option>
+                                        </select>
+                                    </div>
                                 </li>
                             </ul>
                             <div class="mt-8 flex items-center gap-4">
@@ -574,7 +587,7 @@
                             <div class="mt-6 border-t border-gray-200 pt-4">
                                 <h4 class="text-sm font-semibold text-gray-900 mb-2">Vista previa rÃ¡pida</h4>
                                 <div class="bg-white p-3 rounded border border-gray-200 text-xs text-gray-600">
-                                    <strong>De:</strong> Kokoro Eval<br>
+                                    <strong>De:</strong> Psycopanda Eval<br>
                                     <strong>Para:</strong> maria.perez@email.com<br>
                                     <strong>Asunto:</strong> Fuiste invi...<br>
                                     <div class="mt-2 text-[10px] bg-gray-50 p-2 rounded">
@@ -610,10 +623,12 @@
                 btn.classList.replace('bg-gray-200', 'bg-blue-600');
                 btn.querySelector('span').classList.replace('translate-x-0', 'translate-x-5');
                 document.getElementById(inputId).value = 'true';
+                if (inputId === 'n_daily') document.getElementById('n_dailyTimeContainer').style.display = 'flex';
             } else {
                 btn.classList.replace('bg-blue-600', 'bg-gray-200');
                 btn.querySelector('span').classList.replace('translate-x-5', 'translate-x-0');
                 document.getElementById(inputId).value = 'false';
+                if (inputId === 'n_daily') document.getElementById('n_dailyTimeContainer').style.display = 'none';
             }
         }
 
@@ -649,7 +664,7 @@
                     } else {
                         tbody.innerHTML = '';
                         team.forEach((m, idx) => {
-                            let badge = m.status === 'ACTIVE' ? '<span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">ACTIVO</span>' : '<span class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">PENDIENTE</span>';
+                            let badge = (m.status === 'ACTIVE' || m.status === 1 || m.status === '1') ? '<span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">ACTIVO</span>' : '<span class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">PENDIENTE</span>';
                             tbody.innerHTML += `
                             <tr>
                                 <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">${idx + 1}</td>
@@ -664,13 +679,13 @@
                         });
                     }
 
-                    // 3. Notificaciones
                     const n = data.data.notifications || {};
                     const btnComplete = document.getElementById('n_onComplete').previousElementSibling;
                     const btnDaily = document.getElementById('n_daily').previousElementSibling;
 
                     if (n.emailOnEvalCompleted !== (document.getElementById('n_onComplete').value === 'true')) toggleSwitch(btnComplete, 'n_onComplete');
                     if (n.dailySummary !== (document.getElementById('n_daily').value === 'true')) toggleSwitch(btnDaily, 'n_daily');
+                    if (n.dailySummaryTime) document.getElementById('n_dailyTime').value = n.dailySummaryTime;
 
                     // 4. Plantillas
                     const t = data.data.templates || [];
@@ -807,7 +822,8 @@
             const payload = {
                 action: 'notifications',
                 emailOnEvalCompleted: document.getElementById('n_onComplete').value === 'true',
-                dailySummary: document.getElementById('n_daily').value === 'true'
+                dailySummary: document.getElementById('n_daily').value === 'true',
+                dailySummaryTime: parseInt(document.getElementById('n_dailyTime').value)
             };
             await genericSaveFunction(payload, 'btnSaveNotif', 'saveNotifStatus');
         }

@@ -68,6 +68,9 @@ try {
     ");
     $stmtUser->execute([$userId, $companyId, $uName, $uEmail, $pwdHash]);
 
+    require_once '../../utils/Mailer.php';
+    Mailer::sendFirstTimeCredentials($uEmail, $uName, $uPass);
+
     // 3. Record Initial Credits transaction (only for PAY_PER_USE with credits > 0)
     if ($ctPlan === 'PAY_PER_USE' && $initialCredits > 0) {
         $transId = uniqid('TR-');

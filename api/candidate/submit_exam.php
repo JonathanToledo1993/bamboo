@@ -140,6 +140,42 @@ try {
         if ($allDone && count($testsAssignedKeys) > 0) {
             $stmtComplete = $pdo->prepare("UPDATE evaluation_candidates SET status = 'COMPLETED', completedAt = NOW() WHERE id = ?");
             $stmtComplete->execute([$evaluationCandidateId]);
+            
+            // Mailer: Check notification settings and send completion email
+            try {
+                $stmtCreator = $pdo->prepare("
+                    SELECT u.email as creatorEmail, c.firstName, c.lastName, e.cargo, u.id as creatorId
+                    FROM evaluation_candidates ec
+                    JOIN evaluations e ON ec.evaluationId = e.id
+                    JOIN users u ON e.creatorId = u.id
+                    JOIN candidates c ON ec.candidateId = c.id
+                    WHERE ec.id = ?
+                ");
+                $stmtCreator->execute([$evaluationCandidateId]);
+                $notifData = $stmtCreator->fetch(PDO::FETCH_ASSOC);
+
+                if ($notifData) {
+                    $emailOnEvalCompleted = 1;
+                    
+                    // Solo consulta settings si la tabla existe
+                    try {
+                        $stmtNotif = $pdo->prepare("SELECT emailOnEvalCompleted FROM notification_settings WHERE userId = ?");
+                        $stmtNotif->execute([$notifData['creatorId']]);
+                        $ns = $stmtNotif->fetch(PDO::FETCH_ASSOC);
+                        if ($ns) {
+                            $emailOnEvalCompleted = $ns['emailOnEvalCompleted'];
+                        }
+                    } catch (Exception $en) { }
+
+                    if ($emailOnEvalCompleted == 1) {
+                        require_once '../utils/Mailer.php';
+                        $candName = $notifData['firstName'] . ' ' . $notifData['lastName'];
+                        Mailer::sendEvaluationCompleted($notifData['creatorEmail'], trim($candName), $notifData['cargo']);
+                    }
+                }
+            } catch (Exception $emailEx) {
+                // Silently ignore mailer failure to avoid failing the exam submission
+            }
         }
     }
 

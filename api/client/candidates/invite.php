@@ -67,8 +67,30 @@ try {
     ");
     $insEc->execute([$ecId, $evaluationId, $candidateId, $secureToken]);
 
-    // 5. (Opcional) Enviar correo — por ahora solo devolvemos el link con el token
-    $inviteLink = "https://integritas.ec/app_admin/public/candidate/test.html?token={$secureToken}";
+    // 5. (Opcional) Enviar correo — ahora se envía usando la plantilla
+    // Obtener la url base dinámicamente o dejarla fija si es necesario
+    $inviteLink = "https://integritas.ec/app_admin/public/candidate/test.html?st={$secureToken}";
+
+    // Obtener la plantilla (prioridad: empresa, luego global)
+    $stmtTpl = $pdo->prepare("SELECT subject, bodyHtml FROM email_templates WHERE `key` = 'invitation_eval' AND companyId IN (?, 'global') ORDER BY companyId DESC LIMIT 1");
+    $stmtTpl->execute([$companyId]);
+    $template = $stmtTpl->fetch(PDO::FETCH_ASSOC);
+
+    // Obtener info de la empresa y evaluación
+    $stmtEval = $pdo->prepare("SELECT e.cargo, c.name FROM evaluations e JOIN companies c ON e.companyId = c.id WHERE e.id = ?");
+    $stmtEval->execute([$evaluationId]);
+    $evalInfo = $stmtEval->fetch(PDO::FETCH_ASSOC);
+
+    require_once '../../utils/Mailer.php';
+    Mailer::sendCandidateInvite(
+        $email, 
+        $firstName, 
+        $evalInfo['name'], // companyName
+        $evalInfo['cargo'], // evalName
+        $inviteLink, 
+        "No requiere contraseña por defecto", // Or whatever logic dictates
+        $template
+    );
 
     Responder::success([
         "candidateId" => $candidateId,

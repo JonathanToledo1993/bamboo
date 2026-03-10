@@ -4,104 +4,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión | Kokoro Empresas</title>
-    <!-- Tailwind CSS (CDN) -->
+    <title>Acceso | Psycopanda Empresas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 
-<body class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+<body class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gray-50">
 
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
         <div class="text-center flex justify-center mb-4">
-            <div class="kokoro-logo-box text-3xl">K</div>
+            <i class="ph-fill ph-panda text-4xl text-[#1e293b]"></i>
         </div>
-        <h2 class="mt-4 text-center text-3xl font-extrabold text-gray-900">
-            Bienvenido a Kokoro
+        <h2 id="mainTitle" class="mt-4 text-center text-3xl font-extrabold text-[#1e293b]">
+            Bienvenido a Psycopanda
         </h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
+        <p id="subTitle" class="mt-2 text-center text-sm text-gray-600">
             Inicia sesión en tu cuenta empresarial.
         </p>
     </div>
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100">
-            <form id="clientLoginForm" class="space-y-6">
-
+        <div class="bg-white py-8 px-4 shadow-sm sm:rounded-xl sm:px-10 border border-gray-200">
+            
+            <!-- View: Login -->
+            <form id="view-login" class="space-y-6 hidden">
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">Compañía Email</label>
-                    <div class="mt-1">
-                        <input id="email" name="email" type="email" required class="form-input"
-                            placeholder="tu@empresa.com">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
+                    <input id="loginEmail" type="email" required class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-black">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                    <input id="loginPassword" type="password" required class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-black">
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="text-sm">
+                        <a href="#" onclick="switchView('forgot')" class="font-medium text-blue-600 hover:text-blue-500">
+                            ¿Olvidaste tu contraseña?
+                        </a>
                     </div>
                 </div>
+                <div id="loginAlert" class="hidden text-sm text-red-600 bg-red-50 p-3 rounded"></div>
+                <button type="submit" id="btnLogin" class="w-full bg-[#1e293b] text-white py-2.5 rounded-lg font-semibold hover:bg-black transition-colors">
+                    Iniciar Sesión
+                </button>
+            </form>
 
+            <!-- View: Forgot Password -->
+            <form id="view-forgot" class="space-y-6 hidden">
                 <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
-                    <div class="mt-1">
-                        <input id="password" name="password" type="password" required class="form-input">
-                    </div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Ingresa tu correo registrado</label>
+                    <input id="forgotEmail" type="email" required class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-black">
                 </div>
-
-                <div id="errorAlert" class="alert-error"></div>
-
-                <div>
-                    <button id="loginBtn" type="submit" class="btn-primary">
-                        Iniciar Sesión
-                    </button>
+                <div id="forgotAlert" class="hidden text-sm p-3 rounded"></div>
+                <button type="submit" id="btnForgot" class="w-full bg-[#1e293b] text-white py-2.5 rounded-lg font-semibold hover:bg-black transition-colors">
+                    Enviar enlace de recuperación
+                </button>
+                <div class="text-center mt-4">
+                    <a href="#" onclick="switchView('login')" class="text-sm font-medium text-gray-600 hover:text-gray-900 border-b border-gray-300 pb-0.5">Volver al inicio de sesión</a>
                 </div>
             </form>
+
+            <!-- View: Reset Password -->
+            <form id="view-reset" class="space-y-6 hidden">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nueva Contraseña</label>
+                    <input id="resetPass1" type="password" required minlength="6" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-black">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña</label>
+                    <input id="resetPass2" type="password" required minlength="6" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-black">
+                </div>
+                <div id="resetAlert" class="hidden text-sm p-3 rounded"></div>
+                <button type="submit" id="btnReset" class="w-full bg-[#1e293b] text-white py-2.5 rounded-lg font-semibold hover:bg-black transition-colors">
+                    Restablecer Contraseña
+                </button>
+            </form>
+
+            <!-- View: Setup Account (Team Invite) -->
+            <form id="view-setup" class="space-y-6 hidden">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tu Nombre</label>
+                    <input id="setupName" type="text" required class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-black">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Crear Contraseña</label>
+                    <input id="setupPass" type="password" required minlength="6" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-black">
+                </div>
+                <div id="setupAlert" class="hidden text-sm p-3 rounded"></div>
+                <button type="submit" id="btnSetup" class="w-full bg-[#1e293b] text-white py-2.5 rounded-lg font-semibold hover:bg-black transition-colors">
+                    Guardar y Entrar
+                </button>
+            </form>
+
         </div>
     </div>
 
     <script>
-        document.getElementById('clientLoginForm').addEventListener('submit', async function (e) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const action = urlParams.get('action');
+        const token = urlParams.get('token');
+
+        function switchView(viewName) {
+            document.querySelectorAll('form').forEach(f => f.classList.add('hidden'));
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+
+            const title = document.getElementById('mainTitle');
+            const sub = document.getElementById('subTitle');
+
+            if (viewName === 'login') {
+                title.textContent = "Bienvenido a Psycopanda";
+                sub.textContent = "Inicia sesión en tu cuenta empresarial.";
+            } else if (viewName === 'forgot') {
+                title.textContent = "Recuperar Acceso";
+                sub.textContent = "Te enviaremos instrucciones a tu correo.";
+            } else if (viewName === 'reset') {
+                title.textContent = "Nueva Contraseña";
+                sub.textContent = "Ingresa tu nueva clave de acceso seguro.";
+            } else if (viewName === 'setup') {
+                title.textContent = "Configura tu Cuenta";
+                sub.textContent = "Ingresa tus datos para unirte al equipo.";
+            }
+        }
+
+        function showAlert(id, msg, isError = true) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.className = isError ? "text-sm text-red-600 bg-red-50 p-3 rounded block" : "text-sm text-green-700 bg-green-50 p-3 rounded block";
+        }
+
+        // Initialize Router
+        if (action === 'reset' && token) {
+            switchView('reset');
+        } else if (action === 'setup' && token) {
+            switchView('setup');
+        } else {
+            switchView('login');
+            // Check session
+            if (localStorage.getItem('kokoro_client_token')) {
+                window.location.href = "dashboard/index.html";
+            }
+        }
+
+        // 1. LOGIN
+        document.getElementById('view-login').addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            const btn = document.getElementById('loginBtn');
-            const alert = document.getElementById('errorAlert');
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            btn.disabled = true;
-            btn.textContent = "Iniciando sesión...";
-            alert.style.display = "none";
+            const btn = document.getElementById('btnLogin');
+            btn.disabled = true; btn.textContent = "Iniciando...";
+            document.getElementById('loginAlert').classList.add('hidden');
 
             try {
-                const response = await fetch('../api/auth/login_client.php', {
+                const res = await fetch('../api/auth/login_client.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({
+                        email: document.getElementById('loginEmail').value,
+                        password: document.getElementById('loginPassword').value
+                    })
                 });
-
-                const data = await response.json();
-
-                if (!response.ok || !data.success) {
-                    throw new Error(data.error || "Error iniciando sesión");
-                }
-
+                const data = await res.json();
+                if (!res.ok || !data.success) throw new Error(data.error || "Datos incorrectos.");
+                
                 localStorage.setItem('kokoro_client_token', data.data.token);
                 localStorage.setItem('kokoro_client_user', JSON.stringify(data.data.user));
-
-                // Redirect to Client Dashboard
                 window.location.href = "dashboard/index.html";
-
-            } catch (error) {
-                alert.textContent = error.message;
-                alert.style.display = "block";
-            } finally {
-                btn.disabled = false;
-                btn.textContent = "Iniciar Sesión";
+            } catch (err) {
+                showAlert('loginAlert', err.message);
+                btn.disabled = false; btn.textContent = "Iniciar Sesión";
             }
         });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('kokoro_client_token');
-            if (token) {
-                window.location.href = "dashboard/index.html";
+        // 2. FORGOT PASSWORD
+        document.getElementById('view-forgot').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnForgot');
+            btn.disabled = true; btn.textContent = "Enviando...";
+            
+            try {
+                const res = await fetch('../api/auth/forgot_password.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: document.getElementById('forgotEmail').value })
+                });
+                const data = await res.json();
+                showAlert('forgotAlert', data.message, data.status !== 'success');
+                btn.textContent = "Enviado";
+            } catch (err) {
+                showAlert('forgotAlert', "Error de conexión.");
+                btn.disabled = false; btn.textContent = "Enviar enlace de recuperación";
+            }
+        });
+
+        // 3. DO RESET
+        document.getElementById('view-reset').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const p1 = document.getElementById('resetPass1').value;
+            const p2 = document.getElementById('resetPass2').value;
+            
+            if (p1 !== p2) return showAlert('resetAlert', "Las contraseñas no coinciden.");
+
+            const btn = document.getElementById('btnReset');
+            btn.disabled = true; btn.textContent = "Procesando...";
+
+            try {
+                const res = await fetch('../api/auth/do_reset_password.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, password: p1 })
+                });
+                const data = await res.json();
+                if (data.status !== 'success') throw new Error(data.message);
+                showAlert('resetAlert', "¡Éxito! Redirigiendo al login...", false);
+                setTimeout(() => window.location.href = "login.html", 2000);
+            } catch (err) {
+                showAlert('resetAlert', err.message);
+                btn.disabled = false; btn.textContent = "Restablecer Contraseña";
+            }
+        });
+
+        // 4. SETUP ACCOUNT
+        document.getElementById('view-setup').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSetup');
+            btn.disabled = true; btn.textContent = "Guardando...";
+
+            try {
+                const res = await fetch('../api/auth/setup_account.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        token, 
+                        name: document.getElementById('setupName').value,
+                        password: document.getElementById('setupPass').value 
+                    })
+                });
+                const data = await res.json();
+                if (data.status !== 'success') throw new Error(data.message);
+                showAlert('setupAlert', "¡Cuenta configurada! Redirigiendo...", false);
+                setTimeout(() => window.location.href = "login.html", 2000);
+            } catch (err) {
+                showAlert('setupAlert', err.message);
+                btn.disabled = false; btn.textContent = "Guardar y Entrar";
             }
         });
     </script>
 </body>
-
 </html>
