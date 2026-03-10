@@ -176,6 +176,7 @@
                                 <option value="NEW">Invitación enviada</option>
                                 <option value="IN_PROGRESS">Evaluación en proceso</option>
                                 <option value="COMPLETED">Evaluación completada</option>
+                                <option value="INVALIDATED">Evaluación anulada</option>
                             </select>
 
                             <select id="filterStage" onchange="filterTable()"
@@ -374,6 +375,7 @@
                 if (c.status === 'NEW') statusBadge = `<span class="inline-flex py-1.5 px-3 rounded-full text-xs font-medium border border-[#e0f2fe] bg-[#f0f9ff] text-[#0284c7]"><span class="w-1.5 h-1.5 rounded-full bg-[#38bdf8] mr-1.5 mt-0.5"></span> Invitación enviada</span>`;
                 else if (c.status === 'IN_PROGRESS') statusBadge = `<span class="inline-flex py-1.5 px-3 rounded-full text-xs font-medium border border-[#fef08a] bg-[#fef9c3] text-[#ca8a04]"><span class="w-1.5 h-1.5 rounded-full bg-[#facc15] mr-1.5 mt-0.5"></span> En proceso</span>`;
                 else if (c.status === 'COMPLETED') statusBadge = `<span class="inline-flex py-1.5 px-3 rounded-full text-xs font-medium border border-[#bbf7d0] bg-[#f0fdf4] text-[#16a34a]"><span class="w-1.5 h-1.5 rounded-full bg-[#4ade80] mr-1.5 mt-0.5"></span> Evaluación completada</span>`;
+                else if (c.status === 'INVALIDATED') statusBadge = `<span class="inline-flex py-1.5 px-3 rounded-full text-xs font-medium border border-[#fecaca] bg-[#fef2f2] text-[#dc2626]"><span class="w-1.5 h-1.5 rounded-full bg-[#f87171] mr-1.5 mt-0.5"></span> Evaluación anulada</span>`;
                 else statusBadge = `<span class="inline-flex py-1.5 px-3 rounded-full text-xs font-medium border border-gray-200 bg-gray-50 text-gray-600">${c.status}</span>`;
 
                 const stages = [
@@ -421,9 +423,16 @@
                             <button onclick="downloadReport('${c.candidateId}')" class="w-8 h-8 rounded border border-gray-200 text-gray-500 flex items-center justify-center hover:bg-gray-50 hover:text-black transition-colors" title="Descargar reporte">
                                 <i class="ph ph-download-simple"></i>
                             </button>
-                            <button class="w-8 h-8 rounded border border-gray-200 text-gray-500 flex items-center justify-center hover:bg-gray-50 hover:text-black transition-colors">
-                                <i class="ph ph-dots-three text-lg"></i>
-                            </button>
+                            <div class="relative">
+                                <button onclick="toggleActionMenu('${c.candidateId}')" class="w-8 h-8 rounded border border-gray-200 text-gray-500 flex items-center justify-center hover:bg-gray-50 hover:text-black transition-colors">
+                                    <i class="ph ph-dots-three text-lg"></i>
+                                </button>
+                                <div id="actionMenu_${c.candidateId}" class="hidden absolute right-0 top-10 z-50 bg-white shadow-xl border border-gray-100 rounded-xl py-2 w-52">
+                                    ${c.status === 'INVALIDATED' ? `<button onclick="resendEvaluation('${c.candidateId}')" class="w-full text-left px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 flex items-center gap-2"><i class="ph ph-arrow-counter-clockwise"></i> Reenviar evaluación</button>` : ''}
+                                    <button onclick="viewDetails('${c.candidateId}')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"><i class="ph ph-eye"></i> Ver detalle</button>
+                                    <button onclick="deleteCandidate('${c.candidateId}')" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"><i class="ph ph-trash"></i> Eliminar</button>
+                                </div>
+                            </div>
                         </div>
                     </td>
                 </tr>
@@ -485,7 +494,51 @@
             if (!e.target.closest('#colMenu') && !e.target.closest('button[title="Ocultar/Mostrar columnas"]')) {
                 document.getElementById('colMenu').classList.add('hidden');
             }
+            // Close action menus
+            document.querySelectorAll('[id^="actionMenu_"]').forEach(menu => {
+                if (!menu.contains(e.target) && !e.target.closest(`button[onclick*="toggleActionMenu"]`)) {
+                    menu.classList.add('hidden');
+                }
+            });
         });
+
+        function toggleActionMenu(candidateId) {
+            // Close all others first
+            document.querySelectorAll('[id^="actionMenu_"]').forEach(m => m.classList.add('hidden'));
+            const menu = document.getElementById(`actionMenu_${candidateId}`);
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        async function resendEvaluation(candidateId) {
+            if (!confirm('¿Deseas reenviar la evaluación a este postulante? Se resetearán sus respuestas anuladas.')) return;
+            try {
+                const res = await fetch('../../../api/client/candidates/resend_evaluation.php', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ evaluationId: evalId, candidateId })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert('Evaluación reenviada exitosamente. El postulante podrá volver a tomar la prueba.');
+                    loadData();
+                } else {
+                    alert(data.message || 'Error al reenviar.');
+                }
+            } catch (err) {
+                alert('Error de conexión.');
+            }
+        }
+
+        function viewDetails(candidateId) {
+            alert('Vista de detalle próximamente.');
+        }
+
+        function deleteCandidate(candidateId) {
+            alert('Función de eliminar próximamente.');
+        }
 
     </script>
 </body>

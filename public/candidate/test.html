@@ -187,6 +187,10 @@
                             <span class="text-gray-600 font-medium">Finalizadas:</span>
                             <span class="font-bold text-green-600" id="sidebarCompleted">0</span>
                         </div>
+                        <div class="flex justify-between items-center" id="sidebarInvalidatedRow" style="display:none">
+                            <span class="text-gray-600 font-medium">Anuladas:</span>
+                            <span class="font-bold text-red-500" id="sidebarInvalidated">0</span>
+                        </div>
                     </div>
                 </div>
 
@@ -326,6 +330,10 @@
                     document.getElementById('sidebarCompany').textContent = info.companyName || '—';
                     document.getElementById('sidebarPending').textContent = info.pendingTests ?? 0;
                     document.getElementById('sidebarCompleted').textContent = info.completedTests ?? 0;
+                    if (info.invalidatedTests > 0) {
+                        document.getElementById('sidebarInvalidated').textContent = info.invalidatedTests;
+                        document.getElementById('sidebarInvalidatedRow').style.display = 'flex';
+                    }
 
                     // Main content
                     document.getElementById('mainGreeting').textContent = 'Bienvenido a tu evaluación';
@@ -359,12 +367,32 @@
         function renderTests(tests) {
             const grid = document.getElementById('testsGrid');
             grid.innerHTML = tests.map(t => {
-                const isCompleted = t.isCompleted;
+                const status = t.testStatus || (t.isCompleted ? 'completed' : 'pending');
+                const isCompleted = status === 'completed';
+                const isInvalidated = status === 'invalidated';
+                const isDone = isCompleted || isInvalidated;
+
+                let badgeHtml = '';
+                if (isCompleted) {
+                    badgeHtml = '<span class="text-[10px] font-bold uppercase text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-100 shrink-0">Completado</span>';
+                } else if (isInvalidated) {
+                    badgeHtml = '<span class="text-[10px] font-bold uppercase text-red-600 bg-red-50 px-2.5 py-1 rounded-full border border-red-100 shrink-0">Anulada</span>';
+                }
+
+                let buttonHtml = '';
+                if (isInvalidated) {
+                    buttonHtml = '<button disabled class="w-full py-3 rounded-xl bg-red-50 text-red-400 text-sm font-bold cursor-not-allowed">Prueba anulada</button>';
+                } else if (isCompleted) {
+                    buttonHtml = '<button disabled class="w-full py-3 rounded-xl bg-gray-100 text-gray-400 text-sm font-bold cursor-not-allowed">Prueba terminada</button>';
+                } else {
+                    buttonHtml = `<button onclick="startTest('${t.id}')" class="w-full py-3 rounded-xl bg-[#1e293b] text-white text-sm font-bold hover:bg-black transition-colors">Comenzar</button>`;
+                }
+
                 return `
-                <div class="test-card rounded-2xl p-6 bg-white ${isCompleted ? 'completed' : ''} flex flex-col">
+                <div class="test-card rounded-2xl p-6 bg-white ${isDone ? 'completed' : ''} ${isInvalidated ? '!border-red-200 !bg-red-50/30' : ''} flex flex-col">
                     <div class="flex items-start justify-between mb-3">
                         <h3 class="font-bold text-gray-900 text-base">${t.name}</h3>
-                        ${isCompleted ? '<span class="text-[10px] font-bold uppercase text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-100 shrink-0">Completado</span>' : ''}
+                        ${badgeHtml}
                     </div>
                     <p class="text-xs text-gray-500 mb-5 flex-1 line-clamp-2">${t.description || ''}</p>
                     <div class="flex items-center justify-between pt-4 border-t border-gray-100">
@@ -374,10 +402,7 @@
                         <span class="text-xs text-gray-400">máximo ${Math.round(t.durationMins * 1.5)}</span>
                     </div>
                     <div class="mt-4">
-                        ${isCompleted
-                        ? '<button disabled class="w-full py-3 rounded-xl bg-gray-100 text-gray-400 text-sm font-bold cursor-not-allowed">Prueba terminada</button>'
-                        : `<button onclick="startTest('${t.id}')" class="w-full py-3 rounded-xl bg-[#1e293b] text-white text-sm font-bold hover:bg-black transition-colors">Comenzar</button>`
-                    }
+                        ${buttonHtml}
                     </div>
                 </div>
                 `;

@@ -16,13 +16,13 @@
         }
 
         .fade-in {
-            animation: fadeIn 0.4s ease-out;
+            animation: fadeIn 0.35s ease-out;
         }
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(8px);
             }
 
             to {
@@ -31,32 +31,31 @@
             }
         }
 
+        /* Option cards */
         .option-card {
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             border: 2px solid #e2e8f0;
+            background: white;
         }
 
         .option-card:hover {
-            border-color: #3b82f6;
-            background-color: #eff6ff;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            border-color: #94a3b8;
+            background-color: #f8fafc;
         }
 
         .option-card.selected {
-            border-color: #2563eb;
-            background-color: #dbeafe;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
-            transform: scale(1.01);
+            border-color: #1e293b;
+            background-color: #f1f5f9;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
 
-        .option-card.selected .radio-dot {
-            background: #2563eb;
-            border-color: #2563eb;
+        .option-card.selected .radio-outer {
+            border-color: #1e293b;
+            background: #1e293b;
         }
 
-        .option-card.selected .radio-dot .inner-dot {
+        .option-card.selected .radio-inner {
             display: block;
         }
 
@@ -75,13 +74,27 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
-        .header-urgent {
-            background-color: #fef3c7 !important;
-            border-color: #fbbf24 !important;
+        /* Timer urgency tiers */
+        .header-warn {
+            background-color: #fef9c3 !important;
+            border-color: #fde047 !important;
+            transition: background-color 0.5s, border-color 0.5s;
         }
 
-        .header-urgent .timer-text {
+        .header-warn .timer-text {
+            color: #a16207 !important;
+            font-weight: 800;
+        }
+
+        .header-critical {
+            background-color: #fee2e2 !important;
+            border-color: #fca5a5 !important;
+            transition: background-color 0.5s, border-color 0.5s;
+        }
+
+        .header-critical .timer-text {
             color: #dc2626 !important;
+            font-weight: 800;
             animation: pulse 1s infinite;
         }
 
@@ -92,8 +105,26 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.88);
             z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Speed invalidation modal */
+        #speedWarningModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.90);
+            z-index: 10000;
             display: none;
             align-items: center;
             justify-content: center;
@@ -111,11 +142,26 @@
     <div id="fullscreenWarning">
         <i class="ph ph-monitor text-6xl mb-4 text-yellow-400"></i>
         <h2 class="text-2xl font-bold mb-2">Pantalla completa requerida</h2>
-        <p class="text-gray-300 mb-6 max-w-sm">Para continuar con tu evaluación, debes mantener la pantalla completa
+        <p class="text-gray-300 mb-2 max-w-sm">Para continuar con tu evaluación, debes mantener la pantalla completa
             activada.</p>
+        <p class="text-yellow-400 text-sm font-semibold mb-6" id="exitCountWarning"></p>
         <button onclick="reEnterFullscreen()"
             class="px-8 py-3 bg-white text-black rounded-xl font-bold hover:bg-gray-100 transition-colors">
             Volver a pantalla completa
+        </button>
+    </div>
+
+    <!-- Speed Invalidation Modal -->
+    <div id="speedWarningModal">
+        <i class="ph ph-warning-octagon text-6xl mb-4 text-red-400"></i>
+        <h2 class="text-2xl font-bold mb-2">Evaluación Anulada</h2>
+        <p class="text-gray-300 mb-6 max-w-md">Hemos detectado un patrón de respuestas demasiado rápido que indica que
+            no se están leyendo las preguntas. Esta prueba ha sido invalidada.</p>
+        <p class="text-red-400 text-sm font-semibold mb-6">Contacta al equipo evaluador si crees que esto es un error.
+        </p>
+        <button onclick="goBack()"
+            class="px-8 py-3 bg-white text-black rounded-xl font-bold hover:bg-gray-100 transition-colors">
+            Salir
         </button>
     </div>
 
@@ -139,8 +185,8 @@
     <canvas id="cameraCanvas" class="hidden" width="640" height="480"></canvas>
 
     <!-- Header / Progress Bar -->
-    <header id="examHeader" class="bg-white border-b border-gray-100 sticky top-0 z-50 transition-colors duration-500">
-        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+    <header id="examHeader" class="bg-white border-b border-gray-100 sticky top-0 z-50 transition-all duration-500">
+        <div class="max-w-7xl mx-auto px-4 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
                     <span class="text-white font-black text-xs">K</span>
@@ -152,15 +198,20 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-6">
+            <div class="flex items-center gap-4">
                 <div class="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full border border-gray-100">
                     <i class="ph ph-clock text-blue-600"></i>
                     <span id="timer" class="timer-text text-sm font-mono font-bold text-gray-700">00:00</span>
                 </div>
                 <div id="cameraIndicator"
-                    class="hidden flex items-center gap-1.5 px-3 py-1.5 bg-red-50 rounded-full border border-red-100">
+                    class="hidden items-center gap-1.5 px-3 py-1.5 bg-red-50 rounded-full border border-red-100">
                     <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                     <span class="text-[10px] font-bold text-red-600 uppercase">Cámara</span>
+                </div>
+                <div id="fsExitBadge"
+                    class="hidden items-center gap-1.5 px-3 py-1.5 bg-yellow-50 rounded-full border border-yellow-200">
+                    <i class="ph ph-sign-out text-yellow-600 text-xs"></i>
+                    <span class="text-[10px] font-bold text-yellow-700" id="fsExitCount">0</span>
                 </div>
                 <button onclick="confirmExit()" class="text-gray-400 hover:text-red-500 transition-colors">
                     <i class="ph ph-x-circle text-2xl"></i>
@@ -173,7 +224,7 @@
         </div>
     </header>
 
-    <main class="flex-1 max-w-3xl mx-auto w-full px-4 py-12">
+    <main class="flex-1 w-full px-4 lg:px-8 py-8">
 
         <!-- Loading State -->
         <div id="stepLoading" class="flex flex-col items-center justify-center py-20">
@@ -181,28 +232,37 @@
             <p class="mt-4 text-gray-500 font-medium">Preparando tus preguntas...</p>
         </div>
 
-        <!-- Exam View -->
-        <div id="stepExam" class="hidden fade-in">
-            <div id="questionContainer" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-12">
-                <span id="questionCategory"
-                    class="inline-block px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold uppercase mb-4">Competencia</span>
-                <h2 id="questionText" class="text-xl md:text-2xl font-bold text-gray-900 leading-tight mb-10">
-                    Cargando pregunta...
-                </h2>
+        <!-- Exam View: Two-Column Layout (40% question / 60% options) -->
+        <div id="stepExam" class="hidden fade-in max-w-6xl mx-auto">
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="flex flex-col md:flex-row min-h-[400px]">
 
-                <div id="optionsList" class="space-y-3">
-                    <!-- Options injected here -->
+                    <!-- LEFT: Question (40%) -->
+                    <div
+                        class="w-full md:w-[40%] p-8 md:p-10 lg:p-12 flex flex-col justify-center bg-gradient-to-br from-gray-50 to-white border-b md:border-b-0 md:border-r border-gray-100">
+                        <span id="questionCategory"
+                            class="inline-block px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold uppercase mb-5 w-fit">Competencia</span>
+                        <h2 id="questionText" class="text-xl lg:text-2xl font-bold text-gray-900 leading-snug">
+                            Cargando pregunta...
+                        </h2>
+                        <p class="text-xs text-gray-400 mt-6" id="questionCounter">Pregunta 1 de 25</p>
+                    </div>
+
+                    <!-- RIGHT: Options (60%) -->
+                    <div class="w-full md:w-[60%] p-8 md:p-10 lg:p-12 flex flex-col justify-center">
+                        <p class="text-sm text-gray-500 font-medium mb-4">Selecciona una respuesta:</p>
+                        <div id="optionsList" class="space-y-3">
+                            <!-- Options injected here -->
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="mt-8 flex items-center justify-between">
-                <button id="btnPrev" onclick="prevQuestion()"
-                    class="px-6 py-3 rounded-2xl font-bold text-gray-400 hover:text-gray-900 transition-colors flex items-center gap-2">
-                    <i class="ph ph-arrow-left"></i> Anterior
-                </button>
-                <button id="btnNext" onclick="nextQuestion()"
-                    class="px-8 py-3 bg-black text-white rounded-2xl font-bold shadow-lg hover:bg-gray-800 transition-all flex items-center gap-2 disabled:bg-gray-200 disabled:cursor-not-allowed">
-                    Continuar <i class="ph ph-arrow-right"></i>
+            <!-- Navigation (only Finalizar on last question) -->
+            <div id="navBar" class="mt-6 flex items-center justify-end">
+                <button id="btnNext" onclick="submitExam()"
+                    class="hidden px-8 py-3 bg-[#1e293b] text-white rounded-2xl font-bold shadow-lg hover:bg-black transition-all flex items-center gap-2 disabled:bg-gray-200 disabled:cursor-not-allowed disabled:text-gray-400">
+                    Finalizar Prueba <i class="ph ph-check-circle"></i>
                 </button>
             </div>
         </div>
@@ -231,7 +291,7 @@
 
         let questions = [];
         let currentIndex = 0;
-        let answers = {}; // questionId: answerId
+        let answers = {};       // questionId -> answerId
         let timeLeft = 0;
         let timerInterval = null;
 
@@ -241,33 +301,37 @@
         let snapshotsTaken = 0;
         const MAX_SNAPSHOTS = 9;
 
+        // Fullscreen exit tracking
+        let fullscreenExitCount = 0;
+
+        // Speed validation - track timestamps per answer
+        let answerTimestamps = []; // Array of { questionIndex, timestamp }
+        const SPEED_THRESHOLD_MS = 1500;       // Less than 1.5 seconds = suspicious
+        const CONSECUTIVE_FAST_LIMIT = 5;      // 5 consecutive fast answers = invalidate
+
+        // ==================== INIT ====================
         async function init() {
             if (!token || !testId) {
                 alert('Faltan parámetros de acceso.');
                 window.location.href = 'test.html';
                 return;
             }
-            // Show the start overlay - user must click to trigger fullscreen
             document.getElementById('startOverlay').style.display = 'flex';
         }
 
         async function enterExam() {
-            // This runs from a user click, so fullscreen is allowed
             try {
                 await document.documentElement.requestFullscreen();
             } catch (e) {
                 console.warn('Fullscreen unavailable:', e);
             }
 
-            // Hide overlay
             document.getElementById('startOverlay').style.display = 'none';
 
-            // Setup camera if requested
             if (cameraRequested) {
                 await setupCamera();
             }
 
-            // Listen for fullscreen changes
             document.addEventListener('fullscreenchange', onFullscreenChange);
 
             try {
@@ -285,7 +349,6 @@
                     startTimer();
                     showQuestion(0);
 
-                    // Schedule random snapshots
                     if (cameraStream) {
                         scheduleSnapshots(timeLeft);
                     }
@@ -313,19 +376,14 @@
         }
 
         function scheduleSnapshots(totalSeconds) {
-            // Distribute MAX_SNAPSHOTS randomly across the test duration
             const times = [];
             for (let i = 0; i < MAX_SNAPSHOTS; i++) {
-                // Random time between 5 seconds and (totalSeconds - 10)
                 const t = Math.floor(Math.random() * Math.max(1, totalSeconds - 15)) + 5;
                 times.push(t);
             }
             times.sort((a, b) => a - b);
-
             times.forEach(t => {
-                const timerId = setTimeout(() => {
-                    captureSnapshot();
-                }, t * 1000);
+                const timerId = setTimeout(() => captureSnapshot(), t * 1000);
                 snapshotTimers.push(timerId);
             });
         }
@@ -336,27 +394,24 @@
             const canvas = document.getElementById('cameraCanvas');
             const ctx = canvas.getContext('2d');
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
             const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
             snapshotsTaken++;
-
-            // Send to server in background
             fetch('../../api/candidate/upload_snapshot.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    token: token,
-                    testId: testId,
-                    snapshotIndex: snapshotsTaken,
-                    image: dataUrl
-                })
+                body: JSON.stringify({ token, testId, snapshotIndex: snapshotsTaken, image: dataUrl })
             }).catch(err => console.warn('Snapshot upload failed:', err));
         }
 
         // ==================== FULLSCREEN ====================
         function onFullscreenChange() {
             if (!document.fullscreenElement) {
-                // User exited fullscreen - show warning
+                fullscreenExitCount++;
+                document.getElementById('fsExitCount').textContent = fullscreenExitCount;
+                document.getElementById('fsExitBadge').classList.remove('hidden');
+                document.getElementById('fsExitBadge').classList.add('flex');
+                document.getElementById('exitCountWarning').textContent =
+                    `Has salido de pantalla completa ${fullscreenExitCount} vez/veces. Esto queda registrado.`;
                 document.getElementById('fullscreenWarning').style.display = 'flex';
             } else {
                 document.getElementById('fullscreenWarning').style.display = 'none';
@@ -372,61 +427,112 @@
             }
         }
 
+        // ==================== SPEED VALIDATION ====================
+        let lastAnswerTime = null;
+        let consecutiveFastCount = 0;
+
+        function checkSpeed() {
+            const now = Date.now();
+            if (lastAnswerTime !== null) {
+                const elapsed = now - lastAnswerTime;
+                if (elapsed < SPEED_THRESHOLD_MS) {
+                    consecutiveFastCount++;
+                    if (consecutiveFastCount >= CONSECUTIVE_FAST_LIMIT) {
+                        // Invalidate the exam
+                        invalidateExam();
+                        return false;
+                    }
+                } else {
+                    consecutiveFastCount = 0; // Reset if they slow down
+                }
+            }
+            lastAnswerTime = now;
+            answerTimestamps.push({ questionIndex: currentIndex, timestamp: now });
+            return true;
+        }
+
+        function invalidateExam() {
+            clearInterval(timerInterval);
+            snapshotTimers.forEach(t => clearTimeout(t));
+
+            // Send invalidation to server
+            fetch('../../api/candidate/submit_exam.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: token,
+                    testId: testId,
+                    answers: Object.entries(answers).map(([qId, aId]) => ({ qId, aId })),
+                    invalidated: true,
+                    reason: 'speed_violation',
+                    fullscreenExits: fullscreenExitCount,
+                    answerTimestamps: answerTimestamps
+                })
+            }).catch(() => { });
+
+            document.getElementById('stepExam').classList.add('hidden');
+            document.getElementById('speedWarningModal').style.display = 'flex';
+        }
+
         // ==================== EXAM LOGIC ====================
         function showQuestion(index) {
             currentIndex = index;
             const q = questions[index];
+            const isLast = (index === questions.length - 1);
 
             // Header updates
             document.getElementById('progressText').textContent = `Pregunta ${index + 1} de ${questions.length}`;
             document.getElementById('progressBar').style.width = `${((index + 1) / questions.length) * 100}%`;
 
-            // UI updates
+            // Question side
             document.getElementById('questionText').textContent = q.questionText;
-            document.getElementById('btnPrev').style.visibility = index === 0 ? 'hidden' : 'visible';
+            document.getElementById('questionCounter').textContent = `Pregunta ${index + 1} de ${questions.length}`;
 
-            if (index === questions.length - 1) {
-                document.getElementById('btnNext').innerHTML = 'Finalizar Prueba <i class="ph ph-check-circle"></i>';
+            // Navigation: "Finalizar" button only on last question.
+            const btnNext = document.getElementById('btnNext');
+            if (isLast) {
+                btnNext.classList.remove('hidden');
+                btnNext.classList.add('flex');
+                btnNext.disabled = !answers[q.id];
             } else {
-                document.getElementById('btnNext').innerHTML = 'Continuar <i class="ph ph-arrow-right"></i>';
+                btnNext.classList.add('hidden');
+                btnNext.classList.remove('flex');
             }
 
             // Render options
             const list = document.getElementById('optionsList');
             list.innerHTML = q.options.map(opt => `
-                <div class="option-card p-5 rounded-2xl bg-white flex items-center justify-between ${answers[q.id] === opt.id ? 'selected' : ''}" 
+                <div class="option-card p-4 rounded-xl flex items-center gap-4 ${answers[q.id] === opt.id ? 'selected' : ''}" 
                      onclick="selectOption('${q.id}', '${opt.id}')">
-                    <span class="text-gray-700 font-medium">${opt.text}</span>
-                    <div class="radio-dot w-5 h-5 rounded-full border-2 border-gray-200 flex items-center justify-center transition-all ${answers[q.id] === opt.id ? 'bg-blue-600 border-blue-600' : ''}">
-                        <div class="inner-dot w-1.5 h-1.5 bg-white rounded-full ${answers[q.id] === opt.id ? 'block' : 'hidden'}"></div>
+                    <div class="radio-outer w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center transition-all shrink-0 ${answers[q.id] === opt.id ? 'border-[#1e293b] bg-[#1e293b]' : ''}">
+                        <div class="radio-inner w-2 h-2 bg-white rounded-full ${answers[q.id] === opt.id ? 'block' : 'hidden'}"></div>
                     </div>
+                    <span class="text-gray-700 text-sm font-medium">${opt.text}</span>
                 </div>
             `).join('');
-
-            updateNextButton();
         }
 
         function selectOption(qId, aId) {
             answers[qId] = aId;
-            showQuestion(currentIndex);
-        }
 
-        function updateNextButton() {
-            const btn = document.getElementById('btnNext');
-            btn.disabled = !answers[questions[currentIndex].id];
-        }
+            // Speed check
+            if (!checkSpeed()) return;
 
-        function nextQuestion() {
-            if (currentIndex < questions.length - 1) {
-                showQuestion(currentIndex + 1);
+            const isLast = (currentIndex === questions.length - 1);
+
+            if (isLast) {
+                // On the last question, just highlight the selection and show "Finalizar"
+                showQuestion(currentIndex);
             } else {
-                submitExam();
-            }
-        }
+                // Auto-advance to next question after a brief visual feedback
+                // Show selected state briefly, then advance
+                const cards = document.querySelectorAll('.option-card');
+                cards.forEach(c => c.classList.remove('selected'));
+                event.currentTarget.classList.add('selected');
 
-        function prevQuestion() {
-            if (currentIndex > 0) {
-                showQuestion(currentIndex - 1);
+                setTimeout(() => {
+                    showQuestion(currentIndex + 1);
+                }, 300);
             }
         }
 
@@ -440,7 +546,9 @@
             const payload = {
                 token: token,
                 testId: testId,
-                answers: Object.entries(answers).map(([qId, aId]) => ({ qId, aId }))
+                answers: Object.entries(answers).map(([qId, aId]) => ({ qId, aId })),
+                fullscreenExits: fullscreenExitCount,
+                answerTimestamps: answerTimestamps
             };
 
             try {
@@ -466,7 +574,14 @@
                     clearInterval(timerInterval);
                     snapshotTimers.forEach(t => clearTimeout(t));
 
-                    // Stop camera
+                    // STOP fullscreen tracking before exiting
+                    document.removeEventListener('fullscreenchange', onFullscreenChange);
+
+                    // Exit fullscreen gracefully
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen().catch(() => { });
+                    }
+
                     if (cameraStream) {
                         cameraStream.getTracks().forEach(track => track.stop());
                         document.getElementById('cameraPreview').classList.add('hidden');
@@ -487,6 +602,7 @@
             }
         }
 
+        // ==================== TIMER ====================
         function startTimer() {
             const display = document.getElementById('timer');
             const header = document.getElementById('examHeader');
@@ -504,13 +620,20 @@
                     timeLeft--;
                 }
 
-                // Warn on low time (< 60 seconds)
+                // Tier 1: < 3 minutes → yellow pastel
+                if (timeLeft < 180 && timeLeft >= 60) {
+                    header.classList.remove('header-critical');
+                    header.classList.add('header-warn');
+                }
+                // Tier 2: < 1 minute → red pastel
                 if (timeLeft < 60) {
-                    header.classList.add('header-urgent');
+                    header.classList.remove('header-warn');
+                    header.classList.add('header-critical');
                 }
             }, 1000);
         }
 
+        // ==================== NAVIGATION ====================
         function confirmExit() {
             if (confirm('¿Seguro que quieres salir de la prueba? Los progresos no guardados se perderán.')) {
                 goBack();
@@ -518,11 +641,9 @@
         }
 
         function goBack() {
-            // Exit fullscreen
             if (document.fullscreenElement) {
                 document.exitFullscreen().catch(() => { });
             }
-            // Stop camera
             if (cameraStream) {
                 cameraStream.getTracks().forEach(track => track.stop());
             }

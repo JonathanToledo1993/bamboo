@@ -33,7 +33,7 @@ try {
         http_response_code(403);
         die(json_encode(["status" => "error", "message" => "Token inválido o evaluación ya completada."]));
     }
-    
+
     $evaluationCandidateId = $candidate['id'];
 
     // 2. Obtener el testKey del testId
@@ -63,16 +63,37 @@ try {
     $pdo->beginTransaction();
 
     $stmtInsert = $pdo->prepare("INSERT INTO candidate_answers (id, evaluationCandidateId, testKey, questionId, answerData, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, NOW(), NOW())");
-    
+
     foreach ($answers as $ans) {
-        if (!isset($ans['qId']) || !isset($ans['aId'])) continue;
-        
+        if (!isset($ans['qId']) || !isset($ans['aId']))
+            continue;
+
         $newId = uniqid('ca_', true); // Generar ID único usando uniqid
         // El frontend actualmente nos manda 'aId' como el ID de la respuesta selecionada.
         // Lo guardaremos dentro de answerData como JSON para cumplir con el esquema (longtext).
         $answerDataJson = json_encode(['answerId' => $ans['aId']]);
-        
+
         $stmtInsert->execute([$newId, $evaluationCandidateId, $testKey, $ans['qId'], $answerDataJson]);
+    }
+
+    // 5. Store security metadata (fullscreen exits, speed data, invalidation)
+    $securityMeta = [
+        'fullscreenExits' => intval($data['fullscreenExits'] ?? 0),
+        'invalidated' => boolval($data['invalidated'] ?? false),
+        'invalidReason' => $data['reason'] ?? null,
+        'answerTimestamps' => $data['answerTimestamps'] ?? []
+    ];
+    $metaId = uniqid('meta_', true);
+    $stmtMeta = $pdo->prepare("INSERT INTO candidate_answers (id, evaluationCandidateId, testKey, questionId, answerData, createdAt, updatedAt) VALUES (?, ?, ?, '__SECURITY_META__', ?, NOW(), NOW())");
+    $stmtMeta->execute([$metaId, $evaluationCandidateId, $testKey, json_encode($securityMeta)]);
+
+    // If invalidated, mark the status
+    if (!empty($data['invalidated'])) {
+        $stmtInvalid = $pdo->prepare("UPDATE evaluation_candidates SET status = 'INVALIDATED', lastActivityAt = NOW() WHERE id = ?");
+        $stmtInvalid->execute([$evaluationCandidateId]);
+        $pdo->commit();
+        echo json_encode(["status" => "success", "message" => "Prueba invalidada por respuestas rápidas."]);
+        exit;
     }
 
     // Actualizar última actividad del candidato
@@ -126,7 +147,8 @@ try {
 
     echo json_encode(["status" => "success", "message" => "Respuestas guardadas exitosamente."]);
 
-} catch (Exception $e) {
+}
+catch (Exception $e) {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }

@@ -57,24 +57,43 @@ try {
         }
     }
 
-    $stmtAns = $pdo->prepare("SELECT testKey FROM candidate_answers WHERE evaluationCandidateId = ?");
+    $stmtAns = $pdo->prepare("SELECT DISTINCT testKey FROM candidate_answers WHERE evaluationCandidateId = ? AND questionId != '__SECURITY_META__'");
     $stmtAns->execute([$evaluationCandidateId]);
     $doneKeys = $stmtAns->fetchAll(PDO::FETCH_COLUMN);
 
+    // Check for invalidated tests
+    $stmtInvalid = $pdo->prepare("SELECT testKey, answerData FROM candidate_answers WHERE evaluationCandidateId = ? AND questionId = '__SECURITY_META__'");
+    $stmtInvalid->execute([$evaluationCandidateId]);
+    $metaRows = $stmtInvalid->fetchAll(PDO::FETCH_ASSOC);
+    $invalidatedKeys = [];
+    foreach ($metaRows as $row) {
+        $meta = json_decode($row['answerData'], true);
+        if (!empty($meta['invalidated'])) {
+            $invalidatedKeys[] = $row['testKey'];
+        }
+    }
+
     $testsList = [];
     foreach ($testsAssigned as $t) {
+        $isInvalidated = in_array($t['key'], $invalidatedKeys);
+        $isCompleted = in_array($t['key'], $doneKeys) && !$isInvalidated;
+        $testStatus = $isInvalidated ? 'invalidated' : ($isCompleted ? 'completed' : 'pending');
+
         $testsList[] = [
             "id" => $t['id'],
             "key" => $t['key'],
             "name" => $t['name'],
             "description" => $t['description'],
             "durationMins" => $t['durationMins'],
-            "isCompleted" => in_array($t['key'], $doneKeys)
+            "isCompleted" => $isCompleted,
+            "isInvalidated" => $isInvalidated,
+            "testStatus" => $testStatus
         ];
     }
 
-    $completedCount = count(array_filter($testsList, fn($t) => $t['isCompleted']));
-    $pendingCount = count($testsList) - $completedCount;
+    $completedCount = count(array_filter($testsList, fn($t) => $t['testStatus'] === 'completed'));
+    $invalidatedCount = count(array_filter($testsList, fn($t) => $t['testStatus'] === 'invalidated'));
+    $pendingCount = count($testsList) - $completedCount - $invalidatedCount;
     $totalDurationMins = array_sum(array_column($testsAssigned, 'durationMins'));
 
     echo json_encode(["status" => "success", "data" => [
@@ -86,6 +105,7 @@ try {
             "totalTests" => count($testsList),
             "completedTests" => $completedCount,
             "pendingTests" => $pendingCount,
+            "invalidatedTests" => $invalidatedCount,
             "totalDurationMins" => $totalDurationMins,
             "tests" => $testsList
         ]]);
